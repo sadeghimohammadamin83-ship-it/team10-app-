@@ -195,7 +195,7 @@ window.AccountUI = (() => {
      A structured editor over the whole content registry (js/data.js).
      Draft is kept in localStorage until published. */
   const SECTIONS = [
-    ['profile', 'Profile & about'], ['SITE', 'Site title & search'], ['SPECIALTIES', 'Hero specialties'], ['home', 'Home page sections'],
+    ['profile', 'Profile & about'], ['SITE', 'Site name, title & search'], ['SPECIALTIES', 'Hero specialties'], ['home', 'Home page sections'],
     ['projects', 'Projects'], ['FEATURED', 'Featured projects (home)'], ['HOME_PICKS', 'Selected projects (home)'],
     ['objects', '3D objects'], ['OBJECT_TYPES', 'Object types'], ['DC_SYSTEMS', 'Data center systems'],
     ['services', 'Services'], ['processPhases', 'Process'], ['skillGroups', 'Skills'], ['experience', 'Experience'],

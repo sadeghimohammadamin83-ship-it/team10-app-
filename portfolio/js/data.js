@@ -16,8 +16,9 @@
    absolute canonical / Open Graph URLs. Left empty, the current address is used. */
 let SITE = {
   url: '',
-  title: 'MohammadAmin Sadeghi — Architectural & Data Center Designer',
-  description: 'Architectural and data center designer in Tehran. Data halls resolved inside existing buildings, technical documentation, BIM and visualisation.',
+  name: 'Archfolio',
+  title: 'Archfolio — Architecture & Data Center Portfolio',
+  description: 'An architecture and data center design portfolio: data halls resolved inside existing buildings, technical documentation, BIM and visualisation.',
   ogImage: 'img/og-cover.jpg'
 };
 

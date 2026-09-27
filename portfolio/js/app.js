@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   MohammadAmin Sadeghi — portfolio application
+   Archfolio — portfolio application
    Plain JS, no build step. Content comes from js/data.js; this file only
    renders it. Routes are hash-based (#/work/<slug>) so the site runs on any
    static host — and straight from the file system — without rewrite rules.
@@ -137,9 +137,9 @@ function renderChrome(){
   <div id="sprog" aria-hidden="true"></div>
   <header class="nav" id="nav">
     <nav class="nav-in" aria-label="Primary">
-      <a class="brand" href="#/" aria-label="${esc(profile.name)} — home">
-        <svg class="brand-mark" viewBox="0 0 128 109" aria-hidden="true"><use href="#amMark"/></svg>
-        <span class="brand-t" data-noi18n><svg class="brand-word" viewBox="0 0 1274 100" aria-hidden="true"><use href="#amWord"/></svg><small>Data center designer</small></span>
+      <a class="brand" href="#/" aria-label="${esc(SITE.name || 'Archfolio')} — home">
+        <svg class="brand-mark" viewBox="0 0 139 109" aria-hidden="true"><use href="#amMark"/></svg>
+        <span class="brand-t" data-noi18n><svg class="brand-word" viewBox="0 0 877 100" aria-hidden="true"><use href="#amWord"/></svg><small>Architecture · Data centers</small></span>
       </a>
       <ul class="nav-links">${links}</ul>
       <div class="nav-tools">
@@ -196,7 +196,7 @@ function renderChrome(){
   </div>
   <nav class="tabbar" aria-label="App" dir="ltr">
     <a class="tab" href="#/work" data-tab="work">${I.grid}<span>Projects</span></a>
-    <a class="tab tab-home" href="#/" data-tab="index"><span class="tab-home-ic"><svg viewBox="0 0 128 109" aria-hidden="true"><use href="#amMark"/></svg></span><span>Home</span></a>
+    <a class="tab tab-home" href="#/" data-tab="index"><span class="tab-home-ic"><svg viewBox="0 0 139 109" aria-hidden="true"><use href="#amMark"/></svg></span><span>Home</span></a>
     <a class="tab" href="#/account" data-tab="account">${I.user}<span>Account</span></a>
   </nav>
   <div id="toast" role="status" aria-live="polite"></div>
@@ -305,6 +305,8 @@ function copyText(text, btn){
 /* ═══════════════════════════════════════════════════════════════════════
    HOME
    ═══════════════════════════════════════════════════════════════════════ */
+// The brand on two display lines: "Arch" / "folio" (any other name stays on one line).
+const heroName = n => { const m = /^(.+?)(folio)$/i.exec(n); return m ? `<span>${esc(m[1])}</span><span>${esc(m[2])}</span>` : `<span>${esc(n)}</span>`; };
 const DISCIPLINE_WORDS = [['DATA CENTER', ''], ['ARCHITECTURE', ''], ['OBJECT', '3D DESIGN']];
 
 R.index = function(){
@@ -321,8 +323,8 @@ R.index = function(){
     <div class="container hero-grid">
       <div class="hero-copy">
         <p class="hero-kicker label rv"><span class="status-dot" aria-hidden="true"></span>${esc(profile.location)} · ${esc(profile.status)}</p>
-        <h1 class="hero-name rv" id="hero-name" tabindex="-1"><span>MohammadAmin</span> <span>Sadeghi</span></h1>
-        <p class="hero-role rv">${esc(profile.role)}</p>
+        <h1 class="hero-name rv" id="hero-name" tabindex="-1">${heroName(SITE.name || 'Archfolio')}</h1>
+        <p class="hero-role rv"><span class="hr-by"><span class="hr-name">${esc(profile.name)}</span><span class="hr-job">${esc(profile.role)}</span></span></p>
         <p class="hero-sub rv">${esc(profile.heroSub)}</p>
         <ul class="hero-spec rv" aria-label="Specialties">${SPECIALTIES.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
         <div class="hero-cta rv">
@@ -452,7 +454,7 @@ function stageHTML(k){
       <div class="layer chip-card palette-card" data-depth="16" aria-hidden="true"><b>PALETTE</b>${esc(f.palName)}<div class="sw">${f.pal.map(c => `<span style="background:${c}"></span>`).join('')}</div></div>
       <div class="layer ui-card" data-depth="22" aria-hidden="true"><div class="bar"><span></span><span></span><span></span></div>${img(f.thumb, {sizes: '160px', cls: 'blk-h'})}<div class="blk"></div><div class="blk" style="width:60%"></div></div>
       <div class="layer chip-card sheet-tag" data-depth="12" aria-hidden="true"><b>${esc(f.sheet)}</b>${f.rows.map(([a, b]) => `<div class="row"><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
-      <div class="layer stage-mark" data-depth="9" aria-hidden="true"><svg viewBox="0 0 128 109"><use href="#amMark"/></svg></div>
+      <div class="layer stage-mark" data-depth="9" aria-hidden="true"><svg viewBox="0 0 139 109"><use href="#amMark"/></svg></div>
     </div>`;
 }
 function homeWork(){
@@ -1176,8 +1178,8 @@ function setMeta(){
   let title, desc, image = SITE.ogImage;
   const proj = PAGE === 'project' && projects.find(x => x.slug === SLUG);
   if(proj){ const p = proj;
-    title = `${p.title} — ${p.discipline || p.category} | ${profile.name}`; desc = p.summary; if(p.cover && p.cover.src) image = mediaSrc(p.cover.src); }
-  else { const M = pageMeta(), [t, d] = M[PAGE] || M.notfound; title = PAGE === 'index' ? t : `${U.t(t)} — ${profile.name}`; desc = d; }
+    title = `${p.title} — ${p.discipline || p.category} | ${SITE.name || 'Archfolio'}`; desc = p.summary; if(p.cover && p.cover.src) image = mediaSrc(p.cover.src); }
+  else { const M = pageMeta(), [t, d] = M[PAGE] || M.notfound; title = PAGE === 'index' ? t : `${U.t(t)} — ${SITE.name || 'Archfolio'}`; desc = d; }
   document.title = title;
   // location.origin is "null" on file:// — use the full href so the site also works opened from disk.
   const base = SITE.url || location.href.split('#')[0], url = base + (location.hash.startsWith('#/') && location.hash !== '#/' ? location.hash : '');
@@ -1261,9 +1263,9 @@ function intro(){
   <div id="intro" class="intro" data-noi18n lang="en" dir="ltr">
     <div class="i-door i-l" aria-hidden="true">${rackDoor('l')}</div><div class="i-door i-r" aria-hidden="true">${rackDoor('r')}</div>
     <div class="i-core" aria-hidden="true">
-      <svg class="i-logo" viewBox="0 0 128 109"><use href="#amMark"/></svg>
-      <svg class="i-word" viewBox="0 0 1274 100"><use href="#amWord"/></svg>
-      <p class="i-tag">Data center designer</p>
+      <svg class="i-logo" viewBox="0 0 139 109"><use href="#amMark"/></svg>
+      <svg class="i-word" viewBox="0 0 877 100"><use href="#amWord"/></svg>
+      <p class="i-tag">Architecture · Data centers</p>
       <ul class="i-log">${[['POWER', 'UTILITY + UPS', 'OK'], ['COOLING', 'CRAH N+1', 'OK'], ['CONTAINMENT', 'COLD AISLE', 'SEALED'], ['RACKS', '16 / 16', 'ONLINE']].map(([k, v, b], i) =>
         `<li style="--i:${i}"><span class="k">${k}</span><span class="dots"></span><span class="v">${v}</span><b>${b}</b></li>`).join('')}</ul>
       <div class="i-prog"><span>Bringing the hall online</span><span class="i-pc num"><span id="iPct">0</span>%</span><i><b></b></i></div>

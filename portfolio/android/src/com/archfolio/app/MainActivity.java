@@ -1,4 +1,4 @@
-package com.mohammadaminsadeghi.portfolio;
+package com.archfolio.app;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * The portfolio site, bundled in assets/site and shown full screen.
+ * Archfolio: the portfolio site, bundled in assets/site and shown full screen.
  *
  * Pages are served from https://appassets.androidplatform.net (a host reserved
  * for app-local content) instead of file://, so web fonts, localStorage, blob:

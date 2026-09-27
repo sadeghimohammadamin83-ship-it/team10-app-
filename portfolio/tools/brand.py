@@ -1,4 +1,4 @@
-"""Brand geometry: the M-house mark and the MOHAMMADAMIN wordmark.
+"""Brand geometry: the A-hall mark and the ARCHFOLIO wordmark.
 
 Everything is built from straight strokes of one constant width on a
 100-unit cap height, mitred and cut flat at the cap/base lines, then
@@ -42,14 +42,15 @@ TRACK = 30        # letter spacing
 clip = lambda g, w: g.intersection(box(-1, 0, w + 1, CAP))
 
 def g_I():
-    return stroke([(H, -40), (H, 140)], S)
+    return clip(stroke([(H, -40), (H, 140)], S), S)
 def g_H(W=70):
     return clip(unary_union([stroke([(H, -40), (H, 140)], S), stroke([(W - H, -40), (W - H, 140)], S), stroke([(H, 50), (W - H, 50)], S)]), W)
 def g_N(W=74):
     return clip(unary_union([stroke([(H, -40), (H, 140)], S), stroke([(W - H, -40), (W - H, 140)], S),
                              stroke([(H, 0), (W - H, CAP)], S, (30, 30))]), W)
 def g_A(W=80):      # the house-roof A — no crossbar, as in the original identity
-    return clip(stroke([(0, CAP), (W / 2, 0), (W, CAP)], S, (30, 30)), W)
+    e = H * math.hypot(W / 2, CAP) / CAP       # legs' outer edges land exactly on x = 0 and x = W
+    return clip(stroke([(e, CAP), (W / 2, 0), (W - e, CAP)], S, (30, 30)), W)
 def g_M(W=88):
     return clip(unary_union([stroke([(H, -40), (H, 140)], S), stroke([(W - H, -40), (W - H, 140)], S),
                              stroke([(H, 0), (W / 2, 62), (W - H, 0)], S, (30, 30))]), W)
@@ -62,9 +63,26 @@ def g_D(W=82):
     inner = unary_union([box(S, S, cx, CAP - S), half(50 - S)])
     return outer.difference(inner)
 
-GLYPH = {'M': g_M, 'O': g_O, 'H': g_H, 'A': g_A, 'D': g_D, 'I': g_I, 'N': g_N}
+def g_C(open_deg=42):
+    """The O ring with a wedge cut out on the right; the terminals are cut along radii."""
+    t = math.tan(math.radians(open_deg))
+    wedge = LineString([(50, 50), (160, 50 - 110 * t)]).union(LineString([(50, 50), (160, 50 + 110 * t)])).convex_hull
+    return g_O().difference(wedge)
+def g_F(W=60, mid=.84):
+    return clip(unary_union([stroke([(H, -40), (H, 140)], S), stroke([(0, H), (W, H)], S), stroke([(0, 50), (W * mid, 50)], S)]), W)
+def g_L(W=58):
+    return clip(unary_union([stroke([(H, -40), (H, 140)], S), stroke([(0, CAP - H), (W, CAP - H)], S)]), W)
+def g_R(W=70, BY=56):
+    """Stem, a half-height bowl built like the D's, and a straight leg to the base."""
+    r = BY / 2; cx = W - r - 6
+    half = lambda rad: Point(cx, r).buffer(rad, 48).intersection(box(cx, -1, cx + 60, BY + 1))
+    bowl = unary_union([box(0, 0, cx, BY), half(r)]).difference(unary_union([box(S, S, cx, BY - S), half(r - S)]))
+    leg = stroke([(cx - 2, BY - H), (W - H, CAP)], S, (0, 30))
+    return clip(unary_union([stroke([(H, -40), (H, 140)], S), bowl, leg]), W)
 
-def wordmark(text='MOHAMMADAMIN', accent_from=8):
+GLYPH = {'M': g_M, 'O': g_O, 'H': g_H, 'A': g_A, 'D': g_D, 'I': g_I, 'N': g_N, 'C': g_C, 'F': g_F, 'L': g_L, 'R': g_R}
+
+def wordmark(text='ARCHFOLIO', accent_from=4):
     x, parts = 0.0, {'l': [], 'o': []}
     for i, ch in enumerate(text):
         g = GLYPH[ch]()
@@ -75,38 +93,36 @@ def wordmark(text='MOHAMMADAMIN', accent_from=8):
     width = x - TRACK
     return unary_union(parts['l']), unary_union(parts['o']), width
 
-# ── Mark: an M whose right half is a gabled hall holding a server rack ─
+# ── Mark: an A drawn as a gabled hall, a server rack standing under the ridge ─
 T = 15                              # mark stroke
-V = (47, 55)                        # valley
-P = (81, 16)                        # roof peak
-E = (116, 51)                       # eave
+PEAK = (80, 16)                     # ridge
+SPAN = 60                           # half span of the legs' centre lines at the base
 BASE = 104
 
 def mark():
-    t2 = T / 2
-    area = box(-1, 0, 200, BASE)
-    stem = stroke([(t2, -60), (t2, 200)], T)
-    roof = stroke([(t2, 0), V, P, E, (E[0], 200)], T, (40, 0))
-    silver = unary_union([stem, roof]).intersection(area)
-    # the hall's shaded side wall, below the valley
-    shade = stroke([V, (V[0], 200)], T).intersection(area).difference(silver)
-    return silver, shade
+    area = box(-40, 0, 240, BASE)
+    silver = stroke([(PEAK[0] - SPAN, BASE), PEAK, (PEAK[0] + SPAN, BASE)], T, (30, 30)).intersection(area)
+    minx = silver.bounds[0]
+    return affinity.translate(silver, -minx, 0), -minx
 
-RACK = dict(x=64, y=57, w=37, h=47)
+RACK = dict(w=30, h=46)
 
 def mark_svg_parts():
-    silver, shade = mark()
-    r = RACK
-    x, y, w, h = r['x'], r['y'], r['w'], r['h']
-    units = ''.join(f'<rect x="{x + 5}" y="{y + 6 + i * 5:g}" width="{w - 17}" height="2.6" rx=".5" fill="#262B33"/>' for i in range(8))
-    leds = ''.join(f'<rect class="lm-o" x="{x + w - 9}" y="{y + 6 + i * 5:g}" width="3" height="2.6" rx=".6"/>' for i in (0, 1, 2, 4, 5, 7))
-    rack = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="1.4" fill="#0E1115" stroke="#3E444E" stroke-width="1.4"/>'
-            f'<rect x="{x + 2.5}" y="{y + 2.5}" width="{w - 5}" height="{h - 3}" rx=".8" fill="none" stroke="#1F242B" stroke-width="1"/>'
+    silver, dx = mark()
+    cx = PEAK[0] + dx
+    w, h = RACK['w'], RACK['h']
+    x, y = cx - w / 2, BASE - h
+    units = ''.join(f'<rect x="{x + 5:g}" y="{y + 6 + i * 5:g}" width="{w - 15}" height="2.6" rx=".5" fill="#262B33"/>' for i in range(8))
+    leds = ''.join(f'<rect class="lm-o" x="{x + w - 8:g}" y="{y + 6 + i * 5:g}" width="3" height="2.6" rx=".6"/>' for i in (0, 1, 2, 4, 5, 7))
+    rack = (f'<rect x="{x:g}" y="{y:g}" width="{w}" height="{h}" rx="1.4" fill="#0E1115" stroke="#3E444E" stroke-width="1.4"/>'
+            f'<rect x="{x + 2.5:g}" y="{y + 2.5:g}" width="{w - 5}" height="{h - 3}" rx=".8" fill="none" stroke="#1F242B" stroke-width="1"/>'
             f'{units}{leds}')
-    floor = f'<rect class="lm-f" x="{V[0] - T / 2}" y="{BASE + 1.5}" width="{E[0] + T / 2 - V[0] + T / 2 + 4}" height="2.4" rx="1.2"/>'
-    body = f'<path class="lm-p" d="{to_path(shade)}"/><path class="lm-l" d="{to_path(silver)}"/>{rack}{floor}'
+    # the floor: the A's crossbar, drawn as a lit slab between the legs
+    fl = cx - SPAN + T * .9; fr = cx + SPAN - T * .9
+    floor = f'<rect class="lm-f" x="{fl:.1f}" y="{BASE + 1.5}" width="{fr - fl:.1f}" height="2.4" rx="1.2"/>'
+    body = f'<path class="lm-l" d="{to_path(silver)}"/>{rack}{floor}'
     minx, miny, maxx, maxy = silver.bounds
-    vb = f'0 0 {math.ceil(maxx + 4)} {BASE + 5}'
+    vb = f'0 0 {math.ceil(maxx)} {BASE + 5}'
     return body, vb
 
 def build():

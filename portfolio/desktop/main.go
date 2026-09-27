@@ -1,4 +1,4 @@
-// MohammadAmin Sadeghi — portfolio as a portable Windows app.
+// Archfolio — the portfolio as a portable Windows app.
 //
 // One .exe, nothing to install: the whole site is embedded and served on a
 // fixed local address (so saved theme, language and sign-in survive restarts),
@@ -30,7 +30,7 @@ import (
 var siteFiles embed.FS
 
 const (
-	title = "MohammadAmin Sadeghi — Portfolio"
+	title = "Archfolio — Architecture & Data Center Portfolio"
 	addr  = "127.0.0.1:47823" // fixed, so the page origin (and its storage) is the same every run
 	start = "/"
 )
@@ -63,7 +63,7 @@ func alreadyRunning() bool {
 	}
 	defer res.Body.Close()
 	b, _ := io.ReadAll(io.LimitReader(res.Body, 4096))
-	return strings.Contains(string(b), "MohammadAmin Sadeghi")
+	return strings.Contains(string(b), "Archfolio")
 }
 
 func openExternal(raw string) {
@@ -119,7 +119,7 @@ func main() {
 		go serve(ln)
 	}
 
-	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "MohammadAminPortfolio")
+	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "Archfolio")
 	w := webview2.NewWithOptions(webview2.WebViewOptions{
 		AutoFocus: true,
 		DataPath:  data,
