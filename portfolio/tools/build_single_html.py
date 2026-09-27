@@ -26,8 +26,8 @@ models = {f[:-5]: rd('models/' + f) for f in sorted(os.listdir(os.path.join(ROOT
 
 app = rd('js/app.js')
 patches = [
-    ("const mediaSrc = (n, small) => { const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return 'img/' + (small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };",
-     "const mediaSrc = (n) => window.IMG_INLINE[mediaRel(n)] || '';"),
+    ("  const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return 'img/' + (small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };",
+     "  return window.IMG_INLINE[mediaRel(n)] || ''; };"),
     ("const modelHref = key => `models/${String(key).replace(/^obj-/, '')}.html`;",
      "const modelHref = key => window.MODEL_URL(String(key).replace(/^obj-/, ''));"),
 ]
@@ -43,10 +43,13 @@ window.MODEL_URL=function(k){{return cache[k]||(cache[k]=URL.createObjectURL(new
 
 html = rd('index.html')
 html = html.replace('<link rel="stylesheet" href="css/site.css">', f'<style>\n{css}\n</style>')
-html = re.sub(r'<script defer src="js/(data|media|dc-scene|app)\.js"></script>\n?', '', html)
+html = re.sub(r'<script defer src="js/[^"]+"></script>\n?', '', html)
 html = re.sub(r'<link rel="(?:preload|manifest)"[^>]*>\n?', '', html)
 html = re.sub(r'<link rel="(icon|apple-touch-icon)" href="(img/[^"]+)"', lambda m: f'<link rel="{m.group(1)}" href="{data_uri(m.group(2))}"', html)
-scripts = ''.join(f'<script>\n{s}\n</script>\n' for s in (runtime, rd('js/data.js'), rd('js/i18n-fa.js'), rd('js/dc-scene.js'), app))
+# Same order as index.html; the Firebase SDK and Persian strings, normally loaded on demand, are inlined.
+parts = [runtime] + [rd('js/' + f) for f in ('firebase-config.js', 'data.js', 'i18n-fa.js', 'dc-scene.js', 'vendor/firebase.js', 'cloud.js', 'account.js')] + [app]
+safe = lambda js: js.replace('</script', '<\\/script')   # a literal "</script" inside JS would end the tag
+scripts = ''.join('<script>\n' + safe(js) + '\n</script>\n' for js in parts)
 html = html.replace('</body>', scripts + '</body>')
 open(OUT, 'w', encoding='utf-8').write(html)
 print(f'{OUT}: {os.path.getsize(OUT) / 1e6:.1f} MB')

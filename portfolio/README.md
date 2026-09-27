@@ -18,6 +18,23 @@ Once the live address is known, set `SITE.url` in `js/data.js`, and replace the 
 | `img/` | Project images; `img/sm/` holds 800 px variants; `img/proposals/<slug>/NN.webp` holds proposal pages |
 | `models/` | Standalone interactive 3D model pages (Three.js is loaded from unpkg.com, so they need an internet connection) |
 
+## Accounts and admin (Firebase)
+Visitors can create an account with a Gmail address and a password they choose, with no codes. The admin account (`ADMIN_EMAIL` in `js/firebase-config.js`) gets an admin panel with registered users, project requests, and an editor for all site content. Published edits reach every visitor; the built-in content in `js/data.js` stays as the default.
+
+1. Follow `firebase/SETUP-FA.md` (Persian, step by step).
+2. Paste your web config into `js/firebase-config.js`.
+3. Paste `firebase/firestore.rules` into Firestore → Rules.
+
+Until step 2 is done, the Account tab says accounts are coming soon, and the rest of the site works as before.
+The Firebase SDK (`js/vendor/firebase.js`) is bundled from npm. See `tools/firebase/entry.js` to rebuild it.
+For local testing, run `firebase emulators:start` in `firebase/` and set `emulator: true` in the config.
+
+## Android app
+`python3 android/build_apk.py` builds `android/dist/MohammadAmin-Sadeghi-Portfolio.apk`: a full-screen WebView around this site, signed v1+v2. It needs no Android SDK (see the script header). The signing key is created on the first build in `~/.portfolio-android/`. Keep that folder, because updates must be signed with the same key.
+
+## Windows app
+`desktop/build_exe.sh` builds `desktop/dist/MohammadAmin-Sadeghi-Portfolio.exe`: one portable file with no installer. It needs Go and `go-winres`. The site is embedded and shown in WebView2, which is built into Windows 10 and 11.
+
 ## Add a project
 1. Put the images in `img/` and any proposal pages in `img/proposals/<slug>/01.webp`, `02.webp`, …
 2. Run `python3 tools/build_images.py` (needs Pillow). It creates the 800 px variants and updates `js/media.js`.

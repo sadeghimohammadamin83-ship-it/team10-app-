@@ -18,7 +18,8 @@ const FINE = mq('(hover:hover) and (pointer:fine)');
 const CALM = mq('(prefers-reduced-motion: reduce)');
 const store = {
   get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } },
-  set(k, v){ try{ localStorage.setItem(k, v); }catch(_){} }
+  set(k, v){ try{ localStorage.setItem(k, v); }catch(_){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(_){} }
 };
 
 const svgI = (d, w = 1.6) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${d}</svg>`;
@@ -46,6 +47,8 @@ const I = {
   form:   svgI('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/>', 1.7),
   copy:   svgI('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>', 1.7),
   info:   svgI('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', 1.7),
+  user:   svgI('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', 1.7),
+  grid:   svgI('<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>', 1.7),
   external: svgI('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>')
 };
 const PROC_IC = [
@@ -64,8 +67,15 @@ window.U = {esc, pad, I, FINE, CALM, t: s => (LANG === 'fa' && window.FA && FA[s
 // Images keep their original names in data.js; proposal pages are stored per project.
 const MEDIA = window.MEDIA || {};
 const mediaRel = n => { const m = /^pp-(.+)-(\d\d)\.webp$/.exec(n); return m ? `proposals/${m[1]}/${m[2]}.webp` : n; };
-const mediaSrc = (n, small) => { const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return 'img/' + (small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };
+// Images uploaded from the admin panel are referenced as media:<id> and kept here once fetched.
+const MEDIA_EXTRA = {};
+const isUpload = n => typeof n === 'string' && n.startsWith('media:');
+const mediaSrc = (n, small) => { if(isUpload(n)) return (MEDIA_EXTRA[n.slice(6)] || {}).src || '';
+  const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return 'img/' + (small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };
 function img(name, {alt = '', sizes = '100vw', eager = false, cls = '', pos = ''} = {}){
+  if(isUpload(name)){ const u = MEDIA_EXTRA[name.slice(6)]; if(!u) return '';
+    return `<img src="${u.src}" width="${u.w}" height="${u.h}" alt="${esc(alt)}" ${eager ? '' : 'loading="lazy" '}decoding="async" data-full="${u.src}"${cls ? ` class="${cls}"` : ''}${pos ? ` style="object-position:${pos}"` : ''}>`; }
+  if(typeof name !== 'string') return '';
   const m = MEDIA[mediaRel(name)]; if(!m) return '';
   const [w, h, sm] = m;
   const set = sm ? ` srcset="${mediaSrc(name, true)} 800w, ${mediaSrc(name)} ${w}w" sizes="${sizes}"` : '';
@@ -136,6 +146,7 @@ function renderChrome(){
         ${langSwitch('lang-nav')}
         <button type="button" class="icon-btn" id="curBtn" aria-pressed="false" aria-label="Toggle custom cursor" title="Toggle custom cursor">${I.cursor}</button>
         <button type="button" class="icon-btn" id="thBtn" aria-label="Switch theme"></button>
+        <a class="icon-btn" id="acctBtn" href="#/account" data-route="account" aria-label="Account" title="Account">${I.user}</a>
         <a class="btn btn-primary btn-sm" id="navCta" href="#/contact">Start a project</a>
         <button type="button" class="icon-btn" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Open menu">${I.menu}</button>
       </div>
@@ -183,6 +194,11 @@ function renderChrome(){
     <a id="fab" class="fab" href="#/contact">Get in touch ${I.arrow}</a>
     <button type="button" id="totop" class="fab-top" aria-label="Back to top" data-top>${I.up}</button>
   </div>
+  <nav class="tabbar" aria-label="App" dir="ltr">
+    <a class="tab" href="#/work" data-tab="work">${I.grid}<span>Projects</span></a>
+    <a class="tab tab-home" href="#/" data-tab="index"><span class="tab-home-ic"><svg viewBox="0 0 128 109" aria-hidden="true"><use href="#amMark"/></svg></span><span>Home</span></a>
+    <a class="tab" href="#/account" data-tab="account">${I.user}<span>Account</span></a>
+  </nav>
   <div id="toast" role="status" aria-live="polite"></div>
   <p class="sr-only" id="announcer" aria-live="polite"></p>
   <div id="cur" aria-hidden="true"></div>`);
@@ -267,7 +283,7 @@ function bindScroll(){
     bar.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
     nav.classList.toggle('stuck', y > 12);
     top.classList.toggle('on', y > 900);
-    fab.classList.toggle('on', y > innerHeight * .8 && PAGE !== 'contact'); };
+    fab.classList.toggle('on', y > innerHeight * .8 && PAGE !== 'contact' && PAGE !== 'account'); };
   addEventListener('scroll', () => { if(!raf) raf = requestAnimationFrame(upd); }, {passive: true});
   bindScroll.update = upd; upd();
   document.addEventListener('click', e => { if(e.target.closest('[data-top]')) scrollTo({top: 0, behavior: CALM ? 'auto' : 'smooth'}); });
@@ -954,7 +970,7 @@ function wireReq(){
     if(el){ el.classList.remove('bad'); el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); } if(p) p.hidden = true; };
   ids.forEach(id => $('#' + id).addEventListener('input', () => { clr(id); save(); }));
   $$('input[name=r-via]', form).forEach(r => r.addEventListener('change', () => { clr('r-via'); save(); }));
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault(); save(); [...ids, 'r-via'].forEach(clr);
     const d = {...REQ_DRAFT};
     const digits = String(d.phone || '').replace(/[۰-۹]/g, c => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[\s\-()]/g, '');
@@ -967,23 +983,59 @@ function wireReq(){
     if(d.link.trim() && !/^https?:\/\/\S+\.\S+/.test(d.link.trim())) f('r-link', 'That link does not look right — it should start with https://');
     if(!d.via) f('r-via', 'Please choose how I should reply.');
     if(first){ const el = first === 'r-via' ? form.querySelector('input[name=r-via]') : $('#' + first); el && el.focus(); return; }
-    d.phone = digits; const text = reqText(d); copyText(text);
-    $('#reqWrap').innerHTML = `<div class="req-ok" role="status">
+    d.phone = digits; const text = reqText(d);
+    // With accounts switched on, the request goes straight to the admin panel.
+    let sent = false, cloudErr = '';
+    if(window.Cloud && Cloud.enabled){
+      const go = form.querySelector('button[type=submit]'); go.disabled = true; go.classList.add('busy');
+      try{
+        const u = await Cloud.currentUser();
+        await Cloud.submitRequest({name: d.name.trim(), phone: d.phone, type: d.type, time: d.time, msg: d.msg.trim(),
+          link: d.link.trim(), via: d.via, lang: LANG, ...(u ? {email: u.email} : {})});
+        sent = true;
+      }catch(ex){ cloudErr = Cloud.message(ex); }
+      go.disabled = false; go.classList.remove('busy');
+    }
+    if(!sent) copyText(text);
+    const mail = `mailto:${esc(profile.email)}?subject=${encodeURIComponent((LANG === 'fa' ? 'درخواست پروژه — ' : 'Project request — ') + U.t(d.type))}&body=${encodeURIComponent(text)}`;
+    $('#reqWrap').innerHTML = sent ? `<div class="req-ok" role="status">
+      <span class="ok-ic">${I.send}</span>
+      <h2 class="req-h">Request sent</h2>
+      <p class="small muted">Thank you — your request has reached me. I will reply the way you chose.</p>
+      <pre class="req-pre" dir="auto">${esc(text)}</pre>
+      <div class="req-btns">
+        <a class="btn btn-ghost" href="#/account">${I.user}<span>See it in your account</span></a>
+        <button type="button" class="btn btn-ghost" data-new-req>New request</button>
+      </div></div>` : `<div class="req-ok" role="status">
       <span class="ok-ic">${I.form}</span>
       <h2 class="req-h">Your request is ready</h2>
+      ${cloudErr ? `<p class="form-err">${esc(U.t(cloudErr))} <span>${U.t('Send it with one of these instead:')}</span></p>` : ''}
       <p class="small muted">Nothing is sent automatically — choose how to send it. The text is copied for you.</p>
       <pre class="req-pre" dir="auto">${esc(text)}</pre>
       <div class="req-btns">
         <a class="btn btn-accent" href="${CONTACT.tgHref}" target="_blank" rel="noopener">${I.send}<span>Send on Telegram</span></a>
-        <a class="btn btn-ghost" href="mailto:${esc(profile.email)}?subject=${encodeURIComponent((LANG === 'fa' ? 'درخواست پروژه — ' : 'Project request — ') + U.t(d.type))}&body=${encodeURIComponent(text)}">${I.mail}<span>Send by email</span></a>
+        <a class="btn btn-ghost" href="${mail}">${I.mail}<span>Send by email</span></a>
         <button type="button" class="btn btn-ghost" data-copy-req>${I.copy}<span class="cp-l">Copy request</span></button>
         <button type="button" class="btn btn-ghost" data-new-req>New request</button>
       </div></div>`;
-    const cb = $('[data-copy-req]'); cb.onclick = () => copyText(text, cb);
+    const cb = $('[data-copy-req]'); if(cb) cb.onclick = () => copyText(text, cb);
     $('[data-new-req]').onclick = () => { REQ_DRAFT = {}; $('#reqWrap').innerHTML = reqForm(); wireReq(); $('#r-name').focus(); };
+    if(sent) REQ_DRAFT = {};
     $('#req').focus({preventScroll: true});
   });
 }
+
+R.error = function(){
+  $('#main').innerHTML = `
+  <section class="container nf">
+    <p class="nf-code num" aria-hidden="true">!</p>
+    <h1 class="h1" tabindex="-1">This page could not be shown.</h1>
+    <p class="lede muted">Something in its content is incomplete. Everything else still works.</p>
+    <div class="nf-act"><a class="btn btn-primary" href="#/">Back to home</a><a class="btn btn-ghost" href="#/work">See the work</a></div>
+  </section>`;
+};
+
+R.account = function(){ AccountUI.render(ACCOUNT_CTX); };
 
 R.notfound = function(){
   $('#main').innerHTML = `
@@ -1031,9 +1083,16 @@ function reveals(){
 const FA_SPLIT = /(\s+[·—|]\s+|\s+\/\s+)/;
 const I18N_ATTR = ['aria-label', 'placeholder', 'title'];
 let faLoading = null, I18N_MO = null;
+// Persian edits published from the admin panel sit on top of the built-in dictionary.
+let FA_OVERRIDES = {};
+function applyFaOverrides(o){
+  FA_OVERRIDES = o && typeof o === 'object' ? o : {};
+  if(window.FA_BASE){ for(const k in window.FA) delete window.FA[k]; Object.assign(window.FA, window.FA_BASE, FA_OVERRIDES); }
+}
 function loadFA(){
-  if(window.FA) return Promise.resolve();
-  return faLoading = faLoading || new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'js/i18n-fa.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+  if(window.FA){ if(!window.FA_BASE){ window.FA_BASE = {...window.FA}; Object.assign(window.FA, FA_OVERRIDES); } return Promise.resolve(); }
+  return faLoading = faLoading || new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'js/i18n-fa.js';
+    s.onload = () => { window.FA_BASE = {...window.FA}; Object.assign(window.FA, FA_OVERRIDES); res(); }; s.onerror = rej; document.head.appendChild(s); });
 }
 function faT(s){
   const FA = window.FA; if(!FA) return null;
@@ -1100,7 +1159,8 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 /* ═══════════════════════════════════════════════════════════════════════
    ROUTER + META
    ═══════════════════════════════════════════════════════════════════════ */
-const PAGE_META = {
+// Built on demand: published content can change titles and counts at run time.
+const pageMeta = () => ({
   index:   [SITE.title, SITE.description],
   work:    ['Work', `${projects.length} projects: data halls resolved inside existing buildings, technical documentation, a museum, a sports complex and an urban baseline study.`],
   objects: ['Object design', 'Interactive 3D / BIM objects for technical spaces — server rack, diesel genset, 2000 kVA transformer, UPS battery cabinet and a sports-complex site model.'],
@@ -1108,13 +1168,16 @@ const PAGE_META = {
   services:['Services', 'The architectural and spatial side of a data center — and the documentation that makes it buildable.'],
   process: ['Process', 'Six phases, run in sequence: discover, define, explore, design, test, deliver.'],
   contact: ['Contact', 'Send the project, the deadline and what you need at the end.'],
-  notfound:['Page not found', SITE.description]
-};
+  account: ['Account', 'Sign in or create an account with your Gmail address.'],
+  notfound:['Page not found', SITE.description],
+  error:   ['Something went wrong', SITE.description]
+});
 function setMeta(){
   let title, desc, image = SITE.ogImage;
-  if(PAGE === 'project'){ const p = projects.find(x => x.slug === SLUG);
+  const proj = PAGE === 'project' && projects.find(x => x.slug === SLUG);
+  if(proj){ const p = proj;
     title = `${p.title} — ${p.discipline || p.category} | ${profile.name}`; desc = p.summary; if(p.cover && p.cover.src) image = mediaSrc(p.cover.src); }
-  else { const [t, d] = PAGE_META[PAGE] || PAGE_META.notfound; title = PAGE === 'index' ? t : `${U.t(t)} — ${profile.name}`; desc = d; }
+  else { const M = pageMeta(), [t, d] = M[PAGE] || M.notfound; title = PAGE === 'index' ? t : `${U.t(t)} — ${profile.name}`; desc = d; }
   document.title = title;
   // location.origin is "null" on file:// — use the full href so the site also works opened from disk.
   const base = SITE.url || location.href.split('#')[0], url = base + (location.hash.startsWith('#/') && location.hash !== '#/' ? location.hash : '');
@@ -1134,12 +1197,16 @@ function parseHash(){
   return [h === '' ? 'index' : h, null];
 }
 let firstRoute = true;
-function route(){
+function route(opts = {}){
   [PAGE, SLUG] = parseHash();
+  if(PREVIEW && PAGE === 'account') stopPreview(true);
   if(!R[PAGE]) PAGE = 'notfound';
   cleanups.splice(0).forEach(f => f());
   projectDir();
-  R[PAGE]();
+  try{ R[PAGE](); }
+  catch(e){ console.error(e); PAGE = 'error'; R.error(); }
+  const TAB = {work: ['work', 'objects', 'project'], index: ['index'], account: ['account']};
+  $$('.tab').forEach(a => (TAB[a.dataset.tab] || []).includes(PAGE) ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   $$('[data-route]').forEach(a => {
     const on = a.dataset.route === PAGE || (PAGE === 'project' && a.dataset.route === 'work');
     on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
@@ -1147,7 +1214,7 @@ function route(){
   setMeta();
   LB.prepare(); reveals();
   if(bindMenu.close) bindMenu.close();
-  if(!firstRoute){
+  if(!firstRoute && !opts.quiet){
     scrollTo({top: 0});
     const h = $('#main h1'); if(h) h.focus({preventScroll: true});
     $('#announcer').textContent = document.title;
@@ -1221,7 +1288,82 @@ function intro(){
 /* ═══════════════════════════════════════════════════════════════════════
    BOOT
    ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   PUBLISHED CONTENT — edits the admin publishes replace the built-in
+   content for everyone. A cached copy renders instantly on later visits;
+   the fresh copy is checked in the background.
+   ═══════════════════════════════════════════════════════════════════════ */
+const DEFAULTS = getContent();
+const CACHE_KEY = 'content-cache';
+const cloneJ = o => JSON.parse(JSON.stringify(o));
+function applyContent(c){
+  setContent(cloneJ({...DEFAULTS, ...(c || {})}));
+  applyFaOverrides(c && c.fa);
+}
+async function resolveMedia(c){
+  const ids = [...new Set((JSON.stringify(c || {}).match(/"media:[A-Za-z0-9_-]+"/g) || []).map(x => x.slice(7, -1)))].filter(id => !MEDIA_EXTRA[id]);
+  await Promise.all(ids.map(id => Cloud.fetchMedia(id).then(m => { if(m) MEDIA_EXTRA[id] = m; }).catch(() => {})));
+}
+async function loadPublished(){
+  if(!window.Cloud || !Cloud.enabled) return;
+  let cached = null; try{ cached = JSON.parse(store.get(CACHE_KEY) || 'null'); }catch(_){}
+  const fresh = (async () => {
+    const r = await Cloud.fetchContent();
+    if(!r){ if(cached){ store.del(CACHE_KEY); return {c: {}, changed: true}; } return {changed: false}; }
+    if(cached && cached.updatedAt === r.updatedAt) return {changed: false};
+    await resolveMedia(r.content); store.set(CACHE_KEY, JSON.stringify(r));
+    return {c: r.content, changed: true};
+  })().catch(() => ({changed: false}));
+  const later = p => p.then(r => { if(r && r.changed && !PREVIEW){ applyContent(r.c); if(PAGE !== 'account' && PAGE !== 'contact'){ const y = scrollY; route({quiet: true}); scrollTo(0, y); } } });
+  if(cached){ try{ await resolveMedia(cached.content); applyContent(cached.content); }catch(_){} later(fresh); return; }
+  const r = await Promise.race([fresh, new Promise(res => setTimeout(() => res(null), 2500))]);
+  if(r && r.changed) applyContent(r.c); else if(!r) later(fresh);
+}
+
+/* Admin preview: unpublished content shown only in this browser. */
+let PREVIEW = false;
+function preview(draft){
+  PREVIEW = true; applyContent(draft);
+  let bar = $('#pvBar');
+  if(!bar){ document.body.insertAdjacentHTML('beforeend', `<div class="pv-bar" id="pvBar" role="status"><span class="pv-dot" aria-hidden="true"></span>
+    <span>${U.t('Preview — only you can see these unpublished changes.')}</span>
+    <a class="btn btn-ghost btn-sm" href="#/account">${U.t('Back to editor')}</a><button type="button" class="btn btn-ghost btn-sm" data-stop>${U.t('Stop preview')}</button></div>`);
+    bar = $('#pvBar'); $('[data-stop]', bar).onclick = () => stopPreview(); }
+  if(location.hash === '#/' || location.hash === '') route(); else location.hash = '#/';
+}
+function stopPreview(silent){
+  PREVIEW = false; const bar = $('#pvBar'); if(bar) bar.remove();
+  let cached = null; try{ cached = JSON.parse(store.get(CACHE_KEY) || 'null'); }catch(_){}
+  applyContent(cached ? cached.content : {});
+  if(!silent) route({quiet: true});
+}
+function applyPublished(draft){
+  applyContent(draft);
+  store.set(CACHE_KEY, JSON.stringify({content: draft, updatedAt: 'local-' + Date.now()}));
+}
+
+const ACCOUNT_CTX = {
+  $, $$, esc, I, img, toast, loadFA, preview, applyPublished, getContent,
+  t: s => U.t(s), lang: () => LANG,
+  onCleanup: fn => cleanups.push(fn),
+  rerender: () => route({quiet: true}),
+  defaults: () => cloneJ(DEFAULTS),
+  faOverrides: () => FA_OVERRIDES,
+  libraryImages: () => Object.keys(MEDIA).filter(k => !k.startsWith('proposals/')).concat(Object.keys(MEDIA_EXTRA).map(id => 'media:' + id)),
+  registerMedia: (id, m) => { MEDIA_EXTRA[id] = {src: m.src, w: m.w, h: m.h}; }
+};
+
+/* In the Windows app, links that leave the site open in the default browser / mail / phone app. */
+document.addEventListener('click', e => {
+  if(typeof window.openExternal !== 'function') return;
+  const a = e.target.closest && e.target.closest('a[href]'); if(!a || e.defaultPrevented) return;
+  const href = a.href; let u; try{ u = new URL(href, location.href); }catch(_){ return; }
+  if(/^(mailto|tel):/i.test(href) || u.origin !== location.origin){ e.preventDefault(); window.openExternal(href); }
+  else if(a.target === '_blank'){ e.preventDefault(); location.href = href; }
+}, true);
+
 async function boot(){
+  await loadPublished();
   renderChrome();
   if(LANG === 'fa'){ try{ await loadFA(); }catch(_){ LANG = 'en'; } }
   applyLangAttrs();

@@ -8,9 +8,13 @@
      3. Add an entry to `projects` below — copy an existing one as a template.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Everything below is the DEFAULT content. Once Firebase is connected, the
+   admin panel (Account tab) can publish edits that replace any of it for all
+   visitors — see setContent() at the end of this file. */
+
 /* Set `url` to the live address (e.g. 'https://example.com/') to emit
    absolute canonical / Open Graph URLs. Left empty, the current address is used. */
-const SITE = {
+let SITE = {
   url: '',
   title: 'MohammadAmin Sadeghi — Architectural & Data Center Designer',
   description: 'Architectural and data center designer in Tehran. Data halls resolved inside existing buildings, technical documentation, BIM and visualisation.',
@@ -19,7 +23,7 @@ const SITE = {
 
 const NEEDS = '__NEEDS__';
 
-const profile = {
+let profile = {
   name: 'MohammadAmin Sadeghi',
   role: 'Architectural & Data Center Designer',
   location: 'Tehran, Iran',
@@ -45,10 +49,10 @@ const profile = {
   footNote: 'Designed and developed with intention.'
 };
 
-const CATEGORIES = ['Data Center Design','Technical Documentation','Architecture','Urban Planning'];
+let CATEGORIES = ['Data Center Design','Technical Documentation','Architecture','Urban Planning'];
 
 
-const services = [
+let services = [
   { n:'01', title:'Existing-condition review',
     body:'Survey and as-built review of what is actually there — dimensions, structural constraints, access-floor extent, existing services — and a written register of every discrepancy that needs verifying before design starts.' },
   { n:'02', title:'Space planning & zoning',
@@ -68,7 +72,7 @@ const services = [
 ];
 
 
-const processPhases = [
+let processPhases = [
   ['01','Discover','Survey the site or the existing model. Establish what genuinely cannot move — structure, slab level, risers, budget — before proposing anything.'],
   ['02','Define','Turn the brief into measurable constraints: load, clearance, aisle width, service routes. A constraint you can draw is worth ten you can only describe.'],
   ['03','Explore','Test several layouts against the same constraints rather than refining the first one. Comparison makes the decision, not preference.'],
@@ -78,7 +82,7 @@ const processPhases = [
 ];
 
 
-const skillGroups = [
+let skillGroups = [
   { title:'Data center', items:['Data hall layout design','Rack & containment planning','Cooling coordination','Raised-floor setting-out','Clearance & circulation verification','As-built documentation'] },
   { title:'Architecture', items:['Architectural planning','Retrofit & conversion','Technical documentation','Site & existing-condition analysis','Drawing-set production'] },
   { title:'Software', items:['Revit','AutoCAD','Enscape','D5 Render','3ds Max','SketchUp','IFC / DXF workflows'] },
@@ -86,7 +90,7 @@ const skillGroups = [
 ];
 
 
-const home = {
+let home = {
   stats:[ {n:'projects',label:'Projects in the portfolio'},
           {v:120, plus:true, label:'Rack positions laid out'},
           {n:'pages',label:'Proposal pages designed'},
@@ -127,7 +131,7 @@ const home = {
 };
 
 
-const experience = [
+let experience = [
   { org:'Padisar Informatics', role:'Architectural, Data Center & Digital Designer',
     duties:['Architectural and technical layouts for data center projects','Rack plates, containment strategies and service-route coordination','BIM models and coordinated drawing packages','Client-facing design proposals and technical documentation','3D visualisation and animated assembly sequences','Corporate web pages designed and built in WordPress'] },
   { org:'Adobe Design Software Instruction', role:'Instructor',
@@ -135,10 +139,10 @@ const experience = [
   { org:'Sanat Pajouhan Matrah', role:'Technical and Administrative Specialist',
     duties:['Technical reports and office documentation','Technical record-keeping in Excel and Word','Technical inspection documentation'] }
 ];
-const freelanceNote = 'Alongside employed work I take on selected freelance projects — data hall layout studies, BIM documentation, architectural visualisation and design proposals. Availability is limited and I take work where the technical brief is clear.';
+let freelanceNote = 'Alongside employed work I take on selected freelance projects — data hall layout studies, BIM documentation, architectural visualisation and design proposals. Availability is limited and I take work where the technical brief is clear.';
 
 
-const projects = [
+let projects = [
 {
   slug:'modular-data-centre',
   kind:'Modular', deliver:['Drawings', 'Renders'],
@@ -448,8 +452,8 @@ const projects = [
 ];
 
 
-const OBJECT_TYPES = ['3D / BIM','Web component'];
-const objects = [
+let OBJECT_TYPES = ['3D / BIM','Web component'];
+let objects = [
 { title:'Tennis & Volleyball Complex — site model', type:'3D / BIM',
   file:'obj-tennis-volleyball-complex',
   description:'The whole 60 × 100 m sloping site modelled to its levels — sunken courts, stands, ramps, planting and lighting. Orbit, zoom and OBJ / GLB export.' },
@@ -470,20 +474,20 @@ const objects = [
 
 
 /* ── Home: featured stage (image, ruler and swatches sampled from each render) ── */
-const FEATURED = [{"slug": "data-hall-retrofit", "tab": "Data hall", "img": "v51.webp", "thumb": "v46.webp", "ruler": "24.34 m", "palName": "Sampled from the render", "sheet": "DATA HALL", "rows": [["CABINETS", "24"], ["AISLE", "1.20 m"]], "pal": ["#090908", "#1e1e1c", "#4c4b49", "#d8d3d2"]}, {"slug": "the-last-shadow-of-time", "tab": "Museum", "img": "mu-plaza.webp", "thumb": "v43.webp", "ruler": "1 : 200", "palName": "Sampled from the render", "sheet": "SECTION A–A", "rows": [["SCALE", "1 : 200"], ["STATUS", "DESIGN PROJECT"]], "pal": ["#0e1208", "#716a61", "#aa9c8e", "#b3bcc6"], "pos": "72% 50%"}, {"slug": "tennis-volleyball-complex", "tab": "Sports complex", "img": "tv-01.webp", "thumb": "tv-03.webp", "ruler": "60.00 m", "palName": "Sampled from the model", "sheet": "SHEET 01", "rows": [["SCALE", "1 : 400"], ["FALL", "4 %"]], "pal": ["#393d2f", "#6f715a", "#b9b3a1", "#ffffff"]}];
-const HOME_PICKS = ['modular-data-centre','ramsar-urban-baseline-study','two-level-facility','rack-room-reorganisation'];
+let FEATURED = [{"slug": "data-hall-retrofit", "tab": "Data hall", "img": "v51.webp", "thumb": "v46.webp", "ruler": "24.34 m", "palName": "Sampled from the render", "sheet": "DATA HALL", "rows": [["CABINETS", "24"], ["AISLE", "1.20 m"]], "pal": ["#090908", "#1e1e1c", "#4c4b49", "#d8d3d2"]}, {"slug": "the-last-shadow-of-time", "tab": "Museum", "img": "mu-plaza.webp", "thumb": "v43.webp", "ruler": "1 : 200", "palName": "Sampled from the render", "sheet": "SECTION A–A", "rows": [["SCALE", "1 : 200"], ["STATUS", "DESIGN PROJECT"]], "pal": ["#0e1208", "#716a61", "#aa9c8e", "#b3bcc6"], "pos": "72% 50%"}, {"slug": "tennis-volleyball-complex", "tab": "Sports complex", "img": "tv-01.webp", "thumb": "tv-03.webp", "ruler": "60.00 m", "palName": "Sampled from the model", "sheet": "SHEET 01", "rows": [["SCALE", "1 : 400"], ["FALL", "4 %"]], "pal": ["#393d2f", "#6f715a", "#b9b3a1", "#ffffff"]}];
+let HOME_PICKS = ['modular-data-centre','ramsar-urban-baseline-study','two-level-facility','rack-room-reorganisation'];
 
 /* ── Contact ── */
-const CONTACT = { phone:'09934348489', phoneHref:'tel:+989934348489', tg:'@aminetun', tgHref:'https://t.me/aminetun' };
-const REQ_TYPES=['Data hall layout','Existing-hall conversion','BIM & documentation','Architectural design','Visualisation','Presentation & portfolio','Something else'];
-const REQ_TIMES=['Within a week','2–4 weeks','1–3 months','Flexible'];
+let CONTACT = { phone:'09934348489', phoneHref:'tel:+989934348489', tg:'@aminetun', tgHref:'https://t.me/aminetun' };
+let REQ_TYPES=['Data hall layout','Existing-hall conversion','BIM & documentation','Architectural design','Visualisation','Presentation & portfolio','Something else'];
+let REQ_TIMES=['Within a week','2–4 weeks','1–3 months','Flexible'];
 
 /* ── Hero: the specialties listed under the name ── */
-const SPECIALTIES = ['Data center planning','BIM','Technical documentation','3D visualisation','Architectural design'];
+let SPECIALTIES = ['Data center planning','BIM','Technical documentation','3D visualisation','Architectural design'];
 
 /* ── Data-center systems shown in the interactive hero scene (geometry lives in js/dc-scene.js).
       `obj` links a system to its 3D model in `objects`. ── */
-const DC_SYSTEMS = [
+let DC_SYSTEMS = [
   {k:'tr',  n:'Transformer', obj:'obj-power-transformer-2000kva',
    t:'Steps the utility supply down to the building voltage. Everything in the hall starts here.',
    sp:[['Rating','2000 kVA'],['Type','Oil-immersed, conservator'],['Size','3000 × 1800 × 2300 mm']]},
@@ -511,10 +515,34 @@ const DC_SYSTEMS = [
 ];
 
 /* ── Navigation ── */
-const NAV = [
+let NAV = [
   {label:'Work', route:'work', children:[{label:'My projects', route:'work'},{label:'Object design', route:'objects'}]},
   {label:'About', route:'about'},
   {label:'Services', route:'services'},
   {label:'Process', route:'process'},
   {label:'Contact', route:'contact'}
 ];
+
+/* ── Content registry ────────────────────────────────────────────────────
+   The admin editor reads a snapshot with getContent() and applies published
+   edits with setContent(). Keys missing from an edit keep their defaults. */
+const CONTENT_SECTIONS = ['SITE','profile','SPECIALTIES','home','projects','FEATURED','HOME_PICKS','objects','OBJECT_TYPES','DC_SYSTEMS',
+  'services','processPhases','skillGroups','experience','freelanceNote','CONTACT','REQ_TYPES','REQ_TIMES','CATEGORIES','NAV'];
+function getContent(){
+  return JSON.parse(JSON.stringify({SITE, profile, SPECIALTIES, home, projects, FEATURED, HOME_PICKS, objects, OBJECT_TYPES, DC_SYSTEMS,
+    services, processPhases, skillGroups, experience, freelanceNote, CONTACT, REQ_TYPES, REQ_TIMES, CATEGORIES, NAV}));
+}
+function setContent(c){
+  if(!c || typeof c !== 'object') return;
+  const has = k => Object.prototype.hasOwnProperty.call(c, k) && c[k] !== null && c[k] !== undefined;
+  if(has('SITE')) SITE = c.SITE;                 if(has('profile')) profile = c.profile;
+  if(has('SPECIALTIES')) SPECIALTIES = c.SPECIALTIES; if(has('home')) home = c.home;
+  if(has('projects')) projects = c.projects;     if(has('FEATURED')) FEATURED = c.FEATURED;
+  if(has('HOME_PICKS')) HOME_PICKS = c.HOME_PICKS; if(has('objects')) objects = c.objects;
+  if(has('OBJECT_TYPES')) OBJECT_TYPES = c.OBJECT_TYPES; if(has('DC_SYSTEMS')) DC_SYSTEMS = c.DC_SYSTEMS;
+  if(has('services')) services = c.services;     if(has('processPhases')) processPhases = c.processPhases;
+  if(has('skillGroups')) skillGroups = c.skillGroups; if(has('experience')) experience = c.experience;
+  if(has('freelanceNote')) freelanceNote = c.freelanceNote; if(has('CONTACT')) CONTACT = c.CONTACT;
+  if(has('REQ_TYPES')) REQ_TYPES = c.REQ_TYPES;   if(has('REQ_TIMES')) REQ_TIMES = c.REQ_TIMES;
+  if(has('CATEGORIES')) CATEGORIES = c.CATEGORIES; if(has('NAV')) NAV = c.NAV;
+}

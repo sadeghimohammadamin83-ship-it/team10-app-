@@ -1,0 +1,1 @@
+{ "private": true, "description": "Build-time only: bundles the Firebase SDK subset into js/vendor/firebase.js", "dependencies": { "firebase": "12.19.0", "esbuild": "0.28.2" } }
