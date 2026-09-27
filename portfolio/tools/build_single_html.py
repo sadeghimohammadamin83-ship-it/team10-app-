@@ -16,10 +16,16 @@ data_uri = lambda p: f"data:{MIME[os.path.splitext(p)[1]]};base64,{b64(p)}"
 # CSS with fonts inlined
 css = re.sub(r'url\("\.\./(fonts/[^"]+)"\)', lambda m: f'url("{data_uri(m.group(1))}")', rd('css/site.css'))
 
-# Images: full-size only (no 800 px variants, so no srcset)
+# Images, with their 800 px variants so phones decode the small ones (srcset works as on the
+# live site). Stored as base64 and turned into blob: URLs only when first shown, so pages
+# never carry megabyte-long data: strings in their markup.
 media = json.loads(re.search(r'window\.MEDIA=(\{.*\});', rd('js/media.js')).group(1))
-imgs = {rel: data_uri('img/' + rel) for rel in media}
-media = {k: v[:2] + ([0, v[3]] if len(v) > 3 else []) for k, v in media.items()}   # keep the transparent-image flag
+imgs = {}
+for rel, v in media.items():
+    imgs[rel] = [MIME[os.path.splitext(rel)[1]], b64('img/' + rel)]
+    if len(v) > 2 and v[2]:
+        d, f = os.path.split(rel); small = os.path.join(d, 'sm', f).replace(os.sep, '/')
+        imgs[small] = [MIME[os.path.splitext(rel)[1]], b64('img/' + small)]
 
 # 3D model pages, opened from blob: URLs at runtime
 models = {f[:-5]: rd('models/' + f) for f in sorted(os.listdir(os.path.join(ROOT, 'models'))) if f.endswith('.html')}
@@ -27,7 +33,7 @@ models = {f[:-5]: rd('models/' + f) for f in sorted(os.listdir(os.path.join(ROOT
 app = rd('js/app.js')
 patches = [
     ("  const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return 'img/' + (small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };",
-     "  return window.IMG_INLINE[mediaRel(n)] || ''; };"),
+     "  const r = mediaRel(n), i = r.lastIndexOf('/') + 1; return window.IMG_URL(small ? r.slice(0, i) + 'sm/' + r.slice(i) : r); };"),
     ("const modelHref = key => `models/${String(key).replace(/^obj-/, '')}.html`;",
      "const modelHref = key => window.MODEL_URL(String(key).replace(/^obj-/, ''));"),
 ]
@@ -36,7 +42,15 @@ for a, b in patches:
     app = app.replace(a, b)
 
 models_js = json.dumps(models).replace('</', '<\\/')  # keep "</script>" inside model pages from closing the tag
-runtime = f"""window.IMG_INLINE={json.dumps(imgs)};
+# image data lives in inert <script type="application/octet-stream"> blocks before the app
+# scripts
+# page: the HTML parser skips through them quickly and no script ever parses them as code
+img_blocks = ''.join(f'<script type="application/octet-stream" data-img="{k}" data-mime="{v[0]}">{v[1]}</script>\n' for k, v in imgs.items())
+runtime = f"""(function(){{var cache={{}},el=null;
+window.IMG_URL=function(k){{if(cache[k]) return cache[k];
+if(!el){{el={{}}; document.querySelectorAll('script[data-img]').forEach(function(s){{el[s.getAttribute('data-img')]=s;}});}}
+var n=el[k]; if(!n) return ''; var s=atob(n.textContent),a=new Uint8Array(s.length); for(var i=0;i<s.length;i++) a[i]=s.charCodeAt(i);
+return cache[k]=URL.createObjectURL(new Blob([a],{{type:n.getAttribute('data-mime')}}));}};}})();
 window.MEDIA={json.dumps(media, separators=(',', ':'))};
 (function(){{var src={models_js},cache={{}};
 window.MODEL_URL=function(k){{return cache[k]||(cache[k]=URL.createObjectURL(new Blob([src[k]||''],{{type:'text/html'}})));}};}})();"""
@@ -50,6 +64,6 @@ html = re.sub(r'<link rel="(icon|apple-touch-icon)" href="(img/[^"]+)"', lambda 
 parts = [runtime] + [rd('js/' + f) for f in ('firebase-config.js', 'data.js', 'i18n-fa.js', 'dc-scene.js', 'vendor/firebase.js', 'cloud.js', 'account.js')] + [app]
 safe = lambda js: js.replace('</script', '<\\/script')   # a literal "</script" inside JS would end the tag
 scripts = ''.join('<script>\n' + safe(js) + '\n</script>\n' for js in parts)
-html = html.replace('</body>', scripts + '</body>')
+html = html.replace('</body>', img_blocks + scripts + '</body>')   # data first: the app starts as soon as its script is parsed
 open(OUT, 'w', encoding='utf-8').write(html)
 print(f'{OUT}: {os.path.getsize(OUT) / 1e6:.1f} MB')

@@ -319,7 +319,7 @@ window.FA_RX = [
   [/^(\d+) projects: data halls resolved inside existing buildings, technical documentation, a museum and a sports complex of my own, and an urban baseline study\. Client and project names are withheld throughout\.$/,
    m=>`${m[1]} پروژه: سالن‌های داده‌ای که درون ساختمان‌های موجود حل شده‌اند، مستندسازی فنی، یک موزه و یک مجموعه‌ی ورزشی از طرح‌های خودم، و یک مطالعه‌ی پایه‌ی شهری. نام کارفرماها و پروژه‌ها در همه‌جا محرمانه مانده است.`],
   [/^Tehran, IR — (\d{4})$/, m=>`تهران — ${m[1]}`],
-  [/^© (\d{4}) MohammadAmin Sadeghi\. Designed and developed with intention\.$/, m=>`© ${m[1]} محمدامین صادقی. طراحی و توسعه با دقت و وسواس.`],
+  [/^© (\d{4}) Amikat Design Studio\. Designed and developed with intention\.$/, m=>`© ${m[1]} استودیو طراحی آمیکات. طراحی و توسعه با دقت و وسواس.`],
   [/^(.+) \(opens in a new tab\)$/, (m,t)=>`${t(m[1])} (در زبانه‌ی جدید باز می‌شود)`]
 ];
 Object.assign(window.FA,{

@@ -176,7 +176,7 @@ function renderChrome(){
     <div class="container"><div class="footer-panel">
       <div class="footer-top">
         <div class="footer-id">
-          <p class="footer-name">${esc(profile.name)}</p>
+          <p class="footer-name">${esc(SITE.name || 'Amikat')}</p>
           <p class="muted">${esc(profile.role)}</p>
           <p class="small muted footer-loc">${esc(profile.location)} · ${esc(profile.status)}</p>
           <a class="btn btn-ghost" href="#/contact">Start a project ${I.arrow}</a>
@@ -192,7 +192,7 @@ function renderChrome(){
           </ul></div>
       </div>
       <div class="footer-bottom">
-        <p class="small muted">© ${year} ${esc(profile.name)}. ${esc(profile.footNote)}</p>
+        <p class="small muted">© ${year} ${esc(SITE.name || 'Amikat')} Design Studio. ${esc(profile.footNote)}</p>
         <button type="button" class="label to-top" data-top>Back to top</button>
       </div>
     </div></div>
@@ -344,7 +344,7 @@ R.index = function(){
       <div class="hero-copy">
         <p class="hero-kicker label rv"><span class="status-dot" aria-hidden="true"></span>${esc(profile.location)} · ${esc(profile.status)}</p>
         <h1 class="hero-name rv" id="hero-name" tabindex="-1">${heroName(SITE.name || 'Amikat')}</h1>
-        <p class="hero-role rv"><span class="hr-by"><span class="hr-name">${esc(profile.name)}</span><span class="hr-job">${esc(profile.role)}</span></span></p>
+        <p class="hero-role rv">${esc(profile.role)}</p>
         <p class="hero-sub rv">${esc(profile.heroSub)}</p>
         <ul class="hero-spec rv" aria-label="Specialties">${SPECIALTIES.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
         <div class="hero-cta rv">
