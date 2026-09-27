@@ -23,6 +23,9 @@ Once the live address is known, set `SITE.url` in `js/data.js`, and replace the 
 2. Run `python3 tools/build_images.py` (needs Pillow). It creates the 800 px variants and updates `js/media.js`.
 3. Copy an existing entry in the `projects` array of `js/data.js` and edit it. Optional fields (`overview`, `approach`, `groups`, `gallery`, `proposal`, `model`, `boards` …) show up only when present.
 
+## Logo
+The mark and wordmark are generated geometry, not traced images. Edit the constants in `tools/brand.py` and run `python3 tools/brand.py` (needs shapely). It rewrites the logo sprite in `index.html` and `img/logo-mark.svg`.
+
 ## Theme and language
 Dark is the default; the toggle switches to light. EN / FA swaps interface text in place and switches to right-to-left. Project case studies stay in English.
 

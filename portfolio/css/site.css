@@ -181,11 +181,11 @@ html[dir="rtl"] .ul{background-position:100% 100%}
   box-shadow:var(--shadow-sm);transition:background-color var(--t),border-color var(--t)}
 .nav.stuck .nav-in{background:var(--glass-solid);border-color:var(--line-2)}
 .brand{display:inline-flex;align-items:center;gap:.6rem;min-height:44px;flex:none}
-.brand-mark{height:32px;width:auto;transition:transform var(--t) var(--ease)}
+.brand-mark{height:34px;width:auto;transition:transform var(--t) var(--ease)}
 .brand:hover .brand-mark{transform:translateY(-1px) scale(1.04)}
-.brand-t{display:flex;flex-direction:column;gap:.3rem;direction:ltr}
-.brand-word{height:.7rem;width:auto}
-.brand-t small{font-size:.5rem;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);line-height:1}
+.brand-t{display:flex;flex-direction:column;gap:.38rem;direction:ltr;padding-inline-start:.7rem;border-inline-start:1px solid color-mix(in srgb,var(--ink) 16%,transparent)}
+.brand-word{height:.8rem;width:auto}
+.brand-t small{font-size:.5625rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);line-height:1;white-space:nowrap}
 .nav-links{display:none;align-items:center;gap:.15rem}
 @media(min-width:1024px){.nav-links{display:flex}}
 .nav-a{position:relative;display:inline-flex;align-items:center;min-height:40px;padding:0 .85rem;border-radius:var(--r-pill);font-size:.8125rem;color:var(--muted);transition:color var(--t-fast)}
@@ -201,7 +201,7 @@ html[dir="rtl"] .ul{background-position:100% 100%}
 #curBtn{display:none}
 @media(min-width:1024px) and (hover:hover){#curBtn{display:inline-grid}}
 @media(max-width:1023px){.nav .lang-nav{display:none}}
-@media(max-width:400px){.nav-in{padding-inline:.8rem .4rem}.brand-mark{height:28px}.brand-word{height:.6rem}}
+@media(max-width:400px){.nav-in{padding-inline:.8rem .4rem}.brand{gap:.5rem}.brand-mark{height:28px}.brand-t{padding-inline-start:.5rem}.brand-word{height:.66rem}.brand-t small{font-size:.5rem;letter-spacing:.24em}}
 
 .lang{display:inline-flex;padding:3px;border-radius:var(--r-pill);border:1px solid var(--line);direction:ltr;flex:none}
 .lang button{min-width:2.5rem;height:34px;border-radius:var(--r-pill);font-size:.6875rem;font-weight:500;letter-spacing:.08em;color:var(--muted);transition:background-color var(--t-fast),color var(--t-fast)}
@@ -605,12 +605,7 @@ html[dir="rtl"] .tile::after{transform:rotate(-45deg)}
 .card:hover .card-title{color:var(--accent)}
 .card:hover .card-go{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .card:focus-visible{outline-offset:6px;border-radius:var(--r-lg)}
-/* pointer glow on cards (fine pointers) */
-@media(hover:hover) and (pointer:fine){
-  .plat::before,.tile::before,.obj::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity var(--t);border-radius:inherit;
-    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--blue) 12%,transparent),transparent 60%)}
-  .plat:hover::before,.tile:hover::before,.obj:hover::before{opacity:1}
-}
+
 
 /* ── 11 Page heads · filters ───────────────────────────────────────── */
 .page-head{display:grid;gap:var(--space-md);padding-top:calc(var(--nav-h) + var(--nav-top) + clamp(2.5rem,7vw,6rem));padding-bottom:var(--space-lg)}
@@ -725,12 +720,9 @@ html[dir="rtl"] .tile::after{transform:rotate(-45deg)}
 .related{padding-block:var(--space-xl)}
 .related .works{margin-top:var(--space-lg)}
 .next-proj{border-top:1px solid var(--line);background:var(--bg-2)}
-.next-proj a{position:relative;display:grid;gap:var(--space-xs);padding-block:clamp(3rem,7vw,5.5rem);padding-inline-end:calc(var(--gutter) + 4rem)}
 .next-t{transition:color var(--t-fast)}
 .next-go{position:absolute;inset-inline-end:var(--gutter);top:50%;width:56px;height:56px;margin-top:-28px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-2);transition:background-color var(--t-fast),color var(--t-fast),border-color var(--t-fast)}
 .next-go svg{width:20px;height:20px}
-.next-proj a:hover .next-t{color:var(--accent)}
-.next-proj a:hover .next-go{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 img[role="button"]:focus-visible{outline-offset:-4px}
 
 /* ── 14 Lightbox · 3D viewer ───────────────────────────────────────── */
@@ -894,8 +886,8 @@ textarea.inp{min-height:120px;resize:vertical;line-height:1.6}
 .noscript a{text-decoration:underline}
 
 /* ── 17 Motion · intro ─────────────────────────────────────────────── */
-.rv{opacity:0;transform:translateY(18px);transition:opacity .9s var(--ease),transform 1s var(--ease)}
-.rv.in{opacity:1;transform:none}
+.rv{opacity:0;translate:0 18px;transition:opacity .9s var(--ease),translate 1s var(--ease)}
+.rv.in{opacity:1;translate:none}
 #main.pg-out{opacity:0;transition:opacity .16s ease}
 #main.pg-in{animation:pgIn .55s var(--ease) backwards}
 @keyframes pgIn{from{opacity:0;transform:translateY(10px)}}
@@ -967,9 +959,211 @@ html[dir="rtl"] #main[dir="ltr"]{text-align:left}
 html[dir="rtl"] .menu-sub{padding:0 2.4rem var(--space-sm) 0}
 html[dir="rtl"] .i-log{text-align:left}
 
+/* ══ 19 Liquid glass ═══════════════════════════════════════════════════
+   Surfaces are layered glass over a soft, static ambient light field:
+   a translucent tint, a diagonal sheen, a gradient edge that catches light
+   top-left and bottom-right, an inner top highlight, and a pointer-following
+   specular spot on fine pointers. One recipe, shared by every surface.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root,:root[data-theme="dark"]{
+  --lg-tint:rgba(16,20,26,.46);
+  --lg-tint-strong:rgba(14,17,22,.78);
+  --lg-sheen:linear-gradient(135deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.025) 42%,rgba(255,255,255,0) 60%,rgba(255,255,255,.04) 100%);
+  --lg-edge:linear-gradient(150deg,rgba(255,255,255,.38) 0%,rgba(255,255,255,.09) 28%,rgba(255,255,255,.03) 55%,rgba(255,255,255,.07) 78%,rgba(255,255,255,.22) 100%);
+  --lg-spot:rgba(255,255,255,.075);
+  --lg-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.28),0 24px 50px -30px rgba(0,0,0,.85);
+  --lg-shadow-sm:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.25),0 8px 20px -12px rgba(0,0,0,.7);
+  --lg-blur:22px;
+  --amb-1:rgba(255,90,54,.17); --amb-2:rgba(156,203,234,.15); --amb-3:rgba(70,120,200,.13);
+  --glass:rgba(16,20,26,.5); --glass-solid:rgba(18,22,28,.86);
+}
+:root[data-theme="light"]{
+  --lg-tint:rgba(255,255,255,.52);
+  --lg-tint-strong:rgba(255,255,255,.86);
+  --lg-sheen:linear-gradient(135deg,rgba(255,255,255,.75) 0%,rgba(255,255,255,.2) 45%,rgba(255,255,255,0) 62%,rgba(255,255,255,.35) 100%);
+  --lg-edge:linear-gradient(150deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.55) 30%,rgba(200,215,230,.5) 60%,rgba(255,255,255,.9) 100%);
+  --lg-spot:rgba(255,255,255,.55);
+  --lg-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(15,40,70,.06),0 0 0 1px rgba(15,40,70,.05),0 24px 48px -30px rgba(15,40,70,.35);
+  --lg-shadow-sm:inset 0 1px 0 #fff,0 0 0 1px rgba(15,40,70,.06),0 8px 18px -12px rgba(15,40,70,.3);
+  --amb-1:rgba(224,78,36,.13); --amb-2:rgba(47,118,168,.16); --amb-3:rgba(120,160,230,.18);
+  --glass:rgba(255,255,255,.6); --glass-solid:rgba(255,255,255,.9);
+}
+
+/* ambient light the glass picks up — static, no animation */
+body{background:var(--bg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(38vmax 30vmax at 8% 6%,var(--amb-1),transparent 70%),
+    radial-gradient(40vmax 34vmax at 96% 28%,var(--amb-2),transparent 70%),
+    radial-gradient(42vmax 34vmax at 24% 92%,var(--amb-3),transparent 72%),
+    radial-gradient(30vmax 24vmax at 78% 96%,var(--amb-1),transparent 70%)}
+/* open the solid bands so the light field shows through */
+.section--band,.cta-band,.footer,.next-proj{background:transparent}
+.section--band{border-block:0}
+
+/* the shared recipe */
+:is(.nav-in,.menu,.dd-m,.card,.plat,.feat-i,.tile,.stats,.sys-aside,.obj,.pr-card,.pr-node,.req,.act,.titleblock,.metrics,.empty,.portrait,
+    .dcs-stage,.dcs-panel,.dcs-legend,.dcs-back,.dcs-tip,.chips,.feat-tabs,.wtabs,.pr-rail,.lang,.btn-ghost,.icon-btn,.pill,.hero-spec li,
+    .fab-top,#toast,.chip-card,.ui-card,.radio,.icon-b,.cta-panel,.footer-panel,.viewer-in,.next-card,.pr-gate>span){
+  border:1px solid transparent;
+  background:
+    radial-gradient(360px circle at var(--mx,-999px) var(--my,-999px),var(--lg-spot),transparent 60%) padding-box,
+    var(--lg-sheen) padding-box,
+    linear-gradient(var(--lg-tint),var(--lg-tint)) padding-box,
+    var(--lg-edge) border-box;
+  -webkit-backdrop-filter:blur(var(--lg-blur)) saturate(170%);backdrop-filter:blur(var(--lg-blur)) saturate(170%);
+  box-shadow:var(--lg-shadow)}
+:is(.btn-ghost,.icon-btn,.pill,.hero-spec li,.lang,.chips,.feat-tabs,.wtabs,.pr-rail,.dcs-legend,.dcs-back,.dcs-tip,.radio,.icon-b,.fab-top,.chip-card,.ui-card,.pr-gate>span){box-shadow:var(--lg-shadow-sm)}
+/* floating layers read over busy content: a denser tint */
+:is(.nav.stuck .nav-in,.menu,.dd-m,.dcs-panel,.dcs-tip,#toast,.viewer-in,.chip-card,.ui-card){--lg-tint:var(--lg-tint-strong)}
+.menu{border:0;box-shadow:none;--lg-blur:30px}
+.viewer-in{--lg-blur:10px}
+/* hover: the tint lifts and the edge brightens */
+:is(.card,.plat,.tile,.obj,.btn-ghost,.icon-btn,.act,.feat-i,.pr-card){transition:opacity .9s var(--ease),translate .6s var(--ease),transform .45s var(--ease),box-shadow var(--t),border-color var(--t-fast),color var(--t-fast),background-color var(--t-fast)}
+@media(hover:hover){
+  :is(.card,.plat,.tile,.obj,.feat-i,.pr-card):hover{translate:0 -4px;box-shadow:var(--lg-shadow),0 30px 60px -32px color-mix(in srgb,var(--accent) 38%,transparent)}
+  :is(.btn-ghost,.icon-btn,.icon-b):hover{border-color:transparent;color:var(--ink);box-shadow:var(--lg-shadow-sm),0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
+  .plat:hover,.tile:hover,.obj:hover{border-color:transparent}
+}
+
+/* glossy primary + accent buttons */
+.btn-primary,.chip[aria-pressed="true"],.feat-tabs button[aria-selected="true"],.wtab[aria-current="page"],.pr-rail button[aria-current],.lang button[aria-pressed="true"],.fab{
+  background:linear-gradient(180deg,#FFFFFF 0%,#E9EDF1 55%,#D5DBE1 100%);color:#0A0B0D;
+  box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(0,0,0,.18),0 10px 22px -12px rgba(0,0,0,.7)}
+:root[data-theme="light"] :is(.btn-primary,.chip[aria-pressed="true"],.feat-tabs button[aria-selected="true"],.wtab[aria-current="page"],.pr-rail button[aria-current],.lang button[aria-pressed="true"],.fab){
+  background:linear-gradient(180deg,#2B3440 0%,#141A22 60%,#0B0F14 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px -12px rgba(15,40,70,.55)}
+.btn-accent,.btn-primary:hover,.fab:hover,.ok-ic{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 72%,#fff) 0%,var(--accent) 52%,color-mix(in srgb,var(--accent) 82%,#000) 100%);color:var(--on-accent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.25),0 12px 28px -12px color-mix(in srgb,var(--accent) 75%,transparent)}
+.btn-accent:hover{filter:brightness(1.06);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 72%,#fff) 0%,var(--accent) 52%,color-mix(in srgb,var(--accent) 82%,#000) 100%)}
+.chip[aria-pressed="true"]:hover,.wtab[aria-current="page"]:hover{color:#0A0B0D}
+:root[data-theme="light"] .chip[aria-pressed="true"]:hover{color:#fff}
+
+/* project cards become glass frames around their image */
+.card{padding:.5rem;border-radius:calc(var(--r-lg) + 4px)}
+.card-media{border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.card-body{padding:.9rem .6rem .5rem}
+.card-tag{background:rgba(10,11,13,.45);border-color:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.card-go{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+.works{gap:clamp(1rem,2vw,1.5rem)}
+
+/* panels that were flat bands */
+.stats{background-clip:padding-box}
+.stat+.stat{border-inline-start-color:rgba(255,255,255,.08)}
+:root[data-theme="light"] .stat+.stat{border-inline-start-color:rgba(15,40,70,.08)}
+@media(max-width:899px){.stat:nth-child(n+3){border-top-color:rgba(127,127,127,.14)}}
+.tb-cell,.metric{box-shadow:1px 0 0 rgba(127,127,127,.14),0 1px 0 rgba(127,127,127,.14)}
+.titleblock,.metrics{overflow:hidden}
+.sys-list{border-top-color:rgba(127,127,127,.18)}
+.dcs-stage{background:
+    radial-gradient(70% 60% at 55% 45%,rgba(255,255,255,.05),transparent 70%) padding-box,
+    var(--lg-sheen) padding-box,linear-gradient(var(--lg-tint),var(--lg-tint)) padding-box,var(--lg-edge) border-box}
+.obj-vis{background-color:transparent;border-bottom-color:rgba(127,127,127,.16)}
+.feat-i .ico,.act-ic,.pr-ic{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.inp{background:color-mix(in srgb,var(--bg) 55%,transparent);border-color:rgba(127,127,127,.28);box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.req-pre{background:color-mix(in srgb,var(--bg) 55%,transparent)}
+.gl-f,.case-cover-f{box-shadow:var(--lg-shadow-sm)}
+
+/* CTA and footer sit on their own glass panels */
+.cta-panel{max-width:60rem;margin-inline:auto;padding:clamp(2rem,6vw,4.5rem) clamp(1.25rem,4vw,3rem);border-radius:calc(var(--r-lg) + 8px)}
+.cta-band{border-top:0}
+.cta-band::before{display:none}
+.footer{border-top:0;padding-top:0}
+.footer-panel{padding:clamp(1.5rem,4vw,3rem);border-radius:calc(var(--r-lg) + 8px)}
+.footer-bottom{border-top-color:rgba(127,127,127,.16)}
+.next-proj{border-top:0;padding-block:var(--space-lg)}
+.next-card{position:relative;display:grid;gap:var(--space-xs);padding:clamp(1.75rem,5vw,3.5rem);padding-inline-end:calc(clamp(1.75rem,5vw,3.5rem) + 4rem);border-radius:calc(var(--r-lg) + 8px)}
+.next-card .next-go{inset-inline-end:clamp(1.25rem,4vw,3rem)}
+.next-card:hover .next-t{color:var(--accent)}
+.next-card:hover .next-go{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* overlays: frosted rather than black */
+.lb,.viewer{background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+:root[data-theme="light"] .lb{background:rgba(10,12,16,.82)}
+
+/* smaller screens: lighter blur keeps scrolling smooth */
+@media(max-width:760px){:root{--lg-blur:14px}}
+/* visitors who ask for less transparency get solid surfaces */
+@media(prefers-reduced-transparency:reduce){
+  :root{--lg-tint:var(--surface);--lg-tint-strong:var(--surface);--lg-blur:0px}
+  body::before{display:none}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :root{--lg-tint:var(--glass-solid)}
+}
+
+/* ══ 20 Motion layer ════════════════════════════════════════════════════
+   Everything here is decorative and switches off under reduced motion.
+   ═══════════════════════════════════════════════════════════════════════ */
+/* ambient light drifts very slowly */
+body::before{inset:-12%;animation:ambDrift 36s ease-in-out infinite alternate;will-change:transform}
+@keyframes ambDrift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-3vmax,2vmax,0) scale(1.06)}100%{transform:translate3d(2.5vmax,-2vmax,0) scale(1)}}
+
+/* hero: the drawing grid lights up under the cursor */
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .5s var(--ease);
+  background-image:linear-gradient(color-mix(in srgb,var(--blue) 42%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--blue) 42%,transparent) 1px,transparent 1px);background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(240px circle at var(--hx,50%) var(--hy,50%),#000 0%,rgba(0,0,0,.45) 45%,transparent 72%);mask-image:radial-gradient(240px circle at var(--hx,50%) var(--hy,50%),#000 0%,rgba(0,0,0,.45) 45%,transparent 72%)}
+.hero.lit::after{opacity:1}
+
+/* hero name rises out of a mask, line by line */
+.hero-name.rv{translate:none}
+.hero-name.rv span{clip-path:inset(0 0 100% 0);translate:0 45%}
+.hero-name.in span{animation:nameIn 1.15s var(--ease) both}
+.hero-name.in span:last-child{animation-delay:.14s}
+@keyframes nameIn{from{clip-path:inset(0 0 100% 0);translate:0 45%}to{clip-path:inset(-15% -5% -25% -5%);translate:none}}
+.hero-role::before{transform-origin:0 50%;transition:scale 1s var(--ease) .5s}
+.hero-role.rv::before{scale:0 1}.hero-role.in::before{scale:1 1}
+html[dir="rtl"] .hero-role::before{transform-origin:100% 50%}
+
+/* headings wipe in from their top edge */
+.sec-head.rv .h2,.h1.rv{clip-path:inset(0 0 100% 0);transition:clip-path 1.1s var(--ease) .08s,translate 1s var(--ease),opacity .9s var(--ease)}
+.sec-head.rv.in .h2,.h1.rv.in{clip-path:inset(-20% -5% -30% -5%)}
+.sec-rule{position:relative}
+.sec-head.rv .sec-rule{border-top-color:transparent}
+.sec-head.rv .sec-rule::before{content:"";position:absolute;inset-inline:0;top:-1px;height:1px;background:var(--line);transform-origin:0 50%;scale:0 1;transition:scale 1.2s var(--ease)}
+html[dir="rtl"] .sec-head.rv .sec-rule::before{transform-origin:100% 50%}
+.sec-head.rv.in .sec-rule::before{scale:1 1}
+
+/* images open like a drawing being unrolled */
+.card.rv .card-media,.cs-sec.rv .gl-f{clip-path:inset(10% 8% 10% 8% round var(--r-lg));transition:clip-path 1.3s var(--ease) .1s}
+.card.rv .card-media img,.cs-sec.rv .gl-f img{scale:1.14;transition:scale 1.6s var(--ease) .1s,transform 1.1s var(--ease)}
+.card.rv.in .card-media,.cs-sec.rv.in .gl-f{clip-path:inset(0 round var(--r-md))}
+.card.rv.in .card-media{clip-path:inset(0 round var(--r-lg))}
+.card.rv.in .card-media img,.cs-sec.rv.in .gl-f img{scale:1}
+
+/* light passes across glass panels as they arrive, and again on hover */
+:is(.card,.plat,.obj,.feat-i,.stats,.cta-panel,.sys-aside,.pr-card,.next-card){position:relative}
+:is(.card,.plat,.obj,.feat-i,.stats,.cta-panel,.sys-aside,.pr-card,.next-card)::after{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(112deg,transparent 36%,rgba(255,255,255,.13) 47%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.13) 53%,transparent 64%) no-repeat;background-size:260% 100%;background-position:150% 0}
+:root[data-theme="light"] :is(.card,.plat,.obj,.feat-i,.stats,.cta-panel,.sys-aside,.pr-card,.next-card)::after{background-image:linear-gradient(112deg,transparent 36%,rgba(255,255,255,.55) 50%,transparent 64%)}
+:is(.card,.plat,.obj,.feat-i,.cta-panel,.sys-aside).in::after,.stats:has(.stat.in)::after,.pr-step.in .pr-card::after{animation:sheen 1.8s var(--ease) .35s both}
+@media(hover:hover){:is(.card,.plat,.obj,.feat-i,.cta-panel,.sys-aside,.pr-card,.next-card):hover::after{animation:sheenHover 1.1s var(--ease) both}}
+@keyframes sheen{from{background-position:150% 0}to{background-position:-50% 0}}
+@keyframes sheenHover{from{background-position:150% 0}to{background-position:-50% 0}}
+
+/* tilt (set from the pointer) and magnetic buttons */
+:is(.card,.plat,.obj,.feat-i){transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d}
+.btn{translate:var(--tx,0) var(--ty,0);transition:background-color var(--t-fast),color var(--t-fast),border-color var(--t-fast),transform var(--t) var(--ease),translate .35s var(--ease),box-shadow var(--t),filter var(--t-fast)}
+
+/* stats numbers settle in with a soft blur */
+.stat.rv .stat-v{filter:blur(6px);transition:filter 1s var(--ease) .2s}
+.stat.rv.in .stat-v{filter:none}
+
+/* scene: a slow scan line over the data hall */
+.dcs-stage::after{content:"";position:absolute;inset-inline:0;top:0;height:30%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--blue) 7%,transparent) 70%,color-mix(in srgb,var(--blue) 22%,transparent) 99%,transparent);
+  translate:0 -100%;animation:scan 7s cubic-bezier(.45,0,.55,1) 1.5s infinite}
+.dcs.focus .dcs-stage::after,.dcs.paused .dcs-stage::after{animation-play-state:paused;opacity:0}
+@keyframes scan{0%{translate:0 -100%}70%,100%{translate:0 340%}}
+
 /* ── Reduced motion: no transforms-in-motion, no looping animation ── */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
-  .rv{opacity:1;transform:none}
+  body::before,.dcs-stage::after{animation:none!important}
+  .hero-name.rv span{clip-path:none;translate:none}
+  :is(.card,.plat,.obj,.feat-i){transform:none}
+  .rv{opacity:1;translate:none}
+  .rv :is(.card-media,.gl-f),.rv .h2,.rv.h1{clip-path:none!important}
   .iso .rise{display:none}
 }
+.lm-f{fill:url(#amFloor)}

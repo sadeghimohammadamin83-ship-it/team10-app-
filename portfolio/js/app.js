@@ -128,8 +128,8 @@ function renderChrome(){
   <header class="nav" id="nav">
     <nav class="nav-in" aria-label="Primary">
       <a class="brand" href="#/" aria-label="${esc(profile.name)} — home">
-        <svg class="brand-mark" viewBox="0 0 1560 1350" aria-hidden="true"><use href="#amMark"/></svg>
-        <span class="brand-t" data-noi18n><svg class="brand-word" viewBox="0 0 3980 300" aria-hidden="true"><use href="#amWord"/></svg><small>Data center designer</small></span>
+        <svg class="brand-mark" viewBox="0 0 128 109" aria-hidden="true"><use href="#amMark"/></svg>
+        <span class="brand-t" data-noi18n><svg class="brand-word" viewBox="0 0 1274 100" aria-hidden="true"><use href="#amWord"/></svg><small>Data center designer</small></span>
       </a>
       <ul class="nav-links">${links}</ul>
       <div class="nav-tools">
@@ -155,7 +155,7 @@ function renderChrome(){
   const year = new Date().getFullYear();
   document.body.insertAdjacentHTML('beforeend', `
   <footer class="footer">
-    <div class="container">
+    <div class="container"><div class="footer-panel">
       <div class="footer-top">
         <div class="footer-id">
           <p class="footer-name">${esc(profile.name)}</p>
@@ -177,7 +177,7 @@ function renderChrome(){
         <p class="small muted">© ${year} ${esc(profile.name)}. ${esc(profile.footNote)}</p>
         <button type="button" class="label to-top" data-top>Back to top</button>
       </div>
-    </div>
+    </div></div>
   </footer>
   <div class="fabs">
     <a id="fab" class="fab" href="#/contact">Get in touch ${I.arrow}</a>
@@ -409,11 +409,11 @@ R.index = function(){
 
 const ctaBand = () => `
   <section class="section cta-band" aria-labelledby="cta-h">
-    <div class="container cta-in">
-      <p class="label rv">Start a project</p>
-      <h2 class="h2 rv" id="cta-h">Tell me what is already built, and what has to fit inside it.</h2>
-      <div class="rv"><a class="btn btn-accent" href="#/contact">Start a project ${I.arrow}</a></div>
-    </div>
+    <div class="container"><div class="cta-panel cta-in rv">
+      <p class="label">Start a project</p>
+      <h2 class="h2" id="cta-h">Tell me what is already built, and what has to fit inside it.</h2>
+      <div><a class="btn btn-accent" href="#/contact">Start a project ${I.arrow}</a></div>
+    </div></div>
   </section>`;
 
 /* Featured stage: a sheet with drawing annotations layered in depth. */
@@ -436,7 +436,7 @@ function stageHTML(k){
       <div class="layer chip-card palette-card" data-depth="16" aria-hidden="true"><b>PALETTE</b>${esc(f.palName)}<div class="sw">${f.pal.map(c => `<span style="background:${c}"></span>`).join('')}</div></div>
       <div class="layer ui-card" data-depth="22" aria-hidden="true"><div class="bar"><span></span><span></span><span></span></div>${img(f.thumb, {sizes: '160px', cls: 'blk-h'})}<div class="blk"></div><div class="blk" style="width:60%"></div></div>
       <div class="layer chip-card sheet-tag" data-depth="12" aria-hidden="true"><b>${esc(f.sheet)}</b>${f.rows.map(([a, b]) => `<div class="row"><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
-      <div class="layer stage-mark" data-depth="9" aria-hidden="true"><svg viewBox="0 0 1560 1350"><use href="#amMark"/></svg></div>
+      <div class="layer stage-mark" data-depth="9" aria-hidden="true"><svg viewBox="0 0 128 109"><use href="#amMark"/></svg></div>
     </div>`;
 }
 function homeWork(){
@@ -681,12 +681,12 @@ R.project = function(){
     </section>
 
     <nav class="next-proj" aria-label="Next project">
-      <a class="container" href="#/work/${next.slug}">
+      <div class="container"><a class="next-card" href="#/work/${next.slug}">
         <span class="label">Next project</span>
         <span class="next-t h2">${esc(next.title)}</span>
         <span class="small muted">${esc(next.discipline || next.category)} · ${esc(next.year)}</span>
         <span class="next-go" aria-hidden="true">${I.arrow}</span>
-      </a>
+      </a></div>
     </nav>
   </article>`;
 
@@ -999,13 +999,26 @@ R.notfound = function(){
    SCROLL REVEALS
    ═══════════════════════════════════════════════════════════════════════ */
 let revealIO = null;
+/* Section labels decode like a status readout (English only — Persian text
+   is swapped in by node, so it is left untouched). */
+function scramble(el){
+  if(!el || CALM || LANG === 'fa') return;
+  const node = [...el.childNodes].find(n => n.nodeType === 3 && n.nodeValue.trim()); if(!node) return;
+  const final = node.nodeValue, glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/+-', t0 = performance.now(), dur = 750;
+  const step = now => { if(!node.isConnected) return;
+    const k = Math.min(1, (now - t0) / dur), n = Math.floor(final.length * k);
+    node.nodeValue = k < 1 ? final.slice(0, n) + final.slice(n).replace(/\S/g, () => glyphs[Math.random() * glyphs.length | 0]) : final;
+    if(k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 function reveals(){
   const els = $$('.rv:not(.in)');
   if(CALM || !('IntersectionObserver' in window)){ els.forEach(e => e.classList.add('in')); return; }
   revealIO = revealIO || new IntersectionObserver(es => {
     let n = 0;
     es.forEach(e => { if(!e.isIntersecting) return; const el = e.target;
-      el.style.transitionDelay = `${Math.min(n++, 5) * 60}ms`; el.classList.add('in'); revealIO.unobserve(el); });
+      el.style.transitionDelay = `${Math.min(n++, 5) * 60}ms`; el.classList.add('in'); revealIO.unobserve(el);
+      if(el.classList.contains('sec-head')) scramble($('.sec-rule .label', el)); });
   }, {rootMargin: '0px 0px -8% 0px'});
   els.forEach(e => revealIO.observe(e));
 }
@@ -1181,8 +1194,8 @@ function intro(){
   <div id="intro" class="intro" data-noi18n lang="en" dir="ltr">
     <div class="i-door i-l" aria-hidden="true">${rackDoor('l')}</div><div class="i-door i-r" aria-hidden="true">${rackDoor('r')}</div>
     <div class="i-core" aria-hidden="true">
-      <svg class="i-logo" viewBox="0 0 1560 1350"><use href="#amMark"/></svg>
-      <svg class="i-word" viewBox="0 0 3980 300"><use href="#amWord"/></svg>
+      <svg class="i-logo" viewBox="0 0 128 109"><use href="#amMark"/></svg>
+      <svg class="i-word" viewBox="0 0 1274 100"><use href="#amWord"/></svg>
       <p class="i-tag">Data center designer</p>
       <ul class="i-log">${[['POWER', 'UTILITY + UPS', 'OK'], ['COOLING', 'CRAH N+1', 'OK'], ['CONTAINMENT', 'COLD AISLE', 'SEALED'], ['RACKS', '16 / 16', 'ONLINE']].map(([k, v, b], i) =>
         `<li style="--i:${i}"><span class="k">${k}</span><span class="dots"></span><span class="v">${v}</span><b>${b}</b></li>`).join('')}</ul>
@@ -1216,11 +1229,31 @@ async function boot(){
   [PAGE] = parseHash();
   intro();
   route();
-  // Soft pointer glow on cards (fine pointers only).
-  if(FINE && !CALM) document.addEventListener('pointermove', e => {
-    const c = e.target.closest && e.target.closest('.card,.plat,.tile,.obj'); if(!c) return;
-    const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
-  }, {passive: true});
+  if(FINE && !CALM) pointerEffects();
+}
+
+/* Fine pointers only: specular spot on glass, a gentle 3D tilt on cards,
+   magnetic primary buttons and the lit grid in the hero. */
+function pointerEffects(){
+  let tilt = null, magnet = null, raf = 0, ev = null;
+  const reset = (el, props) => el && props.forEach(p => el.style.removeProperty(p));
+  const frame = () => { raf = 0; const e = ev, t = e.target; if(!t.closest) return;
+    const glass = t.closest('.card,.plat,.tile,.obj,.feat-i,.sys-aside,.pr-card,.act,.req,.stats,.cta-panel,.next-card,.dcs-panel,.btn-ghost,.icon-btn,.pill');
+    if(glass){ const r = glass.getBoundingClientRect(); glass.style.setProperty('--mx', (e.clientX - r.left) + 'px'); glass.style.setProperty('--my', (e.clientY - r.top) + 'px'); }
+    const c = t.closest('.card,.plat,.obj,.feat-i');
+    if(c !== tilt){ reset(tilt, ['--rx', '--ry']); tilt = c; }
+    if(c){ const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+      c.style.setProperty('--rx', (-py * 5).toFixed(2) + 'deg'); c.style.setProperty('--ry', (px * 6).toFixed(2) + 'deg'); }
+    const m = t.closest('.btn-primary,.btn-accent');
+    if(m !== magnet){ reset(magnet, ['--tx', '--ty']); magnet = m; }
+    if(m){ const r = m.getBoundingClientRect();
+      m.style.setProperty('--tx', ((e.clientX - r.left - r.width / 2) * .18).toFixed(1) + 'px'); m.style.setProperty('--ty', ((e.clientY - r.top - r.height / 2) * .3).toFixed(1) + 'px'); }
+    const hero = t.closest('.hero');
+    $$('.hero').forEach(h => { if(h !== hero) h.classList.remove('lit'); });
+    if(hero){ const r = hero.getBoundingClientRect(); hero.style.setProperty('--hx', (e.clientX - r.left) + 'px'); hero.style.setProperty('--hy', (e.clientY - r.top) + 'px'); hero.classList.add('lit'); }
+  };
+  document.addEventListener('pointermove', e => { ev = e; if(!raf) raf = requestAnimationFrame(frame); }, {passive: true});
+  document.addEventListener('pointerleave', () => { reset(tilt, ['--rx', '--ry']); reset(magnet, ['--tx', '--ty']); tilt = magnet = null; $$('.hero').forEach(h => h.classList.remove('lit')); });
 }
 boot();
 })();
