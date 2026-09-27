@@ -1,0 +1,43 @@
+rules_version = '2';
+// Security rules for the portfolio's accounts, project requests and published content.
+// Paste into Firebase console → Firestore Database → Rules, then Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    // The admin is identified by the sign-in email. Create this account first
+    // (Authentication → Users → Add user) so nobody else can register it.
+    function isAdmin() { return signedIn() && request.auth.token.email == 'sadeghimohammadamin83@gmail.com'; }
+
+    // Published site content: everyone reads, only the admin writes.
+    match /site/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // Images uploaded from the admin editor.
+    match /media/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin()
+        && (request.resource == null || request.resource.data.data is string);
+    }
+    // One profile per account.
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'createdAt', 'updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80;
+      allow delete: if isAdmin();
+    }
+    // Project requests from the contact form (with or without an account).
+    match /requests/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'type', 'time', 'msg', 'link', 'via', 'lang', 'uid', 'status', 'createdAt'])
+        && request.resource.data.status == 'new'
+        && request.resource.data.name is string && request.resource.data.name.size() <= 120
+        && request.resource.data.msg is string && request.resource.data.msg.size() <= 4000
+        && (request.resource.data.uid == null || (signedIn() && request.resource.data.uid == request.auth.uid));
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      allow delete: if isAdmin();
+    }
+  }
+}

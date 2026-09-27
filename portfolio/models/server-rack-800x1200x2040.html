@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Data Center Rack — 800 × 1200 × 2040 mm</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #edeae4; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    #__bundler_loading { position: fixed; bottom: 20px; right: 20px; font: 13px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; color: #666; background: #fff; padding: 8px 14px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 10000; }
+    #__bundler_thumbnail { position: fixed; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #edeae4; z-index: 9999; }
+    #__bundler_thumbnail svg { width: 100%; height: 100%; object-fit: contain; }
+    #__bundler_placeholder { color: #999; font-size: 14px; }
+  </style>
+  <noscript>
+    <style>#__bundler_loading { display: none; }</style>
+    <div style="position:fixed;bottom:12px;left:12px;font:13px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;color:#999;background:rgba(255,255,255,0.9);padding:6px 12px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:10000;">
+      This page requires JavaScript to display.
+    </div>
+  </noscript>
+</head>
+<body>
+  <div id="__bundler_thumbnail">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#edeae4"></rect>
+    <rect x="470" y="180" width="260" height="440" fill="#191a1c"></rect>
+    <rect x="500" y="212" width="200" height="376" fill="#3a3d41"></rect>
+    <g fill="#9fa5ab">
+      <rect x="512" y="228" width="176" height="10"></rect>
+      <rect x="512" y="258" width="176" height="10"></rect>
+      <rect x="512" y="288" width="176" height="10"></rect>
+      <rect x="512" y="318" width="176" height="10"></rect>
+      <rect x="512" y="348" width="176" height="10"></rect>
+      <rect x="512" y="378" width="176" height="10"></rect>
+    </g>
+    <rect x="484" y="620" width="26" height="26" fill="#0e0e10"></rect>
+    <rect x="690" y="620" width="26" height="26" fill="#0e0e10"></rect>
+  </svg>
+</div>
+  <div id="__bundler_loading">Unpacking...</div>
+
+  <script>
+    
+document.addEventListener('DOMContentLoaded', async function() {
+  const loading = document.getElementById('__bundler_loading');
+  function setStatus(msg) { if (loading) loading.textContent = msg; }
+
+  const FONT_MIME = /^(font[/]|application[/](x-)?font-|application[/]vnd\.ms-fontobject)/i;
+  const MIME_TOKEN = /^[\w.+-]+[/][\w.+-]+$/;
+  function toBase64(bytes) {
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    }
+    return btoa(bin);
+  }
+
+  // Error sink persists across replaceWith since it's on window, not the DOM.
+  window.addEventListener('error', function(e) {
+    // Failed resource loads (CSP-blocked links, scripts, images) fire plain
+    // events at the element — warn only; real JS errors carry message/error.
+    if (!e.message && !e.error && e.target && e.target !== window) {
+      console.warn('[bundle] resource failed to load:',
+        e.target.tagName, String(e.target.src || e.target.href || ''));
+      return;
+    }
+    var p = document.body || document.documentElement;
+    var d = document.getElementById('__bundler_err') || p.appendChild(document.createElement('div'));
+    d.id = '__bundler_err';
+    d.style.cssText = 'position:fixed;bottom:12px;left:12px;right:12px;font:12px/1.4 ui-monospace,monospace;background:#2a1215;color:#ff8a80;padding:10px 14px;border-radius:8px;border:1px solid #5c2b2e;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto';
+    d.textContent = (d.textContent ? d.textContent + String.fromCharCode(10) : '') +
+      '[bundle] ' + (e.message || e.type) +
+      (e.filename ? ' (' + e.filename.slice(0, 60) + ':' + e.lineno + ')' : '');
+  }, true);
+
+  try {
+    const manifestEl = document.querySelector('script[type="__bundler/manifest"]');
+    const templateEl = document.querySelector('script[type="__bundler/template"]');
+    if (!manifestEl || !templateEl) {
+      setStatus('Error: missing bundle data');
+      console.error('[bundler] Missing script tags — manifestEl:', !!manifestEl, 'templateEl:', !!templateEl);
+      return;
+    }
+
+    const manifest = JSON.parse(manifestEl.textContent);
+    let template = JSON.parse(templateEl.textContent);
+
+    // Nested page bundles (iframe targets). Each ships ONCE, in the ROOT
+    // document's manifest; frame srcs carry an about:blank#<uuid> marker
+    // instead of a substitutable uuid. Every document mints the blobs for
+    // its OWN frames — from local text at the root, or text obtained from
+    // its DIRECT parent over the relay protocol below — so each frame
+    // navigation stays same-origin with its initiator and a deduped page
+    // loads at any depth on any host, including a file:// download's
+    // opaque origins (where a blob minted by one document cannot be
+    // navigated to by another).
+    const pageOrderEl = document.querySelector('script[type="__bundler/page_order"]');
+    const pageOrder = pageOrderEl ? JSON.parse(pageOrderEl.textContent) : [];
+    const pageSet = new Set(pageOrder);
+    const pageTexts = {};
+
+    // ── Nested-page text protocol (parent-chain relay) ──
+    // Page bundles ship once, in the ROOT document's manifest. Every
+    // document mints the blobs for its OWN frames, obtaining page text
+    // through a strict parent-chain relay: a document only ever SENDS to
+    // its direct parent (which, for every document the publisher's own
+    // runtime minted, is another publisher document) and only ACCEPTS
+    // text from that direct parent; requests from below are honored only
+    // for the document's own child frames, and the ROOT never sends
+    // upward at all. That last rule is load-bearing: the artifact host's
+    // frame-ancestors allows claude.ai (and friends) to frame an
+    // artifact, so window.top can be a FOREIGN document — a top-addressed
+    // protocol would hand page uuids to that ancestor and accept forged
+    // "page text" from it, minting attacker HTML as an artifact-origin
+    // blob document. The chain never touches the ancestor: requests stop
+    // at the root, replies are origin-addressed per hop (never '*' when
+    // an origin exists), and both directions are origin-gated (on https
+    // a foreign sender's origin can never equal this document's; in
+    // opaque contexts — file:// — everything serializes as 'null', where
+    // an embedded EXTERNAL frame still fails the gate by carrying its
+    // own real origin, and a sandboxed child of such a frame is excluded
+    // by the own-child-frames check plus uuid unguessability). Shape is
+    // deny-by-default: one request form, one reply form, no error
+    // replies.
+    // window.origin is the SERIALIZED SECURITY origin ('null' in opaque
+    // contexts such as a sandboxed preview iframe) — location.origin is
+    // computed from the URL and stays 'https://…' even when the document
+    // is sandboxed, which would misgate every opaque chain.
+    const OWN_TARGET = /^https?:[/][/]/.test(window.origin || '')
+      ? window.origin
+      : '*';
+    function trustedOrigin(e) {
+      if (e.origin === window.origin) return true; // https chains; opaque==opaque
+      // file:// trees: Chrome serializes the file document's origin as
+      // 'file://' while the blob: documents it mints serialize as 'null',
+      // so the two legitimate shapes can never string-match — accept the
+      // pair in both directions. https origins never serialize as either,
+      // and sender identity (own child frame / direct parent) is checked
+      // separately.
+      return (
+        (e.origin === 'null' &&
+          (window.origin === 'file://' ||
+            window.location.protocol === 'file:')) ||
+        (/^file:/.test(e.origin) && window.origin === 'null')
+      );
+    }
+    // Non-empty only in the root document (nested bundles ship an empty
+    // island), so it doubles as the root marker: the root answers from
+    // local text and treats a miss as authoritative — never relaying to
+    // its (possibly foreign) parent.
+    const isPageRoot = pageOrder.length > 0;
+    const blobUrls = {};
+    const resourceBlobs = {};
+    const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    const pendingFrames = {}; // uuid -> [{el, frag}] awaiting text for own frames
+    const pendingRelays = {}; // uuid -> [childWindow] awaiting text to pass down
+    function mountPage(el, frag, text) {
+      const pageBlob = new Blob([text], { type: 'text/html' });
+      const u = URL.createObjectURL(pageBlob);
+      resourceBlobs[u] = pageBlob;
+      el.src = u + frag;
+    }
+    function deliverPage(uuid, text) {
+      const frames = pendingFrames[uuid];
+      delete pendingFrames[uuid];
+      if (frames) for (const f of frames) mountPage(f.el, f.frag, text);
+      const relays = pendingRelays[uuid];
+      delete pendingRelays[uuid];
+      if (relays) {
+        for (const cw of relays) {
+          try { cw.postMessage({ __bundler_page: uuid, __bundler_text: text }, OWN_TARGET); } catch (err) { /* gone */ }
+        }
+      }
+    }
+    function ownFrameWindows() {
+      const out = [];
+      for (const f of Array.from(document.querySelectorAll('iframe'))) {
+        try { if (f.contentWindow) out.push(f.contentWindow); } catch (err) { /* detached */ }
+      }
+      return out;
+    }
+    window.addEventListener('message', function (e) {
+      const d = e.data;
+      if (!d || typeof d !== 'object' || !e.source) return;
+      // Origin gate first; the structural checks below (own-child-frames
+      // for requests, direct-parent + solicited-uuid for replies, the
+      // root's never-relay rule) are what hold in fully opaque chains
+      // where origin strings can't discriminate — a sandboxed root's
+      // FOREIGN wrapper still fails all three even though both serialize
+      // as real-vs-'null' rather than matching.
+      if (!trustedOrigin(e)) return;
+      if (typeof d.__bundler_need === 'string' && UUID_SHAPE.test(d.__bundler_need)) {
+        // Requests are honored only for this document's own child frames.
+        if (ownFrameWindows().indexOf(e.source) < 0) return;
+        const uuid = d.__bundler_need;
+        const text = pageTexts[uuid];
+        if (typeof text === 'string') {
+          try { e.source.postMessage({ __bundler_page: uuid, __bundler_text: text }, OWN_TARGET); } catch (err) { /* gone */ }
+          return;
+        }
+        if (isPageRoot || window.parent === window) return; // authoritative miss
+        const waiting = pendingRelays[uuid];
+        if (waiting) {
+          if (waiting.indexOf(e.source) < 0) waiting.push(e.source);
+          return;
+        }
+        // Never-answered uuids would otherwise accumulate forever under a
+        // request spray; past the cap (far above any real page count) new
+        // relays are dropped rather than remembered.
+        if (Object.keys(pendingRelays).length >= 128) return;
+        pendingRelays[uuid] = [e.source];
+        window.parent.postMessage({ __bundler_need: uuid }, OWN_TARGET);
+      } else if (
+        typeof d.__bundler_page === 'string' &&
+        UUID_SHAPE.test(d.__bundler_page) &&
+        typeof d.__bundler_text === 'string'
+      ) {
+        // The shape test is load-bearing beyond tidiness: the solicited
+        // check below uses the in operator, which matches prototype keys
+        // ('__proto__', 'constructor') — an unshaped key would reach
+        // deliverPage and throw, painting the error banner.
+        // Text is accepted only from the direct parent — the document
+        // that minted this one.
+        if (e.source !== window.parent || window.parent === window) return;
+        if (!(d.__bundler_page in pendingFrames) && !(d.__bundler_page in pendingRelays)) return;
+        deliverPage(d.__bundler_page, d.__bundler_text);
+      }
+    });
+
+    const uuids = Object.keys(manifest);
+    setStatus('Unpacking ' + uuids.length + ' assets...');
+
+    await Promise.all(uuids.map(async (uuid) => {
+      const entry = manifest[uuid];
+      try {
+        const binaryStr = atob(entry.data);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+        let finalBytes = bytes;
+        if (entry.compressed) {
+          if (typeof DecompressionStream !== 'undefined') {
+            const ds = new DecompressionStream('gzip');
+            const writer = ds.writable.getWriter();
+            const reader = ds.readable.getReader();
+            writer.write(bytes);
+            writer.close();
+            const chunks = [];
+            let totalLen = 0;
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              chunks.push(value);
+              totalLen += value.length;
+            }
+            finalBytes = new Uint8Array(totalLen);
+            let offset = 0;
+            for (const chunk of chunks) { finalBytes.set(chunk, offset); offset += chunk.length; }
+          } else {
+            console.warn('DecompressionStream not available, asset ' + uuid + ' may not render');
+          }
+        }
+
+        if (pageSet.has(uuid)) {
+          pageTexts[uuid] = new TextDecoder().decode(finalBytes);
+          return;
+        }
+        if (FONT_MIME.test(entry.mime) && MIME_TOKEN.test(entry.mime)) {
+          // Strict artifact hosts allow font-src data: but not blob:.
+          blobUrls[uuid] = 'data:' + entry.mime + ';base64,' +
+            (entry.compressed ? toBase64(finalBytes) : entry.data);
+        } else {
+          const blob = new Blob([finalBytes], { type: entry.mime });
+          blobUrls[uuid] = URL.createObjectURL(blob);
+          resourceBlobs[blobUrls[uuid]] = blob;
+        }
+      } catch (err) {
+        console.error('Failed to decode asset ' + uuid + ':', err);
+        const blob = new Blob([], { type: entry.mime });
+        blobUrls[uuid] = URL.createObjectURL(blob);
+        resourceBlobs[blobUrls[uuid]] = blob;
+      }
+    }));
+
+    const extResEl = document.querySelector('script[type="__bundler/ext_resources"]');
+    const extResources = extResEl ? JSON.parse(extResEl.textContent) : [];
+    const resourceMap = {};
+    for (const entry of extResources) {
+      if (blobUrls[entry.uuid]) resourceMap[entry.id] = blobUrls[entry.uuid];
+    }
+
+    // Artifact-host CSP (connect-src 'self') refuses fetch() of blob: URLs —
+    // consumers read these Blobs directly. Survives the swap like the error sink.
+    window.__resourceBlobs = resourceBlobs;
+
+    setStatus('Rendering...');
+    // Page uuids have no blob here — they ride inside about:blank#<uuid>
+    // frame markers the pass below resolves after the swap.
+    for (const uuid of uuids) {
+      if (pageSet.has(uuid)) continue;
+      template = template.split(uuid).join(blobUrls[uuid]);
+    }
+
+    // Strip integrity + crossorigin — blob URLs from a file:// document inherit
+    // a null origin, so crossorigin forces a CORS fetch that SRI then rejects.
+    // The manifest bytes are ours; SRI protects against CDN compromise, not this.
+    template = template.replace(/\s+integrity="[^"]*"/gi, '').replace(/\s+crossorigin="[^"]*"/gi, '');
+
+    const resourceScript = '<script>window.__resources = ' +
+      JSON.stringify(resourceMap).replace(/<\//g, '<\\/') +
+      ';</' + 'script>';
+    // Inject after <head> so the DOCTYPE stays first; prepending the script
+    // would push the parser into quirks mode. DOMParser always emits a <head>
+    // (synthesizing one if the source HTML omitted it) but may carry
+    // attributes through, so match the full opening tag. slice() rather than
+    // replace() keeps us clear of $-pattern substitution in resourceScript.
+    const headOpen = template.match(/<head[^>]*>/i);
+    if (headOpen) {
+      const i = headOpen.index + headOpen[0].length;
+      template = template.slice(0, i) + resourceScript + template.slice(i);
+    }
+
+    // Parse the template and swap the root element. Scripts inserted via
+    // DOMParser/replaceWith are inert per spec — re-create each with
+    // createElement so they execute, awaiting onload for src scripts to
+    // preserve ordering (React before ReactDOM before Babel before text/babel).
+    const doc = new DOMParser().parseFromString(template, 'text/html');
+    document.documentElement.replaceWith(doc.documentElement);
+
+    // Resolve page-frame markers: mint this document's own blob for each
+    // framed page — from local text when this is the root, otherwise by
+    // asking the direct parent over the relay protocol above. An
+    // unanswered request leaves the frame on about:blank, the same
+    // degraded state as a refused embed.
+    {
+      const MARKER = /^about:blank#([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(#.*)?$/;
+      const needed = [];
+      for (const el of Array.from(document.querySelectorAll('iframe'))) {
+        const m = MARKER.exec(el.getAttribute('src') || '');
+        if (!m) continue;
+        const text = pageTexts[m[1]];
+        if (typeof text === 'string') {
+          mountPage(el, m[2] || '', text);
+        } else if (window.parent !== window && !isPageRoot) {
+          const had = pendingFrames[m[1]];
+          (pendingFrames[m[1]] = had || []).push({ el: el, frag: m[2] || '' });
+          if (!had) needed.push(m[1]);
+        }
+      }
+      for (const uuid of needed) {
+        window.parent.postMessage({ __bundler_need: uuid }, OWN_TARGET);
+      }
+    }
+
+    const dead = Array.from(document.scripts);
+    for (const old of dead) {
+      const s = document.createElement('script');
+      for (const a of old.attributes) s.setAttribute(a.name, a.value);
+      s.textContent = old.textContent;
+      // text/babel scripts with a src: read and inline. transformScriptTags
+      // does XHR against the src, but blob:null/ from a file:// origin is
+      // silently dropped. Inlining makes it a plain inline babel script,
+      // which transformScriptTags handles unconditionally.
+      if ((s.type === 'text/babel' || s.type === 'text/jsx') && s.src) {
+        const pre = resourceBlobs[s.src.split('#')[0]];
+        s.textContent = pre ? await pre.text() : await (await fetch(s.src)).text();
+        s.removeAttribute('src');
+      }
+      const p = s.src ? new Promise(function(r) { s.onload = s.onerror = r; }) : null;
+      old.replaceWith(s);
+      if (p) await p;
+    }
+    // Babel standalone auto-transforms type=text/babel on DOMContentLoaded,
+    // which fired before we swapped the document. Trigger manually if present.
+    if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
+      window.Babel.transformScriptTags();
+    }
+  } catch (err) {
+    setStatus('Error unpacking: ' + err.message);
+    console.error('Bundle unpack error:', err);
+  }
+});
+
+  </script>
+
+  <script type="__bundler/manifest">
+{"b91b2dad-4b6e-4d24-8b36-7c0806c97990":{"mime":"text/javascript","compressed":true,"data":"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"}}
+  </script>
+
+  <script type="__bundler/ext_resources">
+[]
+  </script>
+
+  <script type="__bundler/page_order">
+[]
+  </script>
+
+  <script type="__bundler/template">
+"<!DOCTYPE html>\n<html lang=\"en\"><head>\n<meta charset=\"utf-8\">\n<title>Data Center Rack — 800 × 1200 × 2040 mm<\u002Ftitle>\n<script type=\"importmap\">\n{\n  \"imports\": {\n    \"three\": \"https://unpkg.com/three@0.184.0/build/three.module.js\",\n    \"three/addons/controls/OrbitControls.js\": \"https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js\",\n    \"three/addons/exporters/OBJExporter.js\": \"https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js\",\n    \"three/addons/exporters/GLTFExporter.js\": \"https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js\"\n  },\n  \"integrity\": {\n    \"https://unpkg.com/three@0.184.0/build/three.module.js\": \"sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J\",\n    \"https://unpkg.com/three@0.184.0/build/three.core.js\": \"sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT\",\n    \"https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js\": \"sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9\",\n    \"https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js\": \"sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3\",\n    \"https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js\": \"sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ\"\n  }\n}\n<\u002Fscript>\n<style>\n  html, body { margin: 0; height: 100%; background: #edeae4; }\n  three-d-stage:not(:defined) { visibility: hidden; }\n  three-d-stage { position: absolute; inset: 0; }\n  #ui {\n    position: absolute; top: 18px; left: 18px; z-index: 5;\n    width: 232px; padding: 16px 16px 14px;\n    background: rgba(247,246,243,0.93);\n    border: 1px solid rgba(20,20,22,0.14);\n    font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;\n    color: #17181a; backdrop-filter: blur(6px);\n    display: flex; flex-direction: column; gap: 14px;\n  }\n  #ui h1 { margin: 0; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; font-weight: 600; }\n  #ui .spec { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 11px; color: #56585c; }\n  #ui .spec b { color: #17181a; font-weight: 600; text-align: right; }\n  .grp { display: flex; flex-direction: column; gap: 6px; }\n  .lbl { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #7a7c80; }\n  .row { display: flex; flex-wrap: wrap; gap: 4px; }\n  button {\n    font: inherit; font-size: 11px; padding: 4px 8px; cursor: pointer;\n    background: #fff; color: #17181a; border: 1px solid rgba(20,20,22,0.2);\n  }\n  button:hover { background: #17181a; color: #f7f6f3; }\n  button[data-on=\"1\"] { background: #17181a; color: #f7f6f3; }\n  input[type=range] { width: 100%; accent-color: #17181a; }\n  #note { font-size: 10px; color: #8a8c90; line-height: 1.5; }\n<\u002Fstyle>\n<\u002Fhead>\n<body>\n\n<three-d-stage name=\"datacenter-rack-800x1200x2040\" background=\"#edeae4\"><\u002Fthree-d-stage>\n\n<div id=\"ui\">\n  <div>\n    <h1>Data Center Rack<\u002Fh1>\n    <div class=\"spec\" style=\"margin-top:8px\">\n      <span>Width<\u002Fspan><b>800 mm<\u002Fb>\n      <span>Depth<\u002Fspan><b>1200 mm<\u002Fb>\n      <span>Height<\u002Fspan><b>2040 mm<\u002Fb>\n      <span>Usable<\u002Fspan><b>42 U / 19 in<\u002Fb>\n      <span>Static load<\u002Fspan><b>1075 kg<\u002Fb>\n      <span>Ventilation<\u002Fspan><b>~78 % f/r<\u002Fb>\n      <span>Casters<\u002Fspan><b>4<\u002Fb>\n    <\u002Fdiv>\n  <\u002Fdiv>\n\n  <div class=\"grp\">\n    <span class=\"lbl\">Views<\u002Fspan>\n    <div class=\"row\">\n      <button data-view=\"iso\">Iso<\u002Fbutton>\n      <button data-view=\"front\">Front<\u002Fbutton>\n      <button data-view=\"rear\">Rear<\u002Fbutton>\n      <button data-view=\"left\">Left<\u002Fbutton>\n      <button data-view=\"right\">Right<\u002Fbutton>\n      <button data-view=\"top\">Top<\u002Fbutton>\n      <button data-view=\"bottom\">Bottom<\u002Fbutton>\n    <\u002Fdiv>\n  <\u002Fdiv>\n\n  <div class=\"grp\">\n    <span class=\"lbl\">Doors — 120°<\u002Fspan>\n    <div class=\"row\">\n      <button id=\"frontDoor\">Front door<\u002Fbutton>\n      <button id=\"rearDoor\">Rear door<\u002Fbutton>\n      <button id=\"panels\">Side panels<\u002Fbutton>\n    <\u002Fdiv>\n  <\u002Fdiv>\n\n  <div class=\"grp\">\n    <span class=\"lbl\">Exploded assembly<\u002Fspan>\n    <input id=\"explode\" type=\"range\" min=\"0\" max=\"1\" step=\"0.01\" value=\"0\">\n  <\u002Fdiv>\n\n  <div class=\"grp\">\n    <span class=\"lbl\">Detail level<\u002Fspan>\n    <div class=\"row\">\n      <button data-detail=\"coarse\">Coarse<\u002Fbutton>\n      <button data-detail=\"medium\">Medium<\u002Fbutton>\n      <button data-detail=\"fine\" data-on=\"1\">Fine<\u002Fbutton>\n    <\u002Fdiv>\n  <\u002Fdiv>\n\n  <div id=\"note\">Modelled 1:1 in metres (1 unit = 1 m). Manufacturer, model no. and certifications: NOT SPECIFIED.<\u002Fdiv>\n<\u002Fdiv>\n\n<script src=\"b91b2dad-4b6e-4d24-8b36-7c0806c97990\"><\u002Fscript>\n<script type=\"module\">\nconst stage = document.querySelector('three-d-stage');\nconst { THREE } = await stage.ready;\n\n/* ---------- materials ---------- */\nconst mat = {\n  frame:   new THREE.MeshStandardMaterial({ name: 'painted_steel_frame', color: 0x191a1c, roughness: 0.58, metalness: 0.28 }),\n  panel:   new THREE.MeshStandardMaterial({ name: 'painted_steel_panel', color: 0x212326, roughness: 0.66, metalness: 0.22 }),\n  mesh:    new THREE.MeshStandardMaterial({ name: 'perforated_steel',    color: 0x141517, roughness: 0.55, metalness: 0.3 }),\n  rail:    new THREE.MeshStandardMaterial({ name: 'galvanised_steel',    color: 0x9fa5ab, roughness: 0.44, metalness: 0.36 }),\n  hardware:new THREE.MeshStandardMaterial({ name: 'bright_steel',        color: 0xc6cace, roughness: 0.32, metalness: 0.4 }),\n  plastic: new THREE.MeshStandardMaterial({ name: 'engineering_plastic', color: 0x2a2c30, roughness: 0.75, metalness: 0.04 }),\n  rubber:  new THREE.MeshStandardMaterial({ name: 'rubber',              color: 0x0e0e10, roughness: 0.95, metalness: 0.0 }),\n  brush:   new THREE.MeshStandardMaterial({ name: 'cable_brush',         color: 0x0a0a0b, roughness: 1.0,  metalness: 0.0 }),\n  marking: new THREE.MeshStandardMaterial({ name: 'rail_marking',        color: 0xd8dce0, roughness: 0.5,  metalness: 0.1 }),\n};\n\n/* ---------- helpers ---------- */\nlet uid = 0;\nfunction box(name, w, h, d, m, x = 0, y = 0, z = 0, detail = 'coarse') {\n  const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);\n  g.name = name + '_' + (++uid);\n  g.position.set(x, y, z);\n  g.userData.detail = detail;\n  return g;\n}\nfunction cyl(name, r, h, m, x = 0, y = 0, z = 0, seg = 24, detail = 'medium') {\n  const g = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), m);\n  g.name = name + '_' + (++uid);\n  g.position.set(x, y, z);\n  g.userData.detail = detail;\n  return g;\n}\nfunction group(name, detail) { const g = new THREE.Group(); g.name = name; if (detail) g.userData.detail = detail; return g; }\n\n/* ---------- dimensions (m) ---------- */\nconst W = 0.800, D = 1.200, H = 2.040;\nconst HX = W / 2, HZ = D / 2;            // ±0.400 / ±0.600\nconst CASTER_H = 0.080;                  // wheel diameter\nconst BASE_TOP = 0.160;                  // top of base frame\nconst BODY_TOP = H;                      // 2.040\nconst POST = 0.050;                      // corner post section\nconst U = 0.04445;\nconst RAIL_X = 0.2325;                   // 19\" hole-centre half-spacing (465 mm)\nconst RAIL_BOTTOM = 0.166;\nconst U_COUNT = 42;\n\nconst rack = group('data_centre_rack_800x1200x2040');\n\n/* ---------- 1. structural frame ---------- */\nconst frame = group('structural_frame');\nframe.userData.explode = [0, 0, 0];\nfor (const sx of [-1, 1]) for (const sz of [-1, 1]) {\n  const p = box('corner_post', POST, BODY_TOP - BASE_TOP, POST, mat.frame,\n    sx * (HX - POST / 2), (BASE_TOP + BODY_TOP) / 2, sz * (HZ - POST / 2));\n  frame.add(p);\n  // corner gusset plates\n  frame.add(box('corner_gusset', 0.09, 0.006, 0.09, mat.frame, sx * (HX - 0.06), BASE_TOP + 0.004, sz * (HZ - 0.06), 'fine'));\n  frame.add(box('corner_gusset', 0.09, 0.006, 0.09, mat.frame, sx * (HX - 0.06), BODY_TOP - 0.048, sz * (HZ - 0.06), 'fine'));\n}\n// top frame ring\nconst topFrame = group('top_frame');\ntopFrame.userData.explode = [0, 0.55, 0];\nfor (const sz of [-1, 1]) topFrame.add(box('top_rail_lateral', W - 2 * POST, 0.040, 0.040, mat.frame, 0, BODY_TOP - 0.020, sz * (HZ - 0.020)));\nfor (const sx of [-1, 1]) topFrame.add(box('top_rail_longitudinal', 0.040, 0.040, D - 2 * POST, mat.frame, sx * (HX - 0.020), BODY_TOP - 0.020, 0));\ntopFrame.add(box('top_cross_member', W - 2 * POST, 0.030, 0.035, mat.frame, 0, BODY_TOP - 0.048, 0.10, 'medium'));\ntopFrame.add(box('top_cross_member', W - 2 * POST, 0.030, 0.035, mat.frame, 0, BODY_TOP - 0.048, -0.10, 'medium'));\n// roof panel + cable entries\ntopFrame.add(box('roof_panel', W - 0.012, 0.004, D - 0.012, mat.panel, 0, BODY_TOP - 0.042, 0));\nfor (const sz of [1, -1]) {\n  topFrame.add(box('roof_cable_entry_frame', 0.500, 0.012, 0.150, mat.frame, 0, BODY_TOP - 0.036, sz * 0.310, 'medium'));\n  topFrame.add(box('roof_cable_brush', 0.470, 0.010, 0.118, mat.brush, 0, BODY_TOP - 0.034, sz * 0.310, 'medium'));\n  for (const sx of [-1, 1]) topFrame.add(cyl('roof_panel_screw', 0.005, 0.006, mat.hardware, sx * 0.275, BODY_TOP - 0.037, sz * 0.310, 12, 'fine'));\n}\ntopFrame.add(box('roof_lifting_eye_plate', 0.060, 0.008, 0.060, mat.frame, 0.240, BODY_TOP - 0.034, 0, 'fine'));\ntopFrame.add(box('roof_lifting_eye_plate', 0.060, 0.008, 0.060, mat.frame, -0.240, BODY_TOP - 0.034, 0, 'fine'));\nframe.add(topFrame);\n\n/* ---------- 2. base frame ---------- */\nconst base = group('base_frame');\nbase.userData.explode = [0, -0.35, 0];\nconst baseH = BASE_TOP - CASTER_H;\nfor (const sz of [-1, 1]) base.add(box('base_channel_lateral', W, baseH, 0.060, mat.frame, 0, CASTER_H + baseH / 2, sz * (HZ - 0.030)));\nfor (const sx of [-1, 1]) base.add(box('base_channel_longitudinal', 0.060, baseH, D - 0.120, mat.frame, sx * (HX - 0.030), CASTER_H + baseH / 2, 0));\nfor (const z of [-0.30, 0, 0.30]) base.add(box('base_cross_member', W - 0.120, 0.050, 0.050, mat.frame, 0, CASTER_H + 0.035, z, 'medium'));\nbase.add(box('base_floor_plate', W - 0.130, 0.004, D - 0.140, mat.panel, 0, BASE_TOP - 0.004, 0, 'medium'));\nfor (const sz of [1, -1]) {\n  base.add(box('base_cable_entry_frame', 0.420, 0.010, 0.130, mat.frame, 0, BASE_TOP - 0.006, sz * 0.300, 'medium'));\n  base.add(box('base_cable_brush', 0.392, 0.008, 0.102, mat.brush, 0, BASE_TOP - 0.005, sz * 0.300, 'medium'));\n}\n// caster + foot mounting pads\nfor (const sx of [-1, 1]) for (const sz of [-1, 1]) {\n  base.add(box('caster_mount_pad', 0.100, 0.010, 0.100, mat.frame, sx * 0.300, CASTER_H + 0.005, sz * 0.480, 'medium'));\n  base.add(box('leveller_mount_pad', 0.080, 0.010, 0.080, mat.frame, sx * 0.340, CASTER_H + 0.005, sz * 0.545, 'medium'));\n}\nrack.add(base, frame);\n\n/* ---------- 3. casters (4) ---------- */\nconst casters = group('casters');\ncasters.userData.explode = [0, -0.75, 0];\nfor (const sx of [-1, 1]) for (const sz of [-1, 1]) {\n  const c = group('caster_assembly');\n  c.position.set(sx * 0.300, 0, sz * 0.480);\n  c.add(box('caster_top_plate', 0.096, 0.010, 0.096, mat.hardware, 0, CASTER_H + 0.004, 0, 'coarse'));\n  for (const dx of [-1, 1]) for (const dz of [-1, 1])\n    c.add(cyl('caster_bolt', 0.0055, 0.016, mat.hardware, dx * 0.034, CASTER_H + 0.006, dz * 0.034, 10, 'fine'));\n  c.add(cyl('caster_swivel_race', 0.028, 0.014, mat.hardware, 0, CASTER_H - 0.004, 0, 24, 'medium'));\n  const fork = group('caster_fork');\n  fork.position.y = 0;\n  for (const dx of [-1, 1]) fork.add(box('caster_fork_plate', 0.007, 0.056, 0.062, mat.hardware, dx * 0.024, CASTER_H / 2 + 0.012, 0, 'medium'));\n  fork.add(box('caster_fork_crown', 0.055, 0.010, 0.062, mat.hardware, 0, CASTER_H - 0.014, 0, 'medium'));\n  const wheel = cyl('caster_wheel', CASTER_H / 2, 0.030, mat.rubber, 0, CASTER_H / 2, 0, 32, 'coarse');\n  wheel.rotation.z = Math.PI / 2;\n  fork.add(wheel);\n  const hub = cyl('caster_hub', 0.014, 0.050, mat.hardware, 0, CASTER_H / 2, 0, 20, 'fine');\n  hub.rotation.z = Math.PI / 2;\n  fork.add(hub);\n  c.add(fork);\n  casters.add(c);\n}\nrack.add(casters);\n\n/* ---------- 4. leveling / floor-fixing feet ---------- */\nconst feet = group('leveling_feet');\nfeet.userData.explode = [0, -1.05, 0];\nfor (const sx of [-1, 1]) for (const sz of [-1, 1]) {\n  const f = group('leveling_foot_assembly');\n  f.position.set(sx * 0.340, 0, sz * 0.545);\n  f.add(cyl('leveller_foot_pad', 0.032, 0.010, mat.hardware, 0, 0.011, 0, 28, 'coarse'));\n  f.add(cyl('leveller_pad_rubber', 0.032, 0.006, mat.rubber, 0, 0.003, 0, 28, 'medium'));\n  // threaded shaft, drawn as a stack of thread rings\n  f.add(cyl('leveller_shaft', 0.0095, 0.062, mat.hardware, 0, 0.048, 0, 16, 'coarse'));\n  for (let i = 0; i < 9; i++) f.add(cyl('leveller_thread', 0.0115, 0.0026, mat.hardware, 0, 0.022 + i * 0.006, 0, 12, 'fine'));\n  f.add(cyl('leveller_lock_nut', 0.017, 0.011, mat.hardware, 0, 0.072, 0, 6, 'medium'));\n  f.add(box('leveller_anchor_bracket', 0.070, 0.008, 0.046, mat.frame, 0, 0.084, 0, 'medium'));\n  f.add(cyl('floor_fixing_screw', 0.006, 0.030, mat.hardware, sx * 0.026, 0.014, 0, 12, 'fine'));\n  feet.add(f);\n}\nrack.add(feet);\n\n/* ---------- 5. 19-inch mounting system ---------- */\nconst rails = group('mounting_rails_19in');\nrails.userData.explode = [0, 0, 0];\nconst RAIL_H = U_COUNT * U;\nconst railZ = { front: 0.430, rear: -0.330 };\nfunction mountingRail(name, sx, z, isFront) {\n  const g = group(name);\n  g.position.set(sx * RAIL_X, RAIL_BOTTOM + RAIL_H / 2, z);\n  g.userData.detail = 'medium';\n  // flange (holes face) + web (depth stiffener) — a C-section\n  g.add(box('rail_flange', 0.032, RAIL_H, 0.004, mat.rail, 0, 0, isFront ? 0.012 : -0.012));\n  g.add(box('rail_web', 0.005, RAIL_H, 0.026, mat.rail, sx * 0.014, 0, 0));\n  g.add(box('rail_return_lip', 0.018, RAIL_H, 0.004, mat.rail, -sx * 0.004, 0, isFront ? -0.012 : 0.012));\n  const holeZ = (isFront ? 0.0135 : -0.0135);\n  for (let i = 0; i < U_COUNT; i++) {\n    const y0 = -RAIL_H / 2 + (i + 0.5) * U;\n    const offsets = isFront ? [-0.0159, 0, 0.0159] : [0];\n    for (const oy of offsets)\n      g.add(box('rail_square_hole', 0.0095, 0.0095, 0.003, mat.plastic, -sx * 0.004, y0 + oy, holeZ));\n    // U-position marking every unit, emphasised every 5U\n    const big = (i + 1) % 5 === 0;\n    g.add(box('rail_u_marking', big ? 0.010 : 0.005, 0.0022, 0.002, mat.marking,\n      sx * 0.0115, y0 - U / 2 + 0.002, holeZ + 0.001, 'fine'));\n  }\n  return g;\n}\nfor (const sx of [-1, 1]) {\n  rails.add(mountingRail('front_mounting_rail', sx, railZ.front, true));\n  rails.add(mountingRail('rear_mounting_rail', sx, railZ.rear, false));\n  // depth-adjustment brackets tying rails to the corner posts\n  for (const y of [RAIL_BOTTOM + 0.030, RAIL_BOTTOM + RAIL_H / 2, RAIL_BOTTOM + RAIL_H - 0.030]) {\n    rails.add(box('rail_depth_bracket', 0.010, 0.055, HZ - 0.05 - railZ.front, mat.rail,\n      sx * RAIL_X, y, (railZ.front + HZ - 0.05) / 2, 'medium'));\n    rails.add(box('rail_depth_bracket', 0.010, 0.055, railZ.rear + HZ - 0.05, mat.rail,\n      sx * RAIL_X, y, (railZ.rear - HZ + 0.05) / 2, 'medium'));\n    for (const s of [1, -1]) rails.add(cyl('rail_mounting_screw', 0.0045, 0.012, mat.hardware, sx * RAIL_X + s * 0.0001, y, s > 0 ? railZ.front - 0.02 : railZ.rear + 0.02, 10, 'fine'));\n  }\n}\n// horizontal support members between rail pairs\nfor (const z of [railZ.front, railZ.rear]) for (const y of [RAIL_BOTTOM + 0.004, RAIL_BOTTOM + RAIL_H + 0.004]) {\n  rails.add(box('rail_horizontal_support', 2 * RAIL_X, 0.028, 0.028, mat.rail, 0, y, z, 'medium'));\n}\nrack.add(rails);\n\n/* ---------- 6. cable management ---------- */\nconst cable = group('cable_management');\ncable.userData.explode = [0, 0, -0.55];\nfor (const sx of [-1, 1]) {\n  const ch = group('vertical_cable_channel');\n  ch.position.set(sx * 0.318, RAIL_BOTTOM + RAIL_H / 2, -0.150);\n  ch.userData.detail = 'medium';\n  ch.add(box('cable_channel_back', 0.100, RAIL_H, 0.004, mat.panel, 0, 0, -0.075));\n  ch.add(box('cable_channel_side', 0.004, RAIL_H, 0.150, mat.panel, sx * 0.048, 0, 0));\n  for (let i = 0; i < 13; i++) {\n    const y = -RAIL_H / 2 + 0.07 + i * (RAIL_H - 0.14) / 12;\n    ch.add(box('cable_finger', 0.012, 0.030, 0.110, mat.plastic, -sx * 0.030, y, 0.010, 'fine'));\n    ch.add(box('cable_finger', 0.012, 0.030, 0.110, mat.plastic, sx * 0.020, y, 0.010, 'fine'));\n    ch.add(box('cable_tie_bracket', 0.078, 0.006, 0.012, mat.rail, 0, y + 0.018, -0.066, 'fine'));\n  }\n  cable.add(ch);\n}\n// rear horizontal cable trays + grommet openings in the rear frame\nfor (const y of [RAIL_BOTTOM + 0.10, RAIL_BOTTOM + RAIL_H - 0.10]) {\n  cable.add(box('rear_cable_tray', 0.560, 0.010, 0.070, mat.rail, 0, y, -0.480, 'medium'));\n  cable.add(box('cable_grommet', 0.240, 0.070, 0.008, mat.brush, 0, y + 0.055, -0.512, 'fine'));\n}\nrack.add(cable);\n\n/* ---------- 7. side panels ---------- */\nfunction sidePanel(sx) {\n  const g = group(sx > 0 ? 'right_side_panel' : 'left_side_panel');\n  g.userData.explode = [sx * 0.85, 0, 0];\n  const x = sx * (HX - 0.004);\n  const yTop = BODY_TOP - 0.020, yBot = BASE_TOP + 0.004;\n  const seam = (yTop + yBot) / 2;\n  const segs = [[yBot + 0.002, seam - 0.003], [seam + 0.003, yTop - 0.002]];\n  segs.forEach((s, i) => {\n    const h = s[1] - s[0], cy = (s[0] + s[1]) / 2;\n    g.add(box('side_panel_skin', 0.006, h, D - 0.115, mat.panel, x, cy, 0));\n    // returned edges (folded sheet-metal flanges)\n    for (const sz of [-1, 1]) g.add(box('side_panel_flange', 0.020, h, 0.008, mat.panel, x - sx * 0.010, cy, sz * (HZ - 0.062), 'medium'));\n    g.add(box('side_panel_flange', 0.020, 0.008, D - 0.115, mat.panel, x - sx * 0.010, s[0] + 0.006, 0, 'medium'));\n    g.add(box('side_panel_flange', 0.020, 0.008, D - 0.115, mat.panel, x - sx * 0.010, s[1] - 0.006, 0, 'medium'));\n    // stiffening swage\n    g.add(box('side_panel_swage', 0.003, h - 0.16, 0.020, mat.panel, x + sx * 0.003, cy, 0, 'fine'));\n    // recessed handle\n    g.add(box('side_panel_handle_recess', 0.008, 0.070, 0.140, mat.frame, x + sx * 0.001, cy, HZ - 0.150, 'medium'));\n    g.add(box('side_panel_handle', 0.014, 0.026, 0.110, mat.plastic, x + sx * 0.006, cy, HZ - 0.150, 'medium'));\n    // quarter-turn fasteners\n    for (const sz of [-1, 1]) for (const dy of [-1, 1]) {\n      const f = cyl('quarter_turn_fastener', 0.011, 0.010, mat.hardware, x + sx * 0.004, cy + dy * (h / 2 - 0.070), sz * (HZ - 0.090), 16, 'fine');\n      f.rotation.z = Math.PI / 2;\n      g.add(f);\n      const slot = box('fastener_slot', 0.004, 0.004, 0.016, mat.plastic, x + sx * 0.009, cy + dy * (h / 2 - 0.070), sz * (HZ - 0.090), 'fine');\n      g.add(slot);\n    }\n  });\n  return g;\n}\nconst leftPanel = sidePanel(-1), rightPanel = sidePanel(1);\nrack.add(leftPanel, rightPanel);\n\n/* ---------- 8. perforated doors ---------- */\n// square-lattice perforation: 45 mm pitch, 5 mm web -> (40/45)^2 ≈ 79 % open area\nfunction perforatedDoor(opts) {\n  const { name, hingeX, hingeZ, dirX, faceZ } = opts;\n  const pivot = group(name);\n  pivot.position.set(hingeX, 0, hingeZ);\n  pivot.userData.explode = [0, 0, faceZ > 0 ? 0.85 : -0.85];\n\n  const w = 0.780, h = BODY_TOP - BASE_TOP - 0.020;      // 780 × 1860\n  const cy = (BASE_TOP + BODY_TOP) / 2;\n  const cx = dirX * w / 2;                                // local centre\n  const t = 0.018;                                        // door thickness\n  const stile = 0.045;\n  const d = group('door_leaf');\n  // outer frame\n  d.add(box('door_frame_stile', stile, h, t, mat.frame, cx - dirX * (w / 2 - stile / 2), cy, 0));\n  d.add(box('door_frame_stile', stile, h, t, mat.frame, cx + dirX * (w / 2 - stile / 2), cy, 0));\n  d.add(box('door_frame_rail', w, stile, t, mat.frame, cx, cy + h / 2 - stile / 2, 0));\n  d.add(box('door_frame_rail', w, stile, t, mat.frame, cx, cy - h / 2 + stile / 2, 0));\n  d.add(box('door_mid_rail', w - 2 * stile, 0.028, t * 0.8, mat.frame, cx, cy, 0, 'medium'));\n  // perforated field\n  const fieldW = w - 2 * stile - 0.006, fieldH = h - 2 * stile - 0.006;\n  const pitch = 0.045, web = 0.005, wt = 0.010;\n  const nV = Math.round(fieldW / pitch), nH = Math.round(fieldH / pitch);\n  const lattice = group('perforated_mesh');\n  lattice.userData.detail = 'fine';\n  for (let i = 0; i <= nV; i++) {\n    const px = cx - fieldW / 2 + i * (fieldW / nV);\n    lattice.add(box('mesh_web_vertical', web, fieldH, wt, mat.mesh, px, cy, 0));\n  }\n  for (let j = 0; j <= nH; j++) {\n    const py = cy - fieldH / 2 + j * (fieldH / nH);\n    lattice.add(box('mesh_web_horizontal', fieldW, web, wt * 0.8, mat.mesh, cx, py, 0.0005));\n  }\n  d.add(lattice);\n  // a solid backing frame edge so the mesh reads as a panel at coarse detail\n  d.add(box('mesh_panel_border', fieldW + 0.010, fieldH + 0.010, 0.003, mat.mesh, cx, cy, -0.007, 'coarse'));\n\n  // hinges (3)\n  for (const hy of [cy - h / 2 + 0.16, cy, cy + h / 2 - 0.16]) {\n    const hg = group('door_hinge');\n    hg.userData.detail = 'medium';\n    hg.add(box('hinge_leaf_door', 0.040, 0.070, 0.008, mat.hardware, dirX * 0.024, hy, faceZ > 0 ? -0.012 : 0.012));\n    hg.add(box('hinge_leaf_frame', 0.030, 0.070, 0.008, mat.hardware, dirX * 0.004, hy, faceZ > 0 ? -0.030 : 0.030));\n    hg.add(cyl('hinge_pin', 0.008, 0.084, mat.hardware, dirX * 0.006, hy, faceZ > 0 ? -0.018 : 0.018, 16, 'medium'));\n    for (const dy of [-0.022, 0.022]) hg.add(cyl('hinge_screw', 0.0035, 0.010, mat.hardware, dirX * 0.030, hy + dy, faceZ > 0 ? -0.008 : 0.008, 8, 'fine'));\n    d.add(hg);\n  }\n\n  // handle + key lock assembly on the free stile\n  const hx = cx + dirX * (w / 2 - stile / 2);\n  const lock = group('door_lock_assembly');\n  lock.userData.detail = 'medium';\n  lock.add(box('lock_mounting_plate', 0.052, 0.190, 0.010, mat.frame, hx, cy + 0.10, faceZ > 0 ? 0.013 : -0.013));\n  lock.add(box('handle_recess_pan', 0.040, 0.170, 0.020, mat.plastic, hx, cy + 0.10, faceZ > 0 ? 0.022 : -0.022));\n  const lever = box('door_handle_lever', 0.024, 0.130, 0.020, mat.plastic, hx, cy + 0.085, faceZ > 0 ? 0.030 : -0.030, 'coarse');\n  lever.rotation.x = faceZ > 0 ? -0.06 : 0.06;\n  lock.add(lever);\n  lock.add(box('handle_pivot_block', 0.030, 0.024, 0.024, mat.plastic, hx, cy + 0.168, faceZ > 0 ? 0.026 : -0.026, 'medium'));\n  const cylinder = cyl('lock_cylinder', 0.011, 0.022, mat.hardware, hx, cy + 0.008, faceZ > 0 ? 0.030 : -0.030, 24, 'medium');\n  cylinder.rotation.x = Math.PI / 2;\n  lock.add(cylinder);\n  lock.add(box('lock_keyway', 0.0035, 0.012, 0.004, mat.plastic, hx, cy + 0.008, faceZ > 0 ? 0.041 : -0.041, 'fine'));\n  // latch rods, top and bottom\n  for (const s of [1, -1]) {\n    lock.add(cyl('latch_rod', 0.005, h / 2 - 0.14, mat.hardware, hx, cy + 0.10 + s * (h / 4), faceZ > 0 ? 0.004 : -0.004, 10, 'fine'));\n    lock.add(box('latch_catch', 0.024, 0.020, 0.014, mat.hardware, hx, cy + s * (h / 2 - 0.05), 0, 'fine'));\n  }\n  d.add(lock);\n\n  d.position.z = faceZ > 0 ? HZ - t / 2 - 0.001 : -HZ + t / 2 + 0.001;\n  pivot.add(d);\n  return pivot;\n}\nconst frontDoor = perforatedDoor({ name: 'front_door', hingeX: -(HX - 0.010), hingeZ: 0, dirX: 1, faceZ: 1 });\nconst rearDoor  = perforatedDoor({ name: 'rear_door',  hingeX:  (HX - 0.010), hingeZ: 0, dirX: -1, faceZ: -1 });\nrack.add(frontDoor, rearDoor);\n\n// door frames on the cabinet (the aperture the doors close into)\nconst doorFrames = group('door_frames');\ndoorFrames.userData.explode = [0, 0, 0];\nfor (const sz of [1, -1]) {\n  for (const sx of [-1, 1]) doorFrames.add(box('door_frame_upright', 0.030, BODY_TOP - BASE_TOP - 0.02, 0.022, mat.frame, sx * (HX - 0.062), (BASE_TOP + BODY_TOP) / 2, sz * (HZ - 0.030), 'medium'));\n  doorFrames.add(box('door_frame_header', W - 0.124, 0.030, 0.022, mat.frame, 0, BODY_TOP - 0.040, sz * (HZ - 0.030), 'medium'));\n  doorFrames.add(box('door_frame_sill', W - 0.124, 0.030, 0.022, mat.frame, 0, BASE_TOP + 0.020, sz * (HZ - 0.030), 'medium'));\n  doorFrames.add(box('door_strike_plate', 0.022, 0.060, 0.014, mat.hardware, sz * (HX - 0.062) * -1 * -1, BODY_TOP / 2 + 0.10, sz * (HZ - 0.036), 'fine'));\n}\nrack.add(doorFrames);\n\nstage.setObject(rack);\n\n/* ---------- interaction ---------- */\nconst OPEN = -120 * Math.PI / 180;\nconst doorState = { front: false, rear: false };\nfunction animateDoor(pivot, target) {\n  const from = pivot.rotation.y, t0 = performance.now();\n  (function step(now) {\n    const k = Math.min(1, (now - t0) / 550), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;\n    pivot.rotation.y = from + (target - from) * e;\n    if (k < 1) requestAnimationFrame(step);\n  })(performance.now());\n}\ndocument.getElementById('frontDoor').onclick = (e) => {\n  doorState.front = !doorState.front;\n  e.currentTarget.dataset.on = doorState.front ? '1' : '0';\n  animateDoor(frontDoor, doorState.front ? OPEN : 0);\n};\ndocument.getElementById('rearDoor').onclick = (e) => {\n  doorState.rear = !doorState.rear;\n  e.currentTarget.dataset.on = doorState.rear ? '1' : '0';\n  animateDoor(rearDoor, doorState.rear ? OPEN : 0);\n};\nlet panelsOn = true;\ndocument.getElementById('panels').onclick = (e) => {\n  panelsOn = !panelsOn;\n  e.currentTarget.dataset.on = panelsOn ? '0' : '1';\n  leftPanel.visible = rightPanel.visible = panelsOn;\n};\n\n// exploded assembly\nconst explodable = rack.children.filter((c) => c.userData.explode);\nexplodable.forEach((c) => { c.userData.home = c.position.clone(); });\ndocument.getElementById('explode').oninput = (e) => {\n  const t = parseFloat(e.target.value);\n  explodable.forEach((c) => {\n    const [x, y, z] = c.userData.explode;\n    c.position.set(c.userData.home.x + x * t, c.userData.home.y + y * t, c.userData.home.z + z * t);\n  });\n  // the top frame explodes within the frame group\n  topFrame.position.y = 0.55 * t;\n};\n\n// detail levels\nconst RANK = { coarse: 0, medium: 1, fine: 2 };\nfunction setDetail(level) {\n  const max = RANK[level];\n  rack.traverse((o) => {\n    const d = o.userData && o.userData.detail;\n    if (d) o.visible = RANK[d] <= max;\n  });\n  if (!panelsOn) leftPanel.visible = rightPanel.visible = false;\n}\ndocument.querySelectorAll('[data-detail]').forEach((b) => {\n  b.onclick = () => {\n    document.querySelectorAll('[data-detail]').forEach((o) => (o.dataset.on = '0'));\n    b.dataset.on = '1';\n    setDetail(b.dataset.detail);\n  };\n});\n\n// standard views\nconst cam = stage._camera, ctl = stage._controls;\nconst centre = new THREE.Vector3(0, H / 2, 0);\nconst R = 3.4;\nconst VIEWS = {\n  iso:    [1, 0.55, 1.25],\n  front:  [0, 0, 1],\n  rear:   [0, 0, -1],\n  right:  [1, 0, 0],\n  left:   [-1, 0, 0],\n  top:    [0, 1, 0.0001],\n  bottom: [0, -1, 0.0001],\n};\ndocument.querySelectorAll('[data-view]').forEach((b) => {\n  b.onclick = () => {\n    const v = new THREE.Vector3(...VIEWS[b.dataset.view]).normalize().multiplyScalar(R);\n    cam.position.copy(centre).add(v);\n    ctl.target.copy(centre);\n    ctl.autoRotate = false;\n    ctl.update();\n  };\n});\n<\u002Fscript>\n\n\n<\u002Fbody><\u002Fhtml>"
+  </script>
+</body>
+</html>

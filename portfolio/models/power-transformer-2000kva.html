@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2000 kVA Power Transformer — 3D BIM Model</title>
+<style>
+/* Modernist — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
+
+
+:root {
+  --color-bg: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-text: #201e1d;
+  --color-accent: #ec3013;
+  --color-accent-2: #e15b47;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+
+  /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
+     same step of any role matches the others in visual value. */
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #7d7979;
+  --color-neutral-700: #605d5d;
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
+
+  --color-accent-100: #fff2ef;
+  --color-accent-200: #ffe0d9;
+  --color-accent-300: #ffc4b8;
+  --color-accent-400: #ff9783;
+  --color-accent-500: #ff563c;
+  --color-accent-600: #dd2b0f;
+  --color-accent-700: #ae1800;
+  --color-accent-800: #7c1405;
+  --color-accent-900: #4d170e;
+
+  --color-accent-2-100: #fff2ef;
+  --color-accent-2-200: #ffe0da;
+  --color-accent-2-300: #ffc4b9;
+  --color-accent-2-400: #ff9784;
+  --color-accent-2-500: #ef6853;
+  --color-accent-2-600: #c94b39;
+  --color-accent-2-700: #9e3526;
+  --color-accent-2-800: #71261b;
+  --color-accent-2-900: #471d16;
+
+  --font-heading: "Archivo", system-ui, sans-serif;
+  --font-heading-weight: 800;
+  --font-body: "Archivo", system-ui, sans-serif;
+
+  --space-1: 4.0px;
+  --space-2: 8.0px;
+  --space-3: 12.0px;
+  --space-4: 16.0px;
+  --space-6: 24.0px;
+  --space-8: 32.0px;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+
+  /* Elevation — derived from the ground: soft ink-tinted shadows on a
+     light theme, a hairline edge + ambient darkness on a dark one. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
+
+.grayscale{filter:grayscale(1) contrast(1.08)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Components — built with the tokens above. Plain CSS
+   on plain HTML: no JavaScript, no build step. Each class is documented in
+   readme.md and demonstrated in foundations/ and components/.
+   ══════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-size: 15px; line-height: 1.55; font-weight: 400; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+}
+h1 { font-size: 42px; }
+h2 { font-size: 32px; }
+h3 { font-size: 25px; }
+h4 { font-size: 20px; }
+h5 { font-size: 16px; }
+h6 { font-size: 13px; }
+h6 { letter-spacing: 0.08em; text-transform: uppercase; }
+p { margin: 0 0 var(--space-3); }
+a { color: var(--color-accent); text-underline-offset: 3px; }
+img { display: block; max-width: 100%; }
+figure { margin: 0; }
+figcaption {
+  font-size: 11px; margin-top: var(--space-1);
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+/* — rules — */
+.hr {
+  height: 2px; border: 0; margin: var(--space-4) 0;
+  background: var(--color-divider);
+}
+
+/* — buttons — */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 14px; line-height: 1.2; color: var(--color-text); /* matches the .input's 14px —
+     the pair sits side by side in sign-up rows */
+  background: transparent; border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: var(--radius-md);
+}
+.btn svg { display: block; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--color-accent); color: var(--color-bg); }
+.btn-primary:hover { background: var(--color-accent-600); }
+.btn-primary:active { background: var(--color-accent-700); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-block { width: 100%; margin-top: var(--space-2); justify-content: flex-start; text-align: left; }
+
+/* — forms — */
+.field > label {
+  display: block; font-size: 12px; margin-bottom: 5px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.input {
+  width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
+  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+textarea.input { min-height: 90px; resize: vertical; }
+.radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.radio input, .seg-opt input {
+  position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+}
+.radio .dot {
+  width: 16px; height: 16px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--color-divider);
+}
+.radio:hover .dot { border-color: var(--color-accent); }
+.radio input:checked + .dot {
+  border-color: var(--color-accent); background: var(--color-accent);
+  box-shadow: inset 0 0 0 4px var(--color-bg);
+}
+.radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.seg {
+  display: inline-flex; overflow: hidden;
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.seg-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+.seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
+.seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+/* — cards — */
+.card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface);
+}
+.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+.card-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 17px; line-height: 1.2;
+}
+.card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+.card-meta {
+  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+.elev-sm { box-shadow: var(--shadow-sm); }
+.elev-md { box-shadow: var(--shadow-md); }
+.elev-lg { box-shadow: var(--shadow-lg); }
+
+/* — tags — */
+.tag {
+  display: inline-flex; align-items: center; font-size: 11px;
+  letter-spacing: 0.02em; padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+}
+.tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+.tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
+.tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
+.tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
+
+/* — navigation — */
+.nav {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 2px solid var(--color-divider);
+}
+.nav-brand {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 18px; margin-right: auto;
+}
+.nav a { color: inherit; text-decoration: none; font-size: 14px; }
+.nav a:hover, .nav a[aria-current='page'] { color: var(--color-accent); }
+
+/* — tables — */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th {
+  text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  padding: var(--space-2); border-bottom: 2px solid var(--color-divider);
+}
+.table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+}
+.table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+
+/* — dialog — */
+.dialog-backdrop {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+.dialog {
+  width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4); border-radius: var(--radius-lg);
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+}
+.dialog-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 20px;
+}
+.dialog-body { font-size: 14px; opacity: 0.85; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  three-d-stage:not(:defined) { visibility: hidden; }
+  html, body { margin: 0; height: 100%; background: var(--color-bg); font-family: var(--font-body); color: var(--color-text); }
+  three-d-stage { position: fixed; inset: 0; }
+  .hud { position: fixed; z-index: 5; pointer-events: none; }
+  .hud * { pointer-events: auto; }
+  .plate { background: var(--color-bg); border: 2px solid var(--color-divider); padding: 14px 18px; }
+  .kicker { font-family: var(--font-heading); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 6px; }
+  h1 { font-family: var(--font-heading); font-size: 22px; line-height: 1.1; margin: 0 0 10px; font-weight: 700; }
+  dl { display: grid; grid-template-columns: auto auto; gap: 2px 22px; margin: 0; font-size: 12px; }
+  dt { color: var(--color-neutral-600); text-transform: uppercase; letter-spacing: .08em; font-size: 10.5px; padding-top: 2px; }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .rule { height: 2px; background: var(--color-divider); margin: 12px 0; }
+  .note { font-size: 10.5px; line-height: 1.45; color: var(--color-neutral-600); max-width: 30ch; margin: 0; }
+  .ctrl { display: flex; align-items: center; gap: 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-family: var(--font-heading); }
+  input[type=range] { accent-color: var(--color-accent); width: 190px; }
+  #explode-val { font-variant-numeric: tabular-nums; min-width: 3.5ch; color: var(--color-accent-700); }
+</style>
+</head>
+<body>
+<three-d-stage name="2000kVA-transformer" background="#f3f2f2"></three-d-stage>
+
+<div class="hud" style="top:22px; left:22px;">
+  <div class="plate">
+    <p class="kicker">Electrical Equipment</p>
+    <h1>Power Transformer<br>2000 kVA</h1>
+    <dl>
+      <dt>Length</dt><dd>3000 mm</dd>
+      <dt>Width</dt><dd>1800 mm</dd>
+      <dt>Height</dt><dd>2300 mm</dd>
+      <dt>Scale</dt><dd>1:1 · metres, Y-up</dd>
+      <dt>LOD</dt><dd>300–350</dd>
+    </dl>
+    <div class="rule"></div>
+    <p class="note">Voltage, frequency, vector group, impedance, oil volume, weight, cooling class, serial and model number: <strong>NOT SPECIFIED</strong>. External geometry is a technically plausible generic oil-immersed (conservator-type) arrangement, not confirmed manufacturer data.</p>
+  </div>
+</div>
+
+<div class="hud" style="bottom:56px; left:22px;">
+  <div class="plate ctrl">
+    <label for="explode">Exploded assembly</label>
+    <input id="explode" type="range" min="0" max="1" step="0.01" value="0">
+    <span id="explode-val">0%</span>
+  </div>
+</div>
+
+<script>
+// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
+/* BEGIN USAGE */
+/**
+ * <three-d-stage> — 3D object viewer + exporter shell (three.js).
+ *
+ * The stage owns the whole scene: WebGL renderer, neutral studio lighting
+ * with a soft ground shadow, orbit controls (drag to orbit, wheel to zoom,
+ * right-drag to pan), a camera auto-framed to the object's bounds, resize
+ * handling, and a download toolbar that exports the current object as
+ * OBJ + MTL or GLB (binary glTF). FBX cannot be exported in the browser;
+ * GLB is the interchange format every modern 3D tool imports.
+ *
+ * three.js loads through the page's import map. Include this EXACT pinned
+ * map in <head>, before any module runs — versions and integrity hashes
+ * stay together (same map the "3D object" skill mandates):
+ *
+ *   <script type="importmap">
+ *   {
+ *     "imports": {
+ *       "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+ *       "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+ *       "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+ *       "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+ *     },
+ *     "integrity": {
+ *       "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+ *       "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+ *     }
+ *   }
+ *   <\/script>
+ *
+ * Usage:
+ *   <style>three-d-stage:not(:defined){visibility:hidden}</style>
+ *   <three-d-stage name="rocket"></three-d-stage>
+ *   <script src="three-d-stage.js"><\/script>
+ *   <script type="module">
+ *     const stage = document.querySelector('three-d-stage');
+ *     const { THREE } = await stage.ready;
+ *     const model = new THREE.Group();
+ *     // …build the model out of named meshes with named materials —
+ *     // the names become the o / usemtl entries in the exported OBJ…
+ *     stage.setObject(model);
+ *   <\/script>
+ *
+ * Attributes:
+ *   name       — export file basename (default "model")
+ *   background — CSS color behind the scene (default a warm paper tone)
+ *   autorotate — when present, a slow turntable until the user interacts
+ *
+ * Model in real-world meters, centered on the origin, y-up — exports
+ * inherit the scene's units and orientation. The stage fills its own box;
+ * size it with ordinary CSS (default 100vw/100vh page hero).
+ *
+ * Default setup: neutral studio lighting (hemisphere + key + fill), a
+ * soft ground shadow, and NO environment map — so high metalness has
+ * nothing to reflect and renders near-black. Cap metalness around
+ * 0.3–0.4 and carry a metal look with a brighter base color. The copied
+ * file is yours: adjust the lights, shadow, or background in _boot()
+ * when the object needs a different look.
+ */
+/* END USAGE */
+
+(() => {
+  const stylesheet = `
+    :host {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100vh;
+      background: var(--stage-bg, #f0eee6);
+      overflow: hidden;
+    }
+    canvas { display: block; outline: none; }
+    .toolbar {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      gap: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .toolbar button {
+      appearance: none;
+      border: 1px solid rgba(20, 20, 19, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #1a1915;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1;
+      padding: 9px 12px;
+      cursor: default;
+    }
+    .toolbar button:hover { background: #fff; }
+    .toolbar button:active { transform: translateY(1px); }
+    .toolbar button[disabled] { opacity: 0.5; pointer-events: none; }
+    .note {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      max-width: 60%;
+      font: 400 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: rgba(26, 25, 21, 0.55);
+      user-select: none;
+    }
+    .err {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font: 500 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #8a2f20;
+      text-align: center;
+      white-space: pre-line;
+    }
+  `;
+
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  /** Tell the host an export attempt settled — telemetry only. The host
+   *  (HTMLViewer) verifies the source and re-reads these fields defensively
+   *  before counting; nothing else crosses the frame boundary. Guarded so
+   *  telemetry can never break the download path. */
+  function notifyExport(format, ok) {
+    try {
+      window.parent.postMessage(
+        { type: 'omelette:notify-3d-export', format: format, ok: ok === true },
+        '*'
+      );
+    } catch (e) {}
+  }
+
+  class ThreeDStage extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      const style = document.createElement('style');
+      style.textContent = stylesheet;
+      root.appendChild(style);
+      this._err = document.createElement('div');
+      this._err.className = 'err';
+      root.appendChild(this._err);
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.textContent = 'Drag to orbit · scroll to zoom · right-drag to pan';
+      root.appendChild(note);
+      this._toolbar = document.createElement('div');
+      this._toolbar.className = 'toolbar';
+      this._objBtn = document.createElement('button');
+      this._objBtn.type = 'button';
+      this._objBtn.textContent = 'Download OBJ + MTL';
+      this._objBtn.addEventListener('click', () => this._runExport('obj'));
+      this._glbBtn = document.createElement('button');
+      this._glbBtn.type = 'button';
+      this._glbBtn.textContent = 'Download GLB';
+      this._glbBtn.addEventListener('click', () => this._runExport('glb'));
+      this._toolbar.appendChild(this._objBtn);
+      this._toolbar.appendChild(this._glbBtn);
+      root.appendChild(this._toolbar);
+      this._setButtonsEnabled(false);
+      /** Resolves with { THREE } once the scene is live — build the model
+       *  in `await stage.ready` so nothing races the library load. */
+      this.ready = new Promise((resolve, reject) => {
+        this._readyResolve = resolve;
+        this._readyReject = reject;
+      });
+    }
+
+    connectedCallback() {
+      if (this._booted) {
+        // Re-attached after a removal — resume what disconnected stopped.
+        if (this._renderer) {
+          this._renderer.setAnimationLoop(this._loop);
+          this._ro && this._ro.observe(this);
+        }
+        return;
+      }
+      this._booted = true;
+      this._boot().catch((err) => {
+        this._err.style.display = 'flex';
+        this._err.textContent =
+          'three.js failed to load.\n' +
+          'Check that the pinned <script type="importmap"> from the usage ' +
+          'notes is in <head> before any module script.\n\n' +
+          String(err && err.message ? err.message : err);
+        this._readyReject(err);
+      });
+    }
+
+    async _boot() {
+      const bg = this.getAttribute('background');
+      if (bg) this.style.setProperty('--stage-bg', bg);
+      const [THREE, controlsMod] = await Promise.all([
+        import('three'),
+        import('three/addons/controls/OrbitControls.js'),
+      ]);
+      this._THREE = THREE;
+      // preserveDrawingBuffer keeps the last frame readable after
+      // compositing (toDataURL / drawImage) — it's what lets the
+      // screenshot tools capture the scene instead of a blank canvas.
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this._renderer = renderer;
+      this.shadowRoot.insertBefore(renderer.domElement, this._err);
+
+      const scene = new THREE.Scene();
+      this._scene = scene;
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 500);
+      camera.position.set(3, 2.2, 4);
+      this._camera = camera;
+
+      const controls = new controlsMod.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      this._controls = controls;
+
+      // Neutral studio: soft sky/ground wash, a shadow-casting key light,
+      // and a dim fill from behind so silhouettes never go black.
+      scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c4, 1.0));
+      const key = new THREE.DirectionalLight(0xffffff, 2.2);
+      key.position.set(4, 7, 5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.bias = -0.0002;
+      this._key = key;
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0xfff4e6, 0.5);
+      fill.position.set(-5, 3, -4);
+      scene.add(fill);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(200, 200),
+        new THREE.ShadowMaterial({ opacity: 0.18 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      this._ground = ground;
+      scene.add(ground);
+
+      this._autorotate = this.hasAttribute('autorotate');
+      controls.autoRotate = this._autorotate;
+      controls.autoRotateSpeed = 1.2;
+      controls.addEventListener('start', () => {
+        controls.autoRotate = false;
+      });
+
+      const fit = () => {
+        const w = this.clientWidth || 1;
+        const h = this.clientHeight || 1;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      };
+      fit();
+      this._ro = new ResizeObserver(fit);
+      this._loop = () => {
+        controls.update();
+        renderer.render(scene, camera);
+      };
+      // Detached while three.js was fetching? Stay idle — the
+      // connectedCallback resume starts the loop and observer on
+      // reattach.
+      if (this.isConnected) {
+        this._ro.observe(this);
+        renderer.setAnimationLoop(this._loop);
+      }
+
+      this._readyResolve({ THREE });
+    }
+
+    disconnectedCallback() {
+      // Stop rendering and observing while detached; connectedCallback
+      // resumes both. (The renderer itself is kept — a move within the
+      // document must not rebuild the scene.)
+      if (this._renderer) this._renderer.setAnimationLoop(null);
+      if (this._ro) this._ro.disconnect();
+    }
+
+    /** Show (and own) the object. Replaces any previous object, enables
+     *  shadows on every mesh, rests it on the ground plane, and frames
+     *  the camera to its bounds. */
+    setObject(object) {
+      const THREE = this._THREE;
+      if (!THREE) throw new Error('three-d-stage: not ready — await stage.ready first');
+      if (this._object) this._scene.remove(this._object);
+      this._object = object;
+      object.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+        }
+      });
+      const box = new THREE.Box3().setFromObject(object);
+      if (!box.isEmpty()) {
+        // Rest the object on the ground without moving its origin.
+        this._ground.position.y = box.min.y;
+        const sphere = box.getBoundingSphere(new THREE.Sphere());
+        const dist =
+          (sphere.radius / Math.tan((this._camera.fov * Math.PI) / 360)) * 1.35;
+        const dir = new THREE.Vector3(1, 0.55, 1.25).normalize();
+        this._camera.position
+          .copy(sphere.center)
+          .add(dir.multiplyScalar(dist));
+        this._camera.near = Math.max(dist / 100, 0.01);
+        this._camera.far = dist * 100;
+        this._camera.updateProjectionMatrix();
+        this._controls.target.copy(sphere.center);
+        this._controls.update();
+        const span = sphere.radius * 3;
+        this._key.shadow.camera.left = -span;
+        this._key.shadow.camera.right = span;
+        this._key.shadow.camera.top = span;
+        this._key.shadow.camera.bottom = -span;
+        this._key.shadow.camera.updateProjectionMatrix();
+      }
+      this._scene.add(object);
+      this._setButtonsEnabled(true);
+    }
+
+    get _basename() {
+      return (this.getAttribute('name') || 'model').replace(/[^\w.-]+/g, '_');
+    }
+
+    _setButtonsEnabled(on) {
+      this._objBtn.disabled = !on;
+      this._glbBtn.disabled = !on;
+    }
+
+    /** Every mesh and material needs a unique name for o/usemtl lines —
+     *  fill in stable fallbacks, and return the unique material list. */
+    _nameParts() {
+      const mats = [];
+      const seen = new Set();
+      let meshI = 0;
+      let matI = 0;
+      this._object.traverse((o) => {
+        if (!o.isMesh) return;
+        if (!o.name) o.name = 'part_' + meshI;
+        meshI += 1;
+        const list = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of list) {
+          if (!m || mats.includes(m)) continue;
+          if (!m.name) {
+            m.name = 'mat_' + matI;
+            matI += 1;
+          }
+          while (seen.has(m.name)) {
+            m.name = m.name + '_' + matI;
+            matI += 1;
+          }
+          seen.add(m.name);
+          mats.push(m);
+        }
+      });
+      return mats;
+    }
+
+    /** One export attempt, reported to the host however it settles.
+     *  Rethrows so a failure stays visible on the guest console exactly as
+     *  before. The no-object early return is not an attempt (the toolbar is
+     *  disabled until the model loads) and reports nothing. */
+    async _runExport(format) {
+      if (!this._object) return;
+      try {
+        await (format === 'obj' ? this._exportObj() : this._exportGlb());
+        notifyExport(format, true);
+      } catch (err) {
+        notifyExport(format, false);
+        throw err;
+      }
+    }
+
+    async _exportObj() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/OBJExporter.js');
+      const mats = this._nameParts();
+      const base = this._basename;
+      const obj =
+        'mtllib ' + base + '.mtl\n' + new mod.OBJExporter().parse(this._object);
+      let mtl = '# Exported by three-d-stage\n';
+      for (const m of mats) {
+        const c = m.color || { r: 0.8, g: 0.8, b: 0.8 };
+        const rough = typeof m.roughness === 'number' ? m.roughness : 0.5;
+        const opacity = typeof m.opacity === 'number' ? m.opacity : 1;
+        mtl += 'newmtl ' + m.name + '\n';
+        mtl +=
+          'Kd ' + c.r.toFixed(4) + ' ' + c.g.toFixed(4) + ' ' + c.b.toFixed(4) + '\n';
+        mtl += 'Ks 0.2000 0.2000 0.2000\n';
+        mtl += 'Ns ' + Math.round((1 - rough) * 200) + '\n';
+        mtl += 'd ' + opacity.toFixed(4) + '\n\n';
+      }
+      download(new Blob([obj], { type: 'text/plain' }), base + '.obj');
+      download(new Blob([mtl], { type: 'text/plain' }), base + '.mtl');
+    }
+
+    async _exportGlb() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/GLTFExporter.js');
+      this._nameParts();
+      const base = this._basename;
+      const buf = await new mod.GLTFExporter().parseAsync(this._object, {
+        binary: true,
+      });
+      download(
+        new Blob([buf], { type: 'model/gltf-binary' }),
+        base + '.glb'
+      );
+    }
+  }
+
+  customElements.define('three-d-stage', ThreeDStage);
+})();
+
+</script>
+<script type="module">
+// 2000 kVA oil-immersed power transformer — generic technically plausible
+// geometry at 1:1 scale (metres). Envelope: 3.000 L x 1.800 D x 2.300 H.
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+/* ---------------------------------------------------------------- materials */
+const M = {
+  tank:  new THREE.MeshStandardMaterial({ name: 'PaintedSteel_Tank',      color: 0x555b5e, roughness: 0.62, metalness: 0.32 }),
+  rad:   new THREE.MeshStandardMaterial({ name: 'PaintedSteel_Radiator',  color: 0x646a6d, roughness: 0.68, metalness: 0.28 }),
+  base:  new THREE.MeshStandardMaterial({ name: 'StructuralSteel_Base',   color: 0x3a3e40, roughness: 0.75, metalness: 0.35 }),
+  fit:   new THREE.MeshStandardMaterial({ name: 'Galvanized_Fitting',     color: 0xa2a8ac, roughness: 0.45, metalness: 0.4  }),
+  porc:  new THREE.MeshStandardMaterial({ name: 'Porcelain_Insulator',    color: 0xd9d4c6, roughness: 0.34, metalness: 0.02 }),
+  cond:  new THREE.MeshStandardMaterial({ name: 'Copper_Conductor',       color: 0xb2763c, roughness: 0.42, metalness: 0.42 }),
+  rubber:new THREE.MeshStandardMaterial({ name: 'Rubber_Black',           color: 0x1f2020, roughness: 0.92, metalness: 0.0  }),
+  glass: new THREE.MeshStandardMaterial({ name: 'Sight_Glass',            color: 0xbfd0cc, roughness: 0.15, metalness: 0.1  }),
+};
+
+/* ------------------------------------------------------------------ helpers */
+const box = (name, mat, w, h, d, x = 0, y = 0, z = 0) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.name = name; m.position.set(x, y, z); return m;
+};
+const cyl = (name, mat, rt, rb, h, x = 0, y = 0, z = 0, seg = 32) => {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+  m.name = name; m.position.set(x, y, z); return m;
+};
+const cylX = (...a) => { const m = cyl(...a); m.rotation.z = Math.PI / 2; return m; };
+const cylZ = (...a) => { const m = cyl(...a); m.rotation.x = Math.PI / 2; return m; };
+const torus = (name, mat, r, tube, x, y, z) => {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(r, tube, 12, 32), mat);
+  m.name = name; m.position.set(x, y, z); m.rotation.x = Math.PI / 2; return m;
+};
+function group(name, dir) {
+  const g = new THREE.Group(); g.name = name;
+  g.userData.explode = new THREE.Vector3(...dir);
+  return g;
+}
+// lifting lug: steel plate with a circular hole
+function lug(name, w = 0.17, h = 0.15, t = 0.026) {
+  const s = new THREE.Shape();
+  s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, h * 0.45);
+  s.absarc(0, h * 0.45, w / 2, 0, Math.PI, false);
+  s.lineTo(-w / 2, 0);
+  const hole = new THREE.Path();
+  hole.absarc(0, h * 0.5, w * 0.17, 0, Math.PI * 2, true);
+  s.holes.push(hole);
+  const m = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: t, bevelEnabled: false }), M.base);
+  m.name = name; return m;
+}
+function flangedPipe(name, mat, r, len, axis) {
+  const g = new THREE.Group(); g.name = name;
+  const body = cyl(name + '_pipe', mat, r, r, len, 0, 0, 0, 20);
+  g.add(body);
+  [-1, 1].forEach((s, i) => {
+    const f = cyl(name + '_flange_' + i, M.fit, r * 1.85, r * 1.85, 0.022, 0, s * len / 2, 0, 20);
+    g.add(f);
+  });
+  if (axis === 'x') g.rotation.z = Math.PI / 2;
+  if (axis === 'z') g.rotation.x = Math.PI / 2;
+  return g;
+}
+function valve(name, r = 0.05) {
+  const g = new THREE.Group(); g.name = name;
+  g.add(cyl(name + '_body', M.fit, r, r * 1.15, 0.11, 0, 0, 0, 18));
+  g.add(cyl(name + '_bonnet', M.fit, r * 0.5, r * 0.72, 0.07, 0, 0.085, 0, 16));
+  g.add(cyl(name + '_stem', M.fit, 0.008, 0.008, 0.06, 0, 0.14, 0, 10));
+  const hw = torus(name + '_handwheel', M.rubber, r * 0.95, 0.012, 0, 0.17, 0);
+  g.add(hw);
+  g.add(cyl(name + '_hub', M.fit, 0.016, 0.016, 0.018, 0, 0.17, 0, 12));
+  return g;
+}
+function bolts(name, mat, count, radius, cx, cy, cz, plane = 'y') {
+  const g = new THREE.Group(); g.name = name;
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2;
+    const b = cyl(name + '_' + i, mat, 0.013, 0.013, 0.016, 0, 0, 0, 6);
+    if (plane === 'y') b.position.set(cx + Math.cos(a) * radius, cy, cz + Math.sin(a) * radius);
+    else { b.rotation.z = Math.PI / 2; b.position.set(cx, cy + Math.sin(a) * radius, cz + Math.cos(a) * radius); }
+    g.add(b);
+  }
+  return g;
+}
+
+/* ------------------------------------------------------------ key dimensions */
+const TL = 2.40, TD = 1.20, TY0 = 0.40, TY1 = 1.86;   // tank: length, depth, y range
+const TH = TY1 - TY0, TCY = (TY0 + TY1) / 2;
+const COVER_Y = TY1 + 0.035;
+
+const model = new THREE.Group();
+model.name = '2000kVA_PowerTransformer';
+
+/* ----------------------------------------------------------------- 1. wheels */
+const wheels = group('Wheel_Assemblies', [0, -1, 0]);
+[-0.95, 0.95].forEach((x, xi) => [-0.52, 0.52].forEach((z, zi) => {
+  const bogie = new THREE.Group();
+  bogie.name = `RollerBogie_${xi}${zi}`;
+  bogie.position.set(x, 0, z);
+  bogie.add(box('bogie_plate', M.base, 0.30, 0.045, 0.26, 0, 0.235, 0));
+  [-0.09, 0.09].forEach((dx, i) => {
+    bogie.add(cylZ('roller_tread', M.base, 0.105, 0.105, 0.07, dx, 0.105, 0, 28));
+    [-0.041, 0.041].forEach((dz, j) => bogie.add(cylZ('roller_flange', M.base, 0.125, 0.125, 0.012, dx, 0.105, dz, 28)));
+    bogie.add(cylZ('roller_axle', M.fit, 0.022, 0.022, 0.30, dx, 0.105, 0, 14));
+    [-0.13, 0.13].forEach((dz, j) => bogie.add(box('roller_bracket', M.base, 0.055, 0.20, 0.026, dx, 0.135, dz)));
+  });
+  wheels.add(bogie);
+}));
+
+/* ------------------------------------------------------------- 2. base frame */
+const baseFrame = group('Base_Frame', [0, -1, 0]);
+[-0.52, 0.52].forEach((z, i) => {
+  baseFrame.add(box(`base_longitudinal_web_${i}`, M.base, 3.00, 0.13, 0.028, 0, 0.305, z));
+  baseFrame.add(box(`base_longitudinal_topflange_${i}`, M.base, 3.00, 0.022, 0.13, 0, 0.381, z));
+  baseFrame.add(box(`base_longitudinal_botflange_${i}`, M.base, 3.00, 0.022, 0.13, 0, 0.229, z));
+});
+[-1.18, -0.40, 0.40, 1.18].forEach((x, i) => {
+  baseFrame.add(box(`base_crossmember_${i}`, M.base, 0.09, 0.115, 1.04, x, 0.305, 0));
+});
+[-1.45, 1.45].forEach((x, i) => {
+  baseFrame.add(box(`base_jacking_pad_${i}`, M.base, 0.10, 0.09, 1.16, x, 0.285, 0));
+  [-0.52, 0.52].forEach((z, j) => baseFrame.add(box(`base_anchor_lug_${i}${j}`, M.base, 0.10, 0.035, 0.18, x, 0.235, z)));
+});
+[-1.05, 1.05].forEach((x, i) => [-0.52, 0.52].forEach((z, j) =>
+  baseFrame.add(box(`base_tank_bracket_${i}${j}`, M.base, 0.16, 0.055, 0.20, x, 0.415, z))));
+
+/* ------------------------------------------------------------------ 3. tank */
+const tank = group('Main_Tank', [0, 0, 0]);
+tank.add(box('tank_body', M.tank, TL, TH, TD, 0, TCY, 0));
+// corner reinforcements
+[-1, 1].forEach(sx => [-1, 1].forEach(sz => {
+  tank.add(box('tank_corner_post', M.tank, 0.075, TH - 0.06, 0.075, sx * (TL / 2 - 0.02), TCY, sz * (TD / 2 - 0.02)));
+}));
+// vertical stiffener ribs on the end walls
+[-1, 1].forEach(sx => [-0.38, 0, 0.38].forEach((z, i) => {
+  tank.add(box(`tank_end_stiffener_${i}`, M.tank, 0.03, TH - 0.12, 0.075, sx * (TL / 2 + 0.014), TCY, z));
+}));
+// horizontal weld / stiffener belts along the long walls (behind radiators)
+[-1, 1].forEach(sz => [TY0 + 0.13, TY1 - 0.10].forEach((y, i) => {
+  tank.add(box(`tank_belt_${i}`, M.tank, TL - 0.10, 0.045, 0.028, 0, y, sz * (TD / 2 + 0.013)));
+}));
+// bolted inspection hatch, gauges, drain and grounding on the -X end wall
+const endX = -TL / 2 - 0.012;
+tank.add(box('tank_inspection_hatch', M.tank, 0.026, 0.42, 0.52, endX - 0.008, 1.24, -0.02));
+tank.add(bolts('hatch_bolts', M.fit, 12, 0.26, endX - 0.026, 1.24, -0.02, 'x'));
+const drain = valve('drain_valve', 0.045); drain.rotation.z = -Math.PI / 2;
+drain.position.set(endX - 0.05, 0.62, 0.36); tank.add(drain);
+const drainStub = flangedPipe('drain_stub', M.fit, 0.035, 0.09, 'x');
+drainStub.position.set(endX - 0.02, 0.62, 0.36); tank.add(drainStub);
+const sample = valve('sampling_valve', 0.028); sample.rotation.z = -Math.PI / 2;
+sample.position.set(endX - 0.04, 0.86, -0.44); tank.add(sample);
+// grounding terminals
+[[endX - 0.03, 0.55, -0.46], [TL / 2 + 0.03, 0.55, 0.46]].forEach((p, i) => {
+  const gg = new THREE.Group(); gg.name = `Grounding_Terminal_${i}`;
+  gg.add(box('ground_pad', M.tank, 0.03, 0.13, 0.13, 0, 0, 0));
+  const l1 = cylX('ground_lug', M.cond, 0.028, 0.028, 0.07, Math.sign(p[0]) * 0.05, 0, 0, 16);
+  gg.add(l1);
+  gg.add(cylX('ground_bolt', M.fit, 0.014, 0.014, 0.12, Math.sign(p[0]) * 0.085, 0, 0, 10));
+  gg.position.set(...p); tank.add(gg);
+});
+
+/* -------------------------------------------------------------- 4. top cover */
+const cover = group('Top_Cover', [0, 1, 0]);
+cover.add(box('cover_plate', M.tank, TL + 0.06, 0.055, TD + 0.06, 0, COVER_Y, 0));
+cover.add(box('cover_rim', M.tank, TL + 0.02, 0.05, TD + 0.02, 0, COVER_Y - 0.05, 0));
+cover.add(cyl('cover_manhole', M.tank, 0.24, 0.24, 0.05, -0.15, COVER_Y + 0.05, -0.22, 28));
+cover.add(bolts('manhole_bolts', M.fit, 10, 0.205, -0.15, COVER_Y + 0.082, -0.22));
+cover.add(cyl('cover_access_cover_2', M.tank, 0.15, 0.15, 0.04, 0.95, COVER_Y + 0.045, -0.30, 24));
+// pressure relief device
+const prd = new THREE.Group(); prd.name = 'Pressure_Relief_Device';
+prd.add(cyl('prd_flange', M.fit, 0.085, 0.085, 0.026, 0, 0, 0, 20));
+prd.add(cyl('prd_body', M.fit, 0.068, 0.075, 0.10, 0, 0.065, 0, 20));
+prd.add(cyl('prd_cap', M.rad, 0.09, 0.09, 0.035, 0, 0.13, 0, 20));
+prd.add(cyl('prd_indicator', M.cond, 0.014, 0.014, 0.055, 0.045, 0.16, 0, 10));
+prd.position.set(0.42, COVER_Y + 0.03, 0.30); cover.add(prd);
+// lifting lugs at the four cover corners
+[[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz], i) => {
+  const L = lug(`Lifting_Lug_${i}`);
+  L.position.set(sx * (TL / 2 - 0.20), COVER_Y + 0.02, sz * (TD / 2 + 0.02));
+  if (sx * sz < 0) L.rotation.y = 0;
+  cover.add(L);
+});
+// jacking / haulage lugs low on the tank
+[[-1, -1], [1, 1]].forEach(([sx, sz], i) => {
+  const L = lug(`Haulage_Lug_${i}`, 0.14, 0.12);
+  L.rotation.y = Math.PI / 2;
+  L.position.set(sx * (TL / 2 + 0.015), 0.52, sz * 0.42);
+  tank.add(L);
+});
+
+/* ------------------------------------------------------- 5. cooling radiators */
+function radiatorBank(name, sz) {
+  const g = new THREE.Group(); g.name = name;
+  const zIn = sz * (TD / 2 + 0.02), zOut = sz * 0.90;
+  const zMid = (zIn + zOut) / 2, depth = Math.abs(zOut - zIn);
+  const yTop = 1.70, yBot = 0.72, yMid = (yTop + yBot) / 2;
+  // three banks of elements
+  const bankX = [-0.78, 0, 0.78];
+  bankX.forEach((bx, bi) => {
+    for (let i = 0; i < 8; i++) {
+      const x = bx + (i - 3.5) * 0.075;
+      const el = box(`radiator_element_${bi}${i}`, M.rad, 0.026, yTop - yBot - 0.10, depth * 0.92, x, yMid, zMid);
+      g.add(el);
+    }
+    // element spacers / header stubs per bank
+    [yTop - 0.05, yBot + 0.05].forEach((y, k) =>
+      g.add(box(`radiator_bank_plate_${bi}${k}`, M.rad, 0.62, 0.05, depth, bx, y, zMid)));
+    g.add(box(`radiator_bracket_${bi}`, M.rad, 0.055, yTop - yBot, 0.06, bx, yMid, zIn + sz * 0.02));
+  });
+  // upper + lower headers running the length of the bank
+  [yTop + 0.03, yBot - 0.03].forEach((y, k) => {
+    g.add(cylX(`radiator_header_${k}`, M.rad, 0.055, 0.055, 2.30, 0, y, sz * 0.60, 20));
+    [-1.15, 1.15].forEach((x, j) => {
+      const cap = cyl(`radiator_header_cap_${k}${j}`, M.fit, 0.055, 0.062, 0.02, x, y, sz * 0.60, 20);
+      cap.rotation.z = Math.PI / 2; g.add(cap);
+    });
+  });
+  // oil connections tank <-> headers, with isolating valves
+  [[-1.02, yTop + 0.03], [1.02, yTop + 0.03], [-1.02, yBot - 0.03], [1.02, yBot - 0.03]].forEach(([x, y], i) => {
+    const p = flangedPipe(`radiator_connection_${i}`, M.rad, 0.045, Math.abs(sz * 0.60 - sz * (TD / 2 - 0.05)), 'z');
+    p.position.set(x, y, sz * 0.605);
+    p.position.z = (sz * 0.60 + sz * (TD / 2 - 0.05)) / 2;
+    g.add(p);
+    const v = valve(`radiator_valve_${i}`, 0.042);
+    v.position.set(x, y, sz * (TD / 2 + 0.10));
+    v.rotation.x = sz > 0 ? Math.PI / 2 : -Math.PI / 2;
+    g.add(v);
+  });
+  return g;
+}
+const radA = radiatorBank('Radiator_Bank_Front', -1); radA.userData.explode = new THREE.Vector3(0, 0, -1);
+const radB = radiatorBank('Radiator_Bank_Rear', 1);  radB.userData.explode = new THREE.Vector3(0, 0, 1);
+
+/* ------------------------------------------------------------- 6. HV bushings */
+function hvBushing(name) {
+  const g = new THREE.Group(); g.name = name;
+  g.add(cyl('hv_mounting_flange', M.fit, 0.10, 0.11, 0.032, 0, 0.016, 0, 24));
+  g.add(bolts('hv_flange_bolts', M.fit, 8, 0.088, 0, 0.042, 0));
+  g.add(cyl('hv_bushing_base', M.porc, 0.082, 0.092, 0.07, 0, 0.068, 0, 28));
+  g.add(cyl('hv_insulator_body', M.porc, 0.048, 0.078, 0.134, 0, 0.1705, 0, 32));
+  for (let i = 0; i < 4; i++) {
+    const t = i / 3;
+    g.add(torus('hv_shed_' + i, M.porc, 0.095 - t * 0.026, 0.016, 0, 0.112 + i * 0.037, 0));
+  }
+  g.add(cyl('hv_terminal_cap', M.fit, 0.048, 0.052, 0.042, 0, 0.255, 0, 24));
+  g.add(cyl('hv_terminal_stud', M.cond, 0.026, 0.026, 0.055, 0, 0.301, 0, 18));
+  g.add(box('hv_terminal_palm', M.cond, 0.10, 0.014, 0.055, 0, 0.333, 0));
+  g.add(cyl('hv_terminal_nut', M.fit, 0.032, 0.032, 0.020, 0, 0.347, 0, 6));
+  return g;
+}
+const hv = group('HV_Bushings', [0.35, 1, 0]);
+[-0.40, 0, 0.40].forEach((z, i) => {
+  const b = hvBushing(`HV_Bushing_${'ABC'[i]}`);
+  b.position.set(0.74, COVER_Y + 0.028, z);
+  hv.add(b);
+});
+
+/* ------------------------------------------------------------- 7. LV bushings */
+function lvBushing(name) {
+  const g = new THREE.Group(); g.name = name;
+  g.add(cyl('lv_mounting_flange', M.fit, 0.085, 0.092, 0.028, 0, 0.014, 0, 22));
+  g.add(bolts('lv_flange_bolts', M.fit, 6, 0.072, 0, 0.036, 0));
+  g.add(cyl('lv_bushing_base', M.porc, 0.072, 0.080, 0.05, 0, 0.055, 0, 26));
+  g.add(cyl('lv_insulator_body', M.porc, 0.055, 0.068, 0.14, 0, 0.15, 0, 28));
+  for (let i = 0; i < 3; i++) g.add(torus('lv_shed_' + i, M.porc, 0.086 - i * 0.006, 0.015, 0, 0.10 + i * 0.055, 0));
+  g.add(cyl('lv_terminal_stem', M.cond, 0.03, 0.03, 0.07, 0, 0.25, 0, 18));
+  g.add(box('lv_terminal_palm', M.cond, 0.075, 0.016, 0.10, 0, 0.29, 0));
+  g.add(cyl('lv_terminal_nut', M.fit, 0.026, 0.026, 0.02, 0, 0.308, 0, 6));
+  return g;
+}
+const lv = group('LV_Bushings', [-0.35, 1, 0]);
+[-0.45, -0.15, 0.15, 0.45].forEach((z, i) => {
+  const b = lvBushing(`LV_Bushing_${['a', 'b', 'c', 'n'][i]}`);
+  b.position.set(-0.85, COVER_Y + 0.028, z);
+  lv.add(b);
+});
+
+/* ----------------------------------------------- 8. conservator + breather etc */
+const cons = group('Conservator_Assembly', [0, 1, 0.35]);
+const CZ = 0.70, CY = 2.06, CR = 0.185;
+cons.add(cylX('conservator_shell', M.tank, CR, CR, 1.55, 0, CY, CZ, 32));
+[-1, 1].forEach((s, i) => {
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(CR, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.tank);
+  cap.name = 'conservator_end_cap_' + i;
+  cap.rotation.z = s * Math.PI / 2;
+  cap.position.set(s * 0.775, CY, CZ);
+  cons.add(cap);
+});
+[-0.58, 0.58].forEach((x, i) => {
+  cons.add(box(`conservator_support_leg_${i}`, M.base, 0.05, 0.19, 0.16, x, CY - CR - 0.09, CZ));
+  cons.add(box(`conservator_support_saddle_${i}`, M.base, 0.09, 0.03, 0.26, x, CY - CR + 0.005, CZ));
+  cons.add(box(`conservator_support_strut_${i}`, M.base, 0.045, 0.045, 0.32, x, CY - CR - 0.17, CZ - 0.12));
+});
+// oil level indicator on the conservator end
+cons.add(cylX('oil_level_gauge_body', M.fit, 0.075, 0.075, 0.035, 0.815, CY + 0.02, CZ, 24));
+cons.add(cylX('oil_level_gauge_dial', M.glass, 0.062, 0.062, 0.012, 0.838, CY + 0.02, CZ, 24));
+// breather: down-pipe + silica-gel housing + oil cup
+cons.add(cylX('breather_pipe_h', M.fit, 0.026, 0.026, 0.30, 0.95, CY - 0.05, CZ, 16));
+cons.add(cyl('breather_pipe_v', M.fit, 0.026, 0.026, 0.34, 1.10, CY - 0.22, CZ, 16));
+cons.add(cyl('breather_housing', M.glass, 0.055, 0.055, 0.24, 1.10, CY - 0.50, CZ, 24));
+cons.add(cyl('breather_top_flange', M.fit, 0.068, 0.068, 0.026, 1.10, CY - 0.375, CZ, 20));
+cons.add(cyl('breather_bottom_flange', M.fit, 0.068, 0.068, 0.026, 1.10, CY - 0.625, CZ, 20));
+cons.add(cyl('breather_oil_cup', M.fit, 0.075, 0.06, 0.075, 1.10, CY - 0.675, CZ, 24));
+// conservator -> tank pipe with Buchholz relay
+cons.add(cyl('conservator_downpipe', M.fit, 0.045, 0.045, 0.12, -0.10, CY - CR - 0.06, CZ, 20));
+cons.add(cylZ('buchholz_run_pipe', M.fit, 0.045, 0.045, 0.34, -0.10, CY - CR - 0.13, CZ - 0.17, 20));
+const buch = new THREE.Group(); buch.name = 'Buchholz_Relay';
+buch.add(cylZ('buchholz_body', M.fit, 0.085, 0.085, 0.20, 0, 0, 0, 24));
+buch.add(cyl('buchholz_dome', M.fit, 0.05, 0.06, 0.055, 0, 0.10, 0, 20));
+buch.add(box('buchholz_sight', M.glass, 0.03, 0.07, 0.10, 0.086, 0.01, 0));
+buch.add(box('buchholz_terminal_box', M.rad, 0.10, 0.09, 0.09, -0.09, 0.02, 0));
+buch.position.set(-0.10, CY - CR - 0.13, CZ - 0.42);
+cons.add(buch);
+cons.add(cyl('buchholz_to_cover_pipe', M.fit, 0.045, 0.045, 0.34, -0.10, CY - CR - 0.32, CZ - 0.42, 20));
+
+/* --------------------------------------------- 9. gauges, nameplate, marshalling */
+const acc = group('Protection_And_Accessories', [-1, 0, 0]);
+function dialGauge(name, r, x, y, z) {
+  const g = new THREE.Group(); g.name = name;
+  g.add(cylX('gauge_case', M.rad, r, r, 0.06, 0, 0, 0, 26));
+  g.add(cylX('gauge_dial', M.glass, r * 0.86, r * 0.86, 0.014, -0.037, 0, 0, 26));
+  g.add(cylX('gauge_bezel', M.fit, r * 1.05, r * 1.05, 0.014, -0.03, 0, 0, 26));
+  g.add(box('gauge_bracket', M.rad, 0.05, r * 1.4, 0.04, 0.045, -r * 0.2, 0));
+  g.add(cyl('gauge_capillary', M.fit, 0.012, 0.012, 0.34, 0.02, -r - 0.17, 0, 10));
+  g.position.set(x, y, z);
+  return g;
+}
+acc.add(dialGauge('Oil_Temperature_Indicator', 0.085, endX - 0.07, 1.55, 0.30));
+acc.add(dialGauge('Winding_Temperature_Indicator', 0.085, endX - 0.07, 1.55, -0.42));
+// marshalling / terminal box
+acc.add(box('Marshalling_Box', M.rad, 0.12, 0.42, 0.30, endX - 0.07, 1.05, 0.42));
+acc.add(box('marshalling_door_rib', M.fit, 0.015, 0.36, 0.02, endX - 0.135, 1.05, 0.42));
+// nameplate — verified data only
+const np = new THREE.Group(); np.name = 'Nameplate';
+np.add(box('nameplate_plate', M.fit, 0.014, 0.26, 0.36, 0, 0, 0));
+np.add(box('nameplate_header_band', M.cond, 0.006, 0.045, 0.32, -0.010, 0.095, 0));
+[0.03, -0.005, -0.04, -0.075].forEach((y, i) =>
+  np.add(box(`nameplate_line_${i}`, M.rad, 0.005, 0.012, 0.30 - i * 0.02, -0.010, y, -0.01 + i * 0.01)));
+[-1, 1].forEach((sz, i) => [-1, 1].forEach((sy, j) =>
+  np.add(cylX(`nameplate_screw_${i}${j}`, M.fit, 0.008, 0.008, 0.02, -0.012, sy * 0.115, sz * 0.165, 8))));
+np.position.set(endX - 0.02, 1.24, -0.02);
+np.rotation.y = 0;
+acc.add(np);
+
+/* ----------------------------------------------------------------- assemble */
+[wheels, baseFrame, tank, cover, radA, radB, hv, lv, cons, acc].forEach(g => model.add(g));
+model.position.y = 0.020;
+model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+stage.setObject(model);
+
+/* -------------------------------------------------------------- explode view */
+const parts = [wheels, baseFrame, tank, cover, radA, radB, hv, lv, cons, acc];
+parts.forEach(p => p.userData.home = p.position.clone());
+const slider = document.getElementById('explode');
+const readout = document.getElementById('explode-val');
+function applyExplode(t) {
+  parts.forEach(p => {
+    const d = p.userData.explode || new THREE.Vector3();
+    p.position.copy(p.userData.home).addScaledVector(d, t * 1.1);
+  });
+  readout.textContent = Math.round(t * 100) + '%';
+}
+slider.addEventListener('input', () => applyExplode(parseFloat(slider.value)));
+applyExplode(0);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UPS Battery Cabinet — 40 × 12V 100Ah</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#e9e9e6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1c1d1f}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{position:absolute;inset:0}
+  .hud{position:absolute;left:24px;top:22px;z-index:5;pointer-events:none;max-width:340px}
+  .hud h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 6px;font-weight:600}
+  .hud p{margin:0;font:11px/1.6 ui-monospace,"SF Mono",Menlo,monospace;color:#55575c;letter-spacing:.02em}
+  .views{position:absolute;left:24px;bottom:78px;z-index:5;display:flex;flex-wrap:wrap;gap:6px;max-width:520px}
+  .views button{pointer-events:auto;font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;
+    padding:9px 12px;border:1px solid #c3c3bd;background:#f5f5f2;color:#26282c;cursor:pointer;border-radius:2px}
+  .views button:hover{background:#26282c;color:#f5f5f2;border-color:#26282c}
+  .views button[data-on="1"]{background:#26282c;color:#f5f5f2;border-color:#26282c}
+  .check{position:absolute;right:24px;bottom:24px;z-index:5;font:10px/1.9 ui-monospace,Menlo,monospace;color:#55575c;text-align:right}
+  .check b{color:#1c1d1f;font-weight:600}
+</style>
+</head>
+<body>
+<div class="hud">
+  <h1>UPS Battery Cabinet</h1>
+  <p>1000 W × 900 D × 2000 H mm · RAL 9005<br>40 × 12 V 100 Ah VRLA (220 × 330 × 170 mm)<br>5 trays × 8 batteries (4 across × 2 deep)</p>
+</div>
+<div class="views">
+  <button data-view="front">Front · closed</button>
+  <button data-view="hero">Front 3/4</button>
+  <button data-view="open">Doors open</button>
+  <button data-view="internal">Internal · 40 cells</button>
+  <button data-view="section">Side section</button>
+</div>
+<div class="check" id="check"></div>
+
+<three-d-stage name="ups_battery_cabinet_40x12V100Ah" background="#e9e9e6"></three-d-stage>
+<script>
+// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
+/* BEGIN USAGE */
+/**
+ * <three-d-stage> — 3D object viewer + exporter shell (three.js).
+ *
+ * The stage owns the whole scene: WebGL renderer, neutral studio lighting
+ * with a soft ground shadow, orbit controls (drag to orbit, wheel to zoom,
+ * right-drag to pan), a camera auto-framed to the object's bounds, resize
+ * handling, and a download toolbar that exports the current object as
+ * OBJ + MTL or GLB (binary glTF). FBX cannot be exported in the browser;
+ * GLB is the interchange format every modern 3D tool imports.
+ *
+ * three.js loads through the page's import map. Include this EXACT pinned
+ * map in <head>, before any module runs — versions and integrity hashes
+ * stay together (same map the "3D object" skill mandates):
+ *
+ *   <script type="importmap">
+ *   {
+ *     "imports": {
+ *       "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+ *       "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+ *       "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+ *       "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+ *     },
+ *     "integrity": {
+ *       "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+ *       "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+ *     }
+ *   }
+ *   <\/script>
+ *
+ * Usage:
+ *   <style>three-d-stage:not(:defined){visibility:hidden}</style>
+ *   <three-d-stage name="rocket"></three-d-stage>
+ *   <script src="three-d-stage.js"><\/script>
+ *   <script type="module">
+ *     const stage = document.querySelector('three-d-stage');
+ *     const { THREE } = await stage.ready;
+ *     const model = new THREE.Group();
+ *     // …build the model out of named meshes with named materials —
+ *     // the names become the o / usemtl entries in the exported OBJ…
+ *     stage.setObject(model);
+ *   <\/script>
+ *
+ * Attributes:
+ *   name       — export file basename (default "model")
+ *   background — CSS color behind the scene (default a warm paper tone)
+ *   autorotate — when present, a slow turntable until the user interacts
+ *
+ * Model in real-world meters, centered on the origin, y-up — exports
+ * inherit the scene's units and orientation. The stage fills its own box;
+ * size it with ordinary CSS (default 100vw/100vh page hero).
+ *
+ * Default setup: neutral studio lighting (hemisphere + key + fill), a
+ * soft ground shadow, and NO environment map — so high metalness has
+ * nothing to reflect and renders near-black. Cap metalness around
+ * 0.3–0.4 and carry a metal look with a brighter base color. The copied
+ * file is yours: adjust the lights, shadow, or background in _boot()
+ * when the object needs a different look.
+ */
+/* END USAGE */
+
+(() => {
+  const stylesheet = `
+    :host {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100vh;
+      background: var(--stage-bg, #f0eee6);
+      overflow: hidden;
+    }
+    canvas { display: block; outline: none; }
+    .toolbar {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      gap: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .toolbar button {
+      appearance: none;
+      border: 1px solid rgba(20, 20, 19, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #1a1915;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1;
+      padding: 9px 12px;
+      cursor: default;
+    }
+    .toolbar button:hover { background: #fff; }
+    .toolbar button:active { transform: translateY(1px); }
+    .toolbar button[disabled] { opacity: 0.5; pointer-events: none; }
+    .note {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      max-width: 60%;
+      font: 400 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: rgba(26, 25, 21, 0.55);
+      user-select: none;
+    }
+    .err {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font: 500 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #8a2f20;
+      text-align: center;
+      white-space: pre-line;
+    }
+  `;
+
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  /** Tell the host an export attempt settled — telemetry only. The host
+   *  (HTMLViewer) verifies the source and re-reads these fields defensively
+   *  before counting; nothing else crosses the frame boundary. Guarded so
+   *  telemetry can never break the download path. */
+  function notifyExport(format, ok) {
+    try {
+      window.parent.postMessage(
+        { type: 'omelette:notify-3d-export', format: format, ok: ok === true },
+        '*'
+      );
+    } catch (e) {}
+  }
+
+  class ThreeDStage extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      const style = document.createElement('style');
+      style.textContent = stylesheet;
+      root.appendChild(style);
+      this._err = document.createElement('div');
+      this._err.className = 'err';
+      root.appendChild(this._err);
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.textContent = 'Drag to orbit · scroll to zoom · right-drag to pan';
+      root.appendChild(note);
+      this._toolbar = document.createElement('div');
+      this._toolbar.className = 'toolbar';
+      this._objBtn = document.createElement('button');
+      this._objBtn.type = 'button';
+      this._objBtn.textContent = 'Download OBJ + MTL';
+      this._objBtn.addEventListener('click', () => this._runExport('obj'));
+      this._glbBtn = document.createElement('button');
+      this._glbBtn.type = 'button';
+      this._glbBtn.textContent = 'Download GLB';
+      this._glbBtn.addEventListener('click', () => this._runExport('glb'));
+      this._toolbar.appendChild(this._objBtn);
+      this._toolbar.appendChild(this._glbBtn);
+      root.appendChild(this._toolbar);
+      this._setButtonsEnabled(false);
+      /** Resolves with { THREE } once the scene is live — build the model
+       *  in `await stage.ready` so nothing races the library load. */
+      this.ready = new Promise((resolve, reject) => {
+        this._readyResolve = resolve;
+        this._readyReject = reject;
+      });
+    }
+
+    connectedCallback() {
+      if (this._booted) {
+        // Re-attached after a removal — resume what disconnected stopped.
+        if (this._renderer) {
+          this._renderer.setAnimationLoop(this._loop);
+          this._ro && this._ro.observe(this);
+        }
+        return;
+      }
+      this._booted = true;
+      this._boot().catch((err) => {
+        this._err.style.display = 'flex';
+        this._err.textContent =
+          'three.js failed to load.\n' +
+          'Check that the pinned <script type="importmap"> from the usage ' +
+          'notes is in <head> before any module script.\n\n' +
+          String(err && err.message ? err.message : err);
+        this._readyReject(err);
+      });
+    }
+
+    async _boot() {
+      const bg = this.getAttribute('background');
+      if (bg) this.style.setProperty('--stage-bg', bg);
+      const [THREE, controlsMod] = await Promise.all([
+        import('three'),
+        import('three/addons/controls/OrbitControls.js'),
+      ]);
+      this._THREE = THREE;
+      // preserveDrawingBuffer keeps the last frame readable after
+      // compositing (toDataURL / drawImage) — it's what lets the
+      // screenshot tools capture the scene instead of a blank canvas.
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this._renderer = renderer;
+      this.shadowRoot.insertBefore(renderer.domElement, this._err);
+
+      const scene = new THREE.Scene();
+      this._scene = scene;
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 500);
+      camera.position.set(3, 2.2, 4);
+      this._camera = camera;
+
+      const controls = new controlsMod.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      this._controls = controls;
+
+      // Neutral studio: soft sky/ground wash, a shadow-casting key light,
+      // and a dim fill from behind so silhouettes never go black.
+      scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c4, 1.0));
+      const key = new THREE.DirectionalLight(0xffffff, 2.2);
+      key.position.set(4, 7, 5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.bias = -0.0002;
+      this._key = key;
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0xfff4e6, 0.5);
+      fill.position.set(-5, 3, -4);
+      scene.add(fill);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(200, 200),
+        new THREE.ShadowMaterial({ opacity: 0.18 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      this._ground = ground;
+      scene.add(ground);
+
+      this._autorotate = this.hasAttribute('autorotate');
+      controls.autoRotate = this._autorotate;
+      controls.autoRotateSpeed = 1.2;
+      controls.addEventListener('start', () => {
+        controls.autoRotate = false;
+      });
+
+      const fit = () => {
+        const w = this.clientWidth || 1;
+        const h = this.clientHeight || 1;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      };
+      fit();
+      this._ro = new ResizeObserver(fit);
+      this._loop = () => {
+        controls.update();
+        renderer.render(scene, camera);
+      };
+      // Detached while three.js was fetching? Stay idle — the
+      // connectedCallback resume starts the loop and observer on
+      // reattach.
+      if (this.isConnected) {
+        this._ro.observe(this);
+        renderer.setAnimationLoop(this._loop);
+      }
+
+      this._readyResolve({ THREE });
+    }
+
+    disconnectedCallback() {
+      // Stop rendering and observing while detached; connectedCallback
+      // resumes both. (The renderer itself is kept — a move within the
+      // document must not rebuild the scene.)
+      if (this._renderer) this._renderer.setAnimationLoop(null);
+      if (this._ro) this._ro.disconnect();
+    }
+
+    /** Show (and own) the object. Replaces any previous object, enables
+     *  shadows on every mesh, rests it on the ground plane, and frames
+     *  the camera to its bounds. */
+    setObject(object) {
+      const THREE = this._THREE;
+      if (!THREE) throw new Error('three-d-stage: not ready — await stage.ready first');
+      if (this._object) this._scene.remove(this._object);
+      this._object = object;
+      object.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+        }
+      });
+      const box = new THREE.Box3().setFromObject(object);
+      if (!box.isEmpty()) {
+        // Rest the object on the ground without moving its origin.
+        this._ground.position.y = box.min.y;
+        const sphere = box.getBoundingSphere(new THREE.Sphere());
+        const dist =
+          (sphere.radius / Math.tan((this._camera.fov * Math.PI) / 360)) * 1.35;
+        const dir = new THREE.Vector3(1, 0.55, 1.25).normalize();
+        this._camera.position
+          .copy(sphere.center)
+          .add(dir.multiplyScalar(dist));
+        this._camera.near = Math.max(dist / 100, 0.01);
+        this._camera.far = dist * 100;
+        this._camera.updateProjectionMatrix();
+        this._controls.target.copy(sphere.center);
+        this._controls.update();
+        const span = sphere.radius * 3;
+        this._key.shadow.camera.left = -span;
+        this._key.shadow.camera.right = span;
+        this._key.shadow.camera.top = span;
+        this._key.shadow.camera.bottom = -span;
+        this._key.shadow.camera.updateProjectionMatrix();
+      }
+      this._scene.add(object);
+      this._setButtonsEnabled(true);
+    }
+
+    get _basename() {
+      return (this.getAttribute('name') || 'model').replace(/[^\w.-]+/g, '_');
+    }
+
+    _setButtonsEnabled(on) {
+      this._objBtn.disabled = !on;
+      this._glbBtn.disabled = !on;
+    }
+
+    /** Every mesh and material needs a unique name for o/usemtl lines —
+     *  fill in stable fallbacks, and return the unique material list. */
+    _nameParts() {
+      const mats = [];
+      const seen = new Set();
+      let meshI = 0;
+      let matI = 0;
+      this._object.traverse((o) => {
+        if (!o.isMesh) return;
+        if (!o.name) o.name = 'part_' + meshI;
+        meshI += 1;
+        const list = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of list) {
+          if (!m || mats.includes(m)) continue;
+          if (!m.name) {
+            m.name = 'mat_' + matI;
+            matI += 1;
+          }
+          while (seen.has(m.name)) {
+            m.name = m.name + '_' + matI;
+            matI += 1;
+          }
+          seen.add(m.name);
+          mats.push(m);
+        }
+      });
+      return mats;
+    }
+
+    /** One export attempt, reported to the host however it settles.
+     *  Rethrows so a failure stays visible on the guest console exactly as
+     *  before. The no-object early return is not an attempt (the toolbar is
+     *  disabled until the model loads) and reports nothing. */
+    async _runExport(format) {
+      if (!this._object) return;
+      try {
+        await (format === 'obj' ? this._exportObj() : this._exportGlb());
+        notifyExport(format, true);
+      } catch (err) {
+        notifyExport(format, false);
+        throw err;
+      }
+    }
+
+    async _exportObj() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/OBJExporter.js');
+      const mats = this._nameParts();
+      const base = this._basename;
+      const obj =
+        'mtllib ' + base + '.mtl\n' + new mod.OBJExporter().parse(this._object);
+      let mtl = '# Exported by three-d-stage\n';
+      for (const m of mats) {
+        const c = m.color || { r: 0.8, g: 0.8, b: 0.8 };
+        const rough = typeof m.roughness === 'number' ? m.roughness : 0.5;
+        const opacity = typeof m.opacity === 'number' ? m.opacity : 1;
+        mtl += 'newmtl ' + m.name + '\n';
+        mtl +=
+          'Kd ' + c.r.toFixed(4) + ' ' + c.g.toFixed(4) + ' ' + c.b.toFixed(4) + '\n';
+        mtl += 'Ks 0.2000 0.2000 0.2000\n';
+        mtl += 'Ns ' + Math.round((1 - rough) * 200) + '\n';
+        mtl += 'd ' + opacity.toFixed(4) + '\n\n';
+      }
+      download(new Blob([obj], { type: 'text/plain' }), base + '.obj');
+      download(new Blob([mtl], { type: 'text/plain' }), base + '.mtl');
+    }
+
+    async _exportGlb() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/GLTFExporter.js');
+      this._nameParts();
+      const base = this._basename;
+      const buf = await new mod.GLTFExporter().parseAsync(this._object, {
+        binary: true,
+      });
+      download(
+        new Blob([buf], { type: 'model/gltf-binary' }),
+        base + '.glb'
+      );
+    }
+  }
+
+  customElements.define('three-d-stage', ThreeDStage);
+})();
+
+</script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+/* ---- materials ---- */
+const M = {};
+const mat = (name, color, roughness, metalness) => (M[name] = Object.assign(
+  new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness, metalness }), { name }));
+mat('steel_ral9005', 0x2b2e33, 0.5, 0.32);
+mat('steel_frame',   0x17181b, 0.45, 0.4);
+mat('steel_tray',    0x35383d, 0.5, 0.4);
+mat('vent_shadow',   0x0b0c0d, 0.9, 0.05);
+mat('battery_case',  0x27292d, 0.72, 0.1);
+mat('battery_label', 0x6f747a, 0.7, 0.05);
+mat('terminal_pos',  0x9c2420, 0.55, 0.1);
+mat('terminal_neg',  0x1e3d78, 0.55, 0.1);
+mat('busbar',        0xb08a52, 0.4, 0.4);
+mat('cable',         0x121316, 0.85, 0.02);
+
+/* ---- helpers (metres, y-up) ---- */
+const box = (name, w, h, d, x, y, z, m) => {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+  mesh.name = name; mesh.position.set(x, y, z); return mesh;
+};
+function roundedBoxGeom(w, d, h, r, bev) {
+  const hw = w / 2 - bev, hd = d / 2 - bev, rr = Math.min(r, hw, hd);
+  const s = new THREE.Shape();
+  s.moveTo(-hw + rr, -hd);
+  s.lineTo(hw - rr, -hd); s.quadraticCurveTo(hw, -hd, hw, -hd + rr);
+  s.lineTo(hw, hd - rr);  s.quadraticCurveTo(hw, hd, hw - rr, hd);
+  s.lineTo(-hw + rr, hd); s.quadraticCurveTo(-hw, hd, -hw, hd - rr);
+  s.lineTo(-hw, -hd + rr);s.quadraticCurveTo(-hw, -hd, -hw + rr, -hd);
+  const g = new THREE.ExtrudeGeometry(s, { depth: h - 2 * bev, bevelEnabled: true,
+    bevelThickness: bev, bevelSize: bev, bevelSegments: 2, curveSegments: 5, steps: 1 });
+  g.rotateX(-Math.PI / 2); g.translate(0, -(h / 2 - bev), 0); g.computeVertexNormals();
+  return g;
+}
+const cyl = (name, r, h, m, seg = 16) => {
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), m); mesh.name = name; return mesh;
+};
+
+/* ---- dimensions ---- */
+const W = 1.000, D = 0.900, H = 2.000;      // cabinet, exact
+const BW = 0.220, BD = 0.330, BH = 0.170;   // battery, exact
+const t = 0.003;                             // sheet steel
+const plinth = 0.100;
+const trayTops = [0.12, 0.48, 0.84, 1.20, 1.56];
+const colX = [-0.3525, -0.1175, 0.1175, 0.3525]; // 4 across, 15 mm gaps
+const rowZ = [0.16, -0.19];                      // 2 deep, 20 mm gap
+
+const root = new THREE.Group(); root.name = 'Battery_Cabinet';
+
+/* ---- frame / enclosure ---- */
+const frame = new THREE.Group(); frame.name = 'Cabinet_Frame';
+frame.add(box('Base_Plinth_Skirt', W - 0.04, plinth - 0.012, D - 0.04, 0, (plinth - 0.012) / 2, 0, M.steel_frame));
+frame.add(box('Base_Deck_Plate', W, 0.012, D, 0, plinth - 0.006, 0, M.steel_tray));
+for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+  const px = sx * (W / 2 - t - 0.025), pz = sz === 1 ? (D / 2 - 0.045 - 0.025) : -(D / 2 - t - 0.025);
+  frame.add(box(`Corner_Post_${sx > 0 ? 'R' : 'L'}${sz > 0 ? 'F' : 'B'}`, 0.05, H - plinth - 0.02, 0.05,
+    px, plinth + (H - plinth - 0.02) / 2, pz, M.steel_frame));
+}
+const topPlate = box('Top_Panel', W, 0.02, D, 0, H - 0.01, 0, M.steel_ral9005);
+frame.add(topPlate);
+for (let i = 0; i < 6; i++)  // top exhaust slots
+  frame.add(box(`Top_Vent_Slot_${i + 1}`, 0.42, 0.006, 0.018, 0, H - 0.019, -0.24 + i * 0.055, M.vent_shadow));
+for (let i = 0; i < 7; i++)  // plinth intake slots
+  frame.add(box(`Plinth_Vent_Slot_${i + 1}`, 0.06, 0.024, 0.006, -0.27 + i * 0.09, 0.05, D / 2 - 0.024, M.vent_shadow));
+
+const sides = new THREE.Group(); sides.name = 'Side_Panels';
+for (const sx of [-1, 1])
+  sides.add(box(`Side_Panel_${sx > 0 ? 'Right' : 'Left'}`, t, H - plinth - 0.02, D - 2 * t,
+    sx * (W / 2 - t / 2), plinth + (H - plinth - 0.02) / 2, 0, M.steel_ral9005));
+const rear = new THREE.Group(); rear.name = 'Rear_Panel';
+rear.add(box('Rear_Panel_Sheet', W - 2 * t, H - plinth - 0.02, t, 0, plinth + (H - plinth - 0.02) / 2, -(D / 2 - t / 2), M.steel_ral9005));
+for (let i = 0; i < 5; i++)
+  rear.add(box(`Rear_Vent_Slot_${i + 1}`, 0.34, 0.02, 0.004, 0, 1.66 + i * 0.05, -(D / 2 - t - 0.002), M.vent_shadow));
+
+/* ---- doors ---- */
+const doorH = H - plinth - 0.02, doorW = W / 2 - 0.0015, doorT = 0.020;
+const doorY = plinth + doorH / 2, doorZ = D / 2 - doorT / 2;
+function makeDoor(side) { // side -1 = left, +1 = right
+  const pivot = new THREE.Group();
+  pivot.name = side < 0 ? 'Left_Door' : 'Right_Door';
+  pivot.position.set(side * (W / 2 - 0.001), 0, doorZ);
+  const cx = -side * doorW / 2;
+  // folded sheet leaf built as stiles + rails around three louvred openings
+  const openW = doorW - 0.14, stile = 0.07;
+  const vzY = [0.62, 1.10, 1.58], vzH = 0.20;
+  for (const sx2 of [-1, 1])
+    pivot.add(box('Door_Stile', stile, doorH, doorT, cx + sx2 * (doorW - stile) / 2, doorY, 0, M.steel_ral9005));
+  const edges = [plinth];
+  vzY.forEach(y => { edges.push(y - vzH / 2, y + vzH / 2); });
+  edges.push(plinth + doorH);
+  for (let i = 0; i < edges.length; i += 2) {
+    const y0 = edges[i], y1 = edges[i + 1];
+    pivot.add(box('Door_Rail', openW, y1 - y0, doorT, cx, (y0 + y1) / 2, 0, M.steel_ral9005));
+  }
+  vzY.forEach((y, k) => {
+    pivot.add(box(`Door_Vent_Screen_${k + 1}`, openW, vzH, 0.002, cx, y, -doorT / 2 + 0.001, M.vent_shadow));
+    for (let i = 0; i < 6; i++) {
+      const slat = box(`Door_Louvre_${k + 1}_${i + 1}`, openW - 0.006, 0.024, 0.010, cx, y - 0.085 + i * 0.034, -0.004, M.steel_frame);
+      slat.rotation.x = -0.5; pivot.add(slat);
+    }
+  });
+  // hinges on the outer edge
+  for (const hy of [plinth + 0.14, doorY, H - 0.14]) {
+    const h = cyl('Door_Hinge', 0.014, 0.075, M.steel_frame, 20);
+    h.position.set(-side * 0.015, hy, -0.006); pivot.add(h);
+  }
+  // recessed locking handle at the meeting stile
+  const hx = -side * (doorW - 0.055);
+  pivot.add(box('Door_Handle_Recess', 0.048, 0.170, 0.012, hx, 1.02, doorT / 2 - 0.007, M.vent_shadow));
+  const grip = cyl('Door_Handle', 0.010, 0.130, M.steel_tray, 20);
+  grip.position.set(hx, 1.02, doorT / 2 - 0.011); pivot.add(grip);
+  pivot.add(box('Door_Lock_Barrel', 0.03, 0.03, 0.01, hx, 0.90, doorT / 2 - 0.006, M.steel_tray));
+  return pivot;
+}
+const leftDoor = makeDoor(-1), rightDoor = makeDoor(1);
+
+/* ---- battery unit ---- */
+const batGeom = roundedBoxGeom(BW, BD, BH, 0.010, 0.004);
+function makeBattery(n) {
+  const g = new THREE.Group(); g.name = `Battery_${String(n).padStart(2, '0')}`;
+  const body = new THREE.Mesh(batGeom, M.battery_case); body.name = 'Battery_Case';
+  body.position.y = BH / 2; g.add(body);
+  g.add(box('Battery_Lid_Seam', BW - 0.012, 0.004, BD - 0.012, 0, BH - 0.014, 0, M.steel_frame));
+  g.add(box('Battery_Label', 0.085, 0.038, 0.002, 0, BH / 2 - 0.012, BD / 2 + 0.001, M.battery_label));
+  for (const [sx, m, tag] of [[1, M.terminal_pos, 'Pos'], [-1, M.terminal_neg, 'Neg']]) {
+    const base = box(`Terminal_Base_${tag}`, 0.040, 0.010, 0.040, sx * 0.070, BH + 0.005, 0.110, m);
+    const post = cyl(`Terminal_Post_${tag}`, 0.010, 0.020, M.busbar, 14);
+    post.position.set(sx * 0.070, BH + 0.020, 0.110);
+    g.add(base, post);
+  }
+  return g;
+}
+
+/* ---- shelves, batteries, interconnections ---- */
+const TERM_Y = BH + 0.030;
+let n = 0;
+const shelfGroups = [];
+trayTops.forEach((top, s) => {
+  const shelf = new THREE.Group(); shelf.name = `Shelf_${String(s + 1).padStart(2, '0')}`;
+  const trayW = 0.94, trayD = 0.72, trayZ = -0.02, plate = 0.012;
+  shelf.add(box('Tray_Plate', trayW, plate, trayD, 0, top - plate / 2, trayZ, M.steel_tray));
+  shelf.add(box('Tray_Lip_Front', trayW, 0.025, 0.012, 0, top + 0.0125, trayZ + trayD / 2 - 0.006, M.steel_tray));
+  shelf.add(box('Tray_Lip_Rear', trayW, 0.025, 0.012, 0, top + 0.0125, trayZ - trayD / 2 + 0.006, M.steel_tray));
+  const railH = s === 0 ? 0.008 : 0.040;
+  for (const sx of [-1, 1])
+    shelf.add(box(`Tray_Rail_${sx > 0 ? 'R' : 'L'}`, 0.030, railH, 0.778,
+      sx * 0.455, top - plate - railH / 2, -0.00925, M.steel_frame));
+  if (s > 0) for (const sx of [-1, 1]) for (const sz of [-1, 1])  // gusset brackets to posts
+    shelf.add(box('Tray_Bracket', 0.030, 0.070, 0.030, sx * 0.455, top - plate - 0.035, sz * 0.36, M.steel_frame));
+
+  rowZ.forEach((bz, r) => colX.forEach((bx, c) => {
+    const b = makeBattery(++n);
+    b.position.set(bx, top, bz + (r === 1 ? 0 : 0));
+    if (r === 1) b.rotation.y = 0; // consistent orientation on every shelf
+    b.position.z = bz;
+    shelf.add(b);
+  }));
+
+  // series busbars between neighbouring batteries in each row
+  rowZ.forEach((bz) => {
+    for (let c = 0; c < 3; c++) {
+      const x0 = colX[c] + 0.070, x1 = colX[c + 1] - 0.070;
+      shelf.add(box('Busbar_Link', (x1 - x0) + 0.024, 0.008, 0.016, (x0 + x1) / 2, top + TERM_Y - 0.004, bz + 0.110, M.busbar));
+    }
+  });
+  // row-to-row jumper on the left, above the lids
+  const jz0 = rowZ[0] + 0.110, jz1 = rowZ[1] + 0.110;
+  shelf.add(box('Jumper_Row_Link', 0.014, 0.014, jz0 - jz1, colX[0] - 0.070, top + TERM_Y + 0.004, (jz0 + jz1) / 2, M.cable));
+  // string riser to the shelf above, routed behind the rear row
+  const rx = colX[3] + 0.070;
+  shelf.add(box('Cable_Run_Rear', 0.014, 0.014, 0.310, rx, top + TERM_Y + 0.004, -0.235, M.cable));
+  if (s < trayTops.length - 1) {
+    const riser = cyl('Cable_Riser', 0.009, 0.360, M.cable, 12);
+    riser.position.set(rx, top + TERM_Y + 0.184, -0.390); shelf.add(riser);
+  } else {
+    const riser = cyl('Cable_To_Breaker', 0.009, 0.180, M.cable, 12);
+    riser.position.set(rx, top + TERM_Y + 0.094, -0.390); shelf.add(riser);
+  }
+  shelfGroups.push(shelf);
+});
+
+/* ---- DC isolator / termination box at the top ---- */
+const gear = new THREE.Group(); gear.name = 'DC_Isolator';
+gear.add(box('Isolator_Enclosure', 0.30, 0.20, 0.16, 0.20, 1.86, -0.30, M.steel_tray));
+gear.add(box('Isolator_Handle', 0.05, 0.05, 0.02, 0.20, 1.86, -0.21, M.terminal_pos));
+
+root.add(frame, sides, rear, leftDoor, rightDoor, gear, ...shelfGroups);
+root.position.y = 0;
+stage.setObject(root);
+
+/* ---- validation readout ---- */
+let count = 0, minB = new THREE.Vector3(1e3, 1e3, 1e3), maxB = new THREE.Vector3(-1e3, -1e3, -1e3);
+root.traverse(o => { if (/^Battery_\d\d$/.test(o.name)) count++; });
+const bb = new THREE.Box3().setFromObject(root);
+document.getElementById('check').innerHTML =
+  `batteries <b>${count}</b> · shelves <b>${shelfGroups.length}</b> · per shelf <b>${count / shelfGroups.length}</b><br>` +
+  `bbox <b>${(bb.max.x - bb.min.x).toFixed(3)} × ${(bb.max.z - bb.min.z).toFixed(3)} × ${(bb.max.y - bb.min.y).toFixed(3)} m</b>`;
+
+/* ---- presentation views ---- */
+const cam = stage._camera, ctr = stage._controls;
+const OPEN = 1.65;
+function setDoors(open) {
+  leftDoor.rotation.y = open ? -OPEN : 0;
+  rightDoor.rotation.y = open ? OPEN : 0;
+}
+function setVis(doors, sideR) {
+  leftDoor.visible = rightDoor.visible = doors;
+  sides.children[1].visible = sideR;
+}
+function look(px, py, pz, tx, ty, tz) {
+  cam.position.set(px, py, pz); ctr.target.set(tx, ty, tz); ctr.update();
+}
+const views = {
+  front:    () => { setDoors(false); setVis(true, true);  look(0, 1.05, 3.6, 0, 1.0, 0); },
+  hero:     () => { setDoors(false); setVis(true, true);  look(2.4, 1.9, 3.0, 0, 0.95, 0); },
+  open:     () => { setDoors(true);  setVis(true, true);  look(1.9, 1.7, 3.9, 0, 1.0, 0.15); },
+  internal: () => { setDoors(true);  setVis(false, true); look(0.4, 1.35, 3.4, 0, 1.0, -0.05); },
+  section:  () => { setDoors(true);  setVis(false, false);look(3.4, 1.5, 0.9, 0, 1.0, -0.02); }
+};
+document.querySelectorAll('.views button').forEach(b => b.addEventListener('click', () => {
+  views[b.dataset.view]();
+  document.querySelectorAll('.views button').forEach(o => o.removeAttribute('data-on'));
+  b.dataset.on = '1';
+}));
+views.hero();
+document.querySelector('[data-view="hero"]').dataset.on = '1';
+</script>
+</body>
+</html>
