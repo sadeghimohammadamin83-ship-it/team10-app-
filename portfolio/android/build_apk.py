@@ -298,7 +298,7 @@ def sign(unsigned, out):
     # v1 (JAR) signature — Android 5–6 read only this one
     v1 = os.path.join(BUILD, 'v1.apk')
     run('jarsigner', '-J-Duser.language=en', '-keystore', ks, '-storetype', 'PKCS12', '-storepass:env', 'APK_KEY_PASS',
-        '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-sigfile', 'CERT', '-signedjar', v1, unsigned, 'portfolio', env=env)
+        '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-sigfile', 'CERT', '-signedjar', v1, unsigned, 'archfolio', env=env)
     aligned = os.path.join(BUILD, 'aligned.apk')
     realign(v1, aligned)
     # v2 signature block — required by Android 11+ for apps targeting API 30+

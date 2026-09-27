@@ -19,7 +19,7 @@ css = re.sub(r'url\("\.\./(fonts/[^"]+)"\)', lambda m: f'url("{data_uri(m.group(
 # Images: full-size only (no 800 px variants, so no srcset)
 media = json.loads(re.search(r'window\.MEDIA=(\{.*\});', rd('js/media.js')).group(1))
 imgs = {rel: data_uri('img/' + rel) for rel in media}
-media = {k: v[:2] for k, v in media.items()}
+media = {k: v[:2] + ([0, v[3]] if len(v) > 3 else []) for k, v in media.items()}   # keep the transparent-image flag
 
 # 3D model pages, opened from blob: URLs at runtime
 models = {f[:-5]: rd('models/' + f) for f in sorted(os.listdir(os.path.join(ROOT, 'models'))) if f.endswith('.html')}
