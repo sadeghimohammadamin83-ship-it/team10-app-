@@ -324,7 +324,13 @@ html.locked #cur{display:none!important}
 .dcs{position:relative;container-type:inline-size}
 .dcs-stage{position:relative;aspect-ratio:4/3;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
   background:radial-gradient(80% 70% at 55% 45%,color-mix(in srgb,var(--surface) 80%,transparent),transparent 75%),var(--bg-2);touch-action:pan-y}
+.dcs-cam{position:absolute;inset:0;transform-origin:0 0}
 .dcs-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* while the camera moves (a GPU transform), hold the small animations and hide the hotspots,
+   so nothing forces the hall to be redrawn mid-move */
+.dcs.moving .dcs-cam{will-change:transform}
+.dcs.moving :is(.fan,.led,.flow,.rise,.hs-p){animation-play-state:paused}
+.dcs .hots{transition:opacity .25s}.dcs.moving .hots{opacity:0;transition-duration:.12s}
 .dcs-fx{pointer-events:none}.dcs-fx .hs{pointer-events:auto}
 .dcs-legend{position:absolute;top:.75rem;inset-inline-end:.75rem;display:flex;gap:.9rem;padding:.45rem .8rem;border-radius:var(--r-pill);border:1px solid var(--line);
   background:var(--glass-solid);font-size:var(--fs-2xs);color:var(--muted)}
@@ -1363,3 +1369,32 @@ html[dir="rtl"] .sec-head.rv .sec-rule::before{transform-origin:100% 50%}
 }
 :root[data-palette="wine"] :is(.seg button[aria-selected="true"],.btn-primary,.chip[aria-pressed="true"],.feat-tabs button[aria-selected="true"],.wtab[aria-current="page"],.pr-rail button[aria-current],.lang button[aria-pressed="true"],.fab){
   background:linear-gradient(180deg,#8E1B2D 0%,#6E101C 60%,#560B16 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px -12px rgba(80,14,24,.6)}
+
+/* ── Touch devices: smoothness first ─────────────────────────────────
+   Measured on a phone profile: frosted-glass blur on in-page panels and the fan/LED
+   animations inside the data hall drawing cost half the frame rate (27 → 59 fps).
+   The blur stays on the bars that float over content; panels keep their glass tint.
+   Fans, LEDs and rising air run inside the component you open, not across the hall. */
+@media (hover:none){
+  body *:not(.tabbar):not(.nav-in):not(.menu):not(.dd-m):not(#toast):not(.th-menu){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  /* :is(.led.g) lifts these above the ".iso .led.g{animation:…}" shorthands */
+  .dcs.iso :is(.fan,.led.g,.led.a,.rise){animation-play-state:paused}
+  .dcs.iso .cmp.on :is(.fan,.led.g,.led.a,.rise){animation-play-state:running}
+  .dcs.iso.moving .cmp.on :is(.fan,.led.g,.led.a,.rise){animation-play-state:paused}
+}
+
+/* theme picker */
+.th{position:relative}
+.th-menu{position:absolute;top:calc(100% + .6rem);inset-inline-end:0;z-index:60;display:grid;gap:2px;min-width:190px;padding:6px;border-radius:var(--r-md);
+  border:1px solid var(--line-2);background:color-mix(in srgb,var(--bg-2) 97%,transparent);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:var(--shadow-lg);
+  animation:thIn .18s var(--ease)}
+.th-menu[hidden]{display:none}
+@keyframes thIn{from{opacity:0;transform:translateY(-4px)}}
+.th-opt{display:flex;align-items:center;gap:.75rem;min-height:44px;padding:0 .85rem;border-radius:10px;font-size:.875rem;color:var(--muted);text-align:start;white-space:nowrap}
+.th-opt:hover,.th-opt:focus-visible{background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink)}
+.th-opt[aria-checked="true"]{color:var(--ink);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.th-opt[aria-checked="true"]::after{content:"";width:6px;height:10px;margin-inline-start:auto;border:solid var(--accent);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-2px)}
+.th-sw{width:20px;height:20px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(127,127,127,.4)}
+.th-sw-dark{background:linear-gradient(135deg,#0A0B0D 50%,#FF5A36 50%)}
+.th-sw-light{background:linear-gradient(135deg,#EEF3F8 50%,#C8401A 50%)}
+.th-sw-wine{background:linear-gradient(135deg,#FBF6F2 50%,#7A1424 50%)}

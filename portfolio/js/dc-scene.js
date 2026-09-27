@@ -140,7 +140,7 @@ window.DCScene = (() => {
     const {I} = U;
     return `<div class="dcs iso" id="dcs">
       <div class="dcs-stage">
-        ${svg()}
+        <div class="dcs-cam">${svg()}</div>
         <div class="dcs-legend" aria-hidden="true"><span><i class="lg-pw"></i>Power</span><span><i class="lg-cold"></i>Cold air</span><span><i class="lg-hot"></i>Hot air</span></div>
         <div class="dcs-tip" aria-hidden="true"></div>
         <button type="button" class="dcs-back" data-dc="x">${I.back}<span>Back to the whole hall</span></button>
@@ -168,23 +168,39 @@ window.DCScene = (() => {
   function bind(){
     const root = document.getElementById('dcs'); if(!root) return api;
     const {I, esc, pad, CALM, FINE} = U;
-    const stage = root.querySelector('.dcs-stage'), sv = root.querySelector('.dcs-svg'), fx = root.querySelector('.dcs-fx');
+    const stage = root.querySelector('.dcs-stage'), cam = root.querySelector('.dcs-cam'), sv = root.querySelector('.dcs-svg'), fx = root.querySelector('.dcs-fx');
+    // the stage's inner box (the SVGs fill it; unlike their own rects it ignores the camera transform)
+    const box = () => ({width: stage.clientWidth, height: stage.clientHeight});
     const tip = root.querySelector('.dcs-tip'), panel = root.querySelector('.dcs-panel');
     const N = DC_SYSTEMS.length;
-    let vb = [...VB], anim = 0, cur = -1;
+    let vb = [...VB], cur = -1;
 
     // Letterbox a viewBox to the element's aspect so tweens start from what is on screen.
     const fitMeet = (v,r) => { const ar=r.width/r.height; let [x,y,w,h]=v; const cx=x+w/2, cy=y+h/2; if(w/h>ar) h=w/ar; else w=h*ar; return [cx-w/2,cy-h/2,w,h]; };
     const setVB = v => { vb = v; const a = v.map(n=>n.toFixed(1)).join(' ');
       sv.setAttribute('viewBox',a); fx.setAttribute('viewBox',a);
-      const base = fitMeet([...VB], sv.getBoundingClientRect())[2];
+      const base = fitMeet([...VB], box())[2];
       fx.style.setProperty('--hz', Math.max(.3,Math.min(1,v[2]/base)).toFixed(3)); };
-    const tween = (to,ms=850) => { cancelAnimationFrame(anim); const from=[...vb], t0=performance.now();
-      const e = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
-      const step = now => { const k=Math.min(1,(now-t0)/ms), q=CALM?1:e(k); setVB(from.map((a,i)=>a+(to[i]-a)*q)); if(k<1) anim=requestAnimationFrame(step); };
-      anim = requestAnimationFrame(step); };
+    /* Camera moves run on the GPU: the drawing keeps its viewBox while a CSS transform
+       zooms and pans it, and the target viewBox is committed once, at the end. Redrawing
+       the whole hall every frame (the old way) stuttered on phones. */
+    let moving = 0;
+    const settle = () => {        // stop a move mid-way and commit what is on screen
+      clearTimeout(moving); moving = 0;
+      const m = getComputedStyle(cam).transform;
+      if(m && m !== 'none'){ const [k,,,,tx,ty] = m.match(/-?[\d.]+(?:e-?\d+)?/g).map(Number), b = box();
+        const w = vb[2]/k, h = vb[3]/k; cam.style.transition = 'none'; cam.style.transform = ''; setVB([vb[0]-tx*w/b.width, vb[1]-ty*h/b.height, w, h]); }
+      else { cam.style.transition = 'none'; cam.style.transform = ''; }
+      root.classList.remove('moving'); };
+    const tween = (to,ms=850) => { settle();
+      if(CALM){ setVB(to); return; }
+      const b = box(), k = vb[2]/to[2], tx = (vb[0]-to[0])*b.width/to[2], ty = (vb[1]-to[1])*b.height/to[3];
+      root.classList.add('moving'); void cam.offsetWidth;
+      cam.style.transition = `transform ${ms}ms cubic-bezier(.65,0,.35,1)`;
+      cam.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0) scale(${k.toFixed(5)})`;
+      moving = setTimeout(() => { moving = 0; cam.style.transition = 'none'; cam.style.transform = ''; setVB(to); root.classList.remove('moving'); }, ms); };
     // Frame a component's bounding box, leaving room for the side panel on wide screens.
-    const frame = bb => { const r=sv.getBoundingClientRect(), ar=r.width/r.height, pad=Math.max(bb.width,bb.height)*.35+26;
+    const frame = bb => { const r=box(), ar=r.width/r.height, pad=Math.max(bb.width,bb.height)*.35+26;
       let w=bb.width+pad*2, h=bb.height+pad*2;
       const side = r.width>=600 ? Math.min(360, r.width*.44) : 0, fw=(r.width-side)/r.width;
       w/=fw; if(w/h>ar) h=w/ar; else w=h*ar;
@@ -213,7 +229,7 @@ window.DCScene = (() => {
       root.classList.add('focus');
       root.querySelectorAll('.cmp').forEach(g=>{ const on=g.dataset.k===c.k; g.classList.toggle('on',on); g.setAttribute('aria-pressed',String(on)); });
       const g = root.querySelector(`.cmp[data-k="${c.k}"]`);
-      requestAnimationFrame(()=>{ vb=fitMeet(vb,sv.getBoundingClientRect()); tween(frame(g.getBBox())); });
+      requestAnimationFrame(()=>{ settle(); vb=fitMeet(vb,box()); tween(frame(g.getBBox())); });
       panel.innerHTML = panelHTML(c); panel.hidden = false;
       panel.classList.remove('swap'); void panel.offsetWidth; panel.classList.add('swap');
       requestAnimationFrame(()=>panel.classList.add('show'));
@@ -223,7 +239,7 @@ window.DCScene = (() => {
       const was = cur; cur = -1; root.classList.remove('focus');
       root.querySelectorAll('.cmp').forEach(g=>{ g.classList.remove('on'); g.removeAttribute('aria-pressed'); });
       panel.classList.remove('show'); setTimeout(()=>{ if(cur<0) panel.hidden=true; },300);
-      requestAnimationFrame(()=>{ const r=sv.getBoundingClientRect(); vb=fitMeet(vb,r); tween(fitMeet([...VB],r)); });
+      requestAnimationFrame(()=>{ settle(); const r=box(); vb=fitMeet(vb,r); tween(fitMeet([...VB],r)); });
       // Return keyboard focus to the component that was open.
       if(was>=0 && root.contains(document.activeElement)) { const g=root.querySelector(`.cmp[data-k="${DC_SYSTEMS[was].k}"]`); g&&g.focus({preventScroll:true}); }
     };
@@ -231,14 +247,13 @@ window.DCScene = (() => {
     // Drag to pan while zoomed in.
     let drag=null, dragged=false;
     stage.addEventListener('pointerdown',e=>{ if(cur<0||e.button!==0||e.target.closest('button')) return;
-      drag={x:e.clientX,y:e.clientY,vb:[...vb],id:e.pointerId}; dragged=false; });
+      settle(); drag={x:e.clientX,y:e.clientY,vb:[...vb],id:e.pointerId,dx:0,dy:0}; dragged=false; });
     stage.addEventListener('pointermove',e=>{
       if(drag && e.pointerId===drag.id){
         const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
         if(!dragged && Math.hypot(dx,dy)<6) return;
-        if(!dragged){ dragged=true; cancelAnimationFrame(anim); root.classList.add('grabbing'); try{stage.setPointerCapture(drag.id);}catch(_){} }
-        const r=sv.getBoundingClientRect(), k=Math.max(drag.vb[2]/r.width,drag.vb[3]/r.height);
-        setVB([drag.vb[0]-dx*k, drag.vb[1]-dy*k, drag.vb[2], drag.vb[3]]); return;
+        if(!dragged){ dragged=true; root.classList.add('grabbing','moving'); try{stage.setPointerCapture(drag.id);}catch(_){} }
+        drag.dx=dx; drag.dy=dy; cam.style.transition='none'; cam.style.transform=`translate3d(${dx}px,${dy}px,0)`; return;
       }
       const g = e.target.closest('.cmp,.hs');
       if(!g||cur>=0||!FINE){ tip.classList.remove('on'); return; }
@@ -246,7 +261,10 @@ window.DCScene = (() => {
       tip.textContent = U.t(c.n);
       tip.style.transform = `translate(${e.clientX-r.left+14}px,${e.clientY-r.top+14}px)`; tip.classList.add('on');
     });
-    const endDrag = () => { if(!drag) return; drag=null; root.classList.remove('grabbing'); if(dragged) setTimeout(()=>dragged=false,0); };
+    const endDrag = () => { if(!drag) return;
+      if(dragged){ const b=box(), k=Math.max(drag.vb[2]/b.width,drag.vb[3]/b.height);
+        cam.style.transform=''; setVB([drag.vb[0]-drag.dx*k, drag.vb[1]-drag.dy*k, drag.vb[2], drag.vb[3]]); }
+      drag=null; root.classList.remove('grabbing','moving'); if(dragged) setTimeout(()=>dragged=false,0); };
     stage.addEventListener('pointerup',endDrag); stage.addEventListener('pointercancel',endDrag);
     stage.addEventListener('pointerleave',()=>tip.classList.remove('on'));
 
@@ -271,7 +289,7 @@ window.DCScene = (() => {
     const go = () => root.classList.add('live');
     const wait = () => document.getElementById('intro') ? setTimeout(wait,150) : setTimeout(go,80);
     wait();
-    let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if(!document.body.contains(root)) return; cur>=0 ? open(cur) : setVB(fitMeet([...VB],sv.getBoundingClientRect())); },200); });
+    let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if(!document.body.contains(root)) return; cur>=0 ? open(cur) : (settle(), setVB(fitMeet([...VB],box()))); },200); });
 
     api = {open:k=>{ const i=DC_SYSTEMS.findIndex(c=>c.k===k); if(i>=0) open(i); }, close};
     return api;

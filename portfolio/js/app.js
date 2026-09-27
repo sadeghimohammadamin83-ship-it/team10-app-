@@ -148,7 +148,11 @@ function renderChrome(){
       <div class="nav-tools">
         ${langSwitch('lang-nav')}
         <button type="button" class="icon-btn" id="curBtn" aria-pressed="false" aria-label="Toggle custom cursor" title="Toggle custom cursor">${I.cursor}</button>
-        <button type="button" class="icon-btn" id="thBtn" aria-label="Switch theme"></button>
+        <div class="th" id="th">
+          <button type="button" class="icon-btn" id="thBtn" aria-label="Theme" title="Theme" aria-haspopup="menu" aria-expanded="false" aria-controls="thMenu"></button>
+          <div class="th-menu" id="thMenu" role="menu" aria-label="Theme" hidden>${[['dark', 'Dark'], ['light', 'Light'], ['wine', 'Burgundy']].map(([k, l]) =>
+            `<button type="button" class="th-opt" role="menuitemradio" aria-checked="false" data-pick="${k}"><span class="th-sw th-sw-${k}" aria-hidden="true"></span><span>${l}</span></button>`).join('')}</div>
+        </div>
         <a class="icon-btn" id="acctBtn" href="#/account" data-route="account" aria-label="Account" title="Account">${I.user}</a>
         <a class="btn btn-primary btn-sm" id="navCta" href="#/contact">Start a project</a>
         <button type="button" class="icon-btn" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Open menu">${I.menu}</button>
@@ -210,18 +214,26 @@ function renderChrome(){
 }
 
 function bindTheme(){
-  const btn = $('#thBtn'), root = document.documentElement;
-  // three themes, in turn: dark → light → wine (the AMIKAT burgundy; built on light)
-  const THEMES = {dark: ['light', I.sun, 'Switch to light theme', '#0A0B0D'],
-                  light: ['wine', I.drop, 'Switch to burgundy theme', '#EEF3F8'],
-                  wine: ['dark', I.moon, 'Switch to dark theme', '#FBF6F2']};
+  // three themes, picked from a small menu: dark, light, and wine (the AMIKAT burgundy, built on light)
+  const wrap = $('#th'), btn = $('#thBtn'), menu = $('#thMenu'), root = document.documentElement;
+  const META = {dark: ['#0A0B0D', I.moon], light: ['#EEF3F8', I.sun], wine: ['#FBF6F2', I.drop]};
   const current = () => root.dataset.palette === 'wine' ? 'wine' : root.dataset.theme === 'light' ? 'light' : 'dark';
   const apply = t => { root.dataset.theme = t === 'dark' ? 'dark' : 'light'; if(t === 'wine') root.dataset.palette = 'wine'; else delete root.dataset.palette; };
-  const paint = () => { const [, icon, label, color] = THEMES[current()];
-    btn.innerHTML = icon; btn.setAttribute('aria-label', label);
-    $$('meta[name="theme-color"]').forEach(m => m.setAttribute('content', color)); };
+  const opts = () => $$('[data-pick]', menu);
+  const paint = () => { const t = current(); btn.innerHTML = META[t][1];
+    opts().forEach(o => o.setAttribute('aria-checked', String(o.dataset.pick === t)));
+    $$('meta[name="theme-color"]').forEach(m => m.setAttribute('content', META[t][0])); };
+  const show = on => { menu.hidden = !on; btn.setAttribute('aria-expanded', String(on));
+    if(on) (opts().find(o => o.getAttribute('aria-checked') === 'true') || opts()[0]).focus(); };
+  btn.addEventListener('click', () => show(menu.hidden));
+  menu.addEventListener('click', e => { const o = e.target.closest('[data-pick]'); if(!o) return;
+    apply(o.dataset.pick); store.set('theme', o.dataset.pick); paint(); show(false); btn.focus({preventScroll: true}); });
+  document.addEventListener('click', e => { if(!menu.hidden && !wrap.contains(e.target)) show(false); });
+  wrap.addEventListener('keydown', e => { if(menu.hidden) return;
+    if(e.key === 'Escape'){ show(false); btn.focus(); return; }
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); const l = opts(), i = l.indexOf(document.activeElement);
+      l[(i + (e.key === 'ArrowDown' ? 1 : -1) + l.length) % l.length].focus(); } });
   paint();
-  btn.addEventListener('click', () => { const next = THEMES[current()][0]; apply(next); store.set('theme', next); paint(); });
 }
 
 /* Mobile menu: a modal sheet. Background is made inert and scroll-locked;

@@ -16,7 +16,7 @@ window.FA = {
 "Start a project":"شروع پروژه",
 "Switch to light theme":"تم روشن",
 "Switch to dark theme":"تم تیره",
-"Switch to burgundy theme":"تم زرشکی","Switch theme":"تغییر تم",
+"Theme":"تم","Dark":"تیره","Light":"روشن","Burgundy":"زرشکی","Switch theme":"تغییر تم",
 "Open menu":"باز کردن منو",
 "Close menu":"بستن منو",
 "Primary":"منوی اصلی",

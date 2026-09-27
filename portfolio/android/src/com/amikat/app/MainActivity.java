@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
         Window window = getWindow();
         window.setBackgroundDrawable(new ColorDrawable(BG));
         paintSystemBars(window);
+        preferHighRefreshRate(window);
 
         web = new WebView(this);
         web.setBackgroundColor(BG);
@@ -50,11 +51,43 @@ public class MainActivity extends Activity {
         s.setSupportZoom(false);
         s.setBuiltInZoomControls(false);
         s.setDisplayZoomControls(false);
+        // keep a little of the page rendered just outside the screen: smoother flings (API 23+)
+        try { WebSettings.class.getMethod("setOffscreenPreRaster", boolean.class).invoke(s, true); } catch (Exception ignored) { }
         web.setWebViewClient(new AssetClient());
         web.setWebChromeClient(new WebChromeClient());
         setContentView(web);
 
         if (state == null || web.restoreState(state) == null) web.loadUrl(START);
+    }
+
+    /**
+     * Ask for the display's fastest mode at the current resolution (90/120/144 Hz panels).
+     * Android otherwise may keep an app at 60 Hz. API 23+, called reflectively.
+     */
+    private static void preferHighRefreshRate(Window w) {
+        try {
+            Object display = w.getWindowManager().getDefaultDisplay();
+            Class<?> dc = display.getClass();
+            Object current = dc.getMethod("getMode").invoke(display);
+            Object[] modes = (Object[]) dc.getMethod("getSupportedModes").invoke(display);
+            Class<?> mc = current.getClass();
+            int cw = (Integer) mc.getMethod("getPhysicalWidth").invoke(current);
+            int ch = (Integer) mc.getMethod("getPhysicalHeight").invoke(current);
+            float best = 0; int bestId = -1;
+            for (Object m : modes) {
+                float rate = (Float) mc.getMethod("getRefreshRate").invoke(m);
+                if ((Integer) mc.getMethod("getPhysicalWidth").invoke(m) == cw
+                        && (Integer) mc.getMethod("getPhysicalHeight").invoke(m) == ch && rate > best) {
+                    best = rate; bestId = (Integer) mc.getMethod("getModeId").invoke(m);
+                }
+            }
+            if (bestId < 0) return;
+            android.view.WindowManager.LayoutParams lp = w.getAttributes();
+            lp.getClass().getField("preferredDisplayModeId").setInt(lp, bestId);
+            w.setAttributes(lp);
+        } catch (Exception ignored) {
+            // older devices: the system default rate
+        }
     }
 
     /** Dark status and navigation bars (API 21+, called reflectively: compiled against an older SDK). */
