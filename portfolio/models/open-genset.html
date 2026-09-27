@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Open Genset — 3D Model</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; height: 100%; background: #d9d9d9; }
+  three-d-stage:not(:defined) { visibility: hidden; }
+  three-d-stage { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<three-d-stage name="genset_" background="#d9d9d9"></three-d-stage>
+<script>
+// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
+/* BEGIN USAGE */
+/**
+ * <three-d-stage> — 3D object viewer + exporter shell (three.js).
+ *
+ * The stage owns the whole scene: WebGL renderer, neutral studio lighting
+ * with a soft ground shadow, orbit controls (drag to orbit, wheel to zoom,
+ * right-drag to pan), a camera auto-framed to the object's bounds, resize
+ * handling, and a download toolbar that exports the current object as
+ * OBJ + MTL or GLB (binary glTF). FBX cannot be exported in the browser;
+ * GLB is the interchange format every modern 3D tool imports.
+ *
+ * three.js loads through the page's import map. Include this EXACT pinned
+ * map in <head>, before any module runs — versions and integrity hashes
+ * stay together (same map the "3D object" skill mandates):
+ *
+ *   <script type="importmap">
+ *   {
+ *     "imports": {
+ *       "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+ *       "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+ *       "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+ *       "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+ *     },
+ *     "integrity": {
+ *       "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+ *       "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+ *       "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+ *     }
+ *   }
+ *   <\/script>
+ *
+ * Usage:
+ *   <style>three-d-stage:not(:defined){visibility:hidden}</style>
+ *   <three-d-stage name="rocket"></three-d-stage>
+ *   <script src="three-d-stage.js"><\/script>
+ *   <script type="module">
+ *     const stage = document.querySelector('three-d-stage');
+ *     const { THREE } = await stage.ready;
+ *     const model = new THREE.Group();
+ *     // …build the model out of named meshes with named materials —
+ *     // the names become the o / usemtl entries in the exported OBJ…
+ *     stage.setObject(model);
+ *   <\/script>
+ *
+ * Attributes:
+ *   name       — export file basename (default "model")
+ *   background — CSS color behind the scene (default a warm paper tone)
+ *   autorotate — when present, a slow turntable until the user interacts
+ *
+ * Model in real-world meters, centered on the origin, y-up — exports
+ * inherit the scene's units and orientation. The stage fills its own box;
+ * size it with ordinary CSS (default 100vw/100vh page hero).
+ *
+ * Default setup: neutral studio lighting (hemisphere + key + fill), a
+ * soft ground shadow, and NO environment map — so high metalness has
+ * nothing to reflect and renders near-black. Cap metalness around
+ * 0.3–0.4 and carry a metal look with a brighter base color. The copied
+ * file is yours: adjust the lights, shadow, or background in _boot()
+ * when the object needs a different look.
+ */
+/* END USAGE */
+
+(() => {
+  const stylesheet = `
+    :host {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100vh;
+      background: var(--stage-bg, #f0eee6);
+      overflow: hidden;
+    }
+    canvas { display: block; outline: none; }
+    .toolbar {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      gap: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .toolbar button {
+      appearance: none;
+      border: 1px solid rgba(20, 20, 19, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #1a1915;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1;
+      padding: 9px 12px;
+      cursor: default;
+    }
+    .toolbar button:hover { background: #fff; }
+    .toolbar button:active { transform: translateY(1px); }
+    .toolbar button[disabled] { opacity: 0.5; pointer-events: none; }
+    .note {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      max-width: 60%;
+      font: 400 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: rgba(26, 25, 21, 0.55);
+      user-select: none;
+    }
+    .err {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font: 500 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #8a2f20;
+      text-align: center;
+      white-space: pre-line;
+    }
+  `;
+
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  /** Tell the host an export attempt settled — telemetry only. The host
+   *  (HTMLViewer) verifies the source and re-reads these fields defensively
+   *  before counting; nothing else crosses the frame boundary. Guarded so
+   *  telemetry can never break the download path. */
+  function notifyExport(format, ok) {
+    try {
+      window.parent.postMessage(
+        { type: 'omelette:notify-3d-export', format: format, ok: ok === true },
+        '*'
+      );
+    } catch (e) {}
+  }
+
+  class ThreeDStage extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      const style = document.createElement('style');
+      style.textContent = stylesheet;
+      root.appendChild(style);
+      this._err = document.createElement('div');
+      this._err.className = 'err';
+      root.appendChild(this._err);
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.textContent = 'Drag to orbit · scroll to zoom · right-drag to pan';
+      root.appendChild(note);
+      this._toolbar = document.createElement('div');
+      this._toolbar.className = 'toolbar';
+      this._objBtn = document.createElement('button');
+      this._objBtn.type = 'button';
+      this._objBtn.textContent = 'Download OBJ + MTL';
+      this._objBtn.addEventListener('click', () => this._runExport('obj'));
+      this._glbBtn = document.createElement('button');
+      this._glbBtn.type = 'button';
+      this._glbBtn.textContent = 'Download GLB';
+      this._glbBtn.addEventListener('click', () => this._runExport('glb'));
+      this._toolbar.appendChild(this._objBtn);
+      this._toolbar.appendChild(this._glbBtn);
+      root.appendChild(this._toolbar);
+      this._setButtonsEnabled(false);
+      /** Resolves with { THREE } once the scene is live — build the model
+       *  in `await stage.ready` so nothing races the library load. */
+      this.ready = new Promise((resolve, reject) => {
+        this._readyResolve = resolve;
+        this._readyReject = reject;
+      });
+    }
+
+    connectedCallback() {
+      if (this._booted) {
+        // Re-attached after a removal — resume what disconnected stopped.
+        if (this._renderer) {
+          this._renderer.setAnimationLoop(this._loop);
+          this._ro && this._ro.observe(this);
+        }
+        return;
+      }
+      this._booted = true;
+      this._boot().catch((err) => {
+        this._err.style.display = 'flex';
+        this._err.textContent =
+          'three.js failed to load.\n' +
+          'Check that the pinned <script type="importmap"> from the usage ' +
+          'notes is in <head> before any module script.\n\n' +
+          String(err && err.message ? err.message : err);
+        this._readyReject(err);
+      });
+    }
+
+    async _boot() {
+      const bg = this.getAttribute('background');
+      if (bg) this.style.setProperty('--stage-bg', bg);
+      const [THREE, controlsMod] = await Promise.all([
+        import('three'),
+        import('three/addons/controls/OrbitControls.js'),
+      ]);
+      this._THREE = THREE;
+      // preserveDrawingBuffer keeps the last frame readable after
+      // compositing (toDataURL / drawImage) — it's what lets the
+      // screenshot tools capture the scene instead of a blank canvas.
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this._renderer = renderer;
+      this.shadowRoot.insertBefore(renderer.domElement, this._err);
+
+      const scene = new THREE.Scene();
+      this._scene = scene;
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 500);
+      camera.position.set(3, 2.2, 4);
+      this._camera = camera;
+
+      const controls = new controlsMod.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      this._controls = controls;
+
+      // Neutral studio: soft sky/ground wash, a shadow-casting key light,
+      // and a dim fill from behind so silhouettes never go black.
+      scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c4, 1.0));
+      const key = new THREE.DirectionalLight(0xffffff, 2.2);
+      key.position.set(4, 7, 5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.bias = -0.0002;
+      this._key = key;
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0xfff4e6, 0.5);
+      fill.position.set(-5, 3, -4);
+      scene.add(fill);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(200, 200),
+        new THREE.ShadowMaterial({ opacity: 0.18 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      this._ground = ground;
+      scene.add(ground);
+
+      this._autorotate = this.hasAttribute('autorotate');
+      controls.autoRotate = this._autorotate;
+      controls.autoRotateSpeed = 1.2;
+      controls.addEventListener('start', () => {
+        controls.autoRotate = false;
+      });
+
+      const fit = () => {
+        const w = this.clientWidth || 1;
+        const h = this.clientHeight || 1;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      };
+      fit();
+      this._ro = new ResizeObserver(fit);
+      this._loop = () => {
+        controls.update();
+        renderer.render(scene, camera);
+      };
+      // Detached while three.js was fetching? Stay idle — the
+      // connectedCallback resume starts the loop and observer on
+      // reattach.
+      if (this.isConnected) {
+        this._ro.observe(this);
+        renderer.setAnimationLoop(this._loop);
+      }
+
+      this._readyResolve({ THREE });
+    }
+
+    disconnectedCallback() {
+      // Stop rendering and observing while detached; connectedCallback
+      // resumes both. (The renderer itself is kept — a move within the
+      // document must not rebuild the scene.)
+      if (this._renderer) this._renderer.setAnimationLoop(null);
+      if (this._ro) this._ro.disconnect();
+    }
+
+    /** Show (and own) the object. Replaces any previous object, enables
+     *  shadows on every mesh, rests it on the ground plane, and frames
+     *  the camera to its bounds. */
+    setObject(object) {
+      const THREE = this._THREE;
+      if (!THREE) throw new Error('three-d-stage: not ready — await stage.ready first');
+      if (this._object) this._scene.remove(this._object);
+      this._object = object;
+      object.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+        }
+      });
+      const box = new THREE.Box3().setFromObject(object);
+      if (!box.isEmpty()) {
+        // Rest the object on the ground without moving its origin.
+        this._ground.position.y = box.min.y;
+        const sphere = box.getBoundingSphere(new THREE.Sphere());
+        const dist =
+          (sphere.radius / Math.tan((this._camera.fov * Math.PI) / 360)) * 1.35;
+        const dir = new THREE.Vector3(1, 0.55, 1.25).normalize();
+        this._camera.position
+          .copy(sphere.center)
+          .add(dir.multiplyScalar(dist));
+        this._camera.near = Math.max(dist / 100, 0.01);
+        this._camera.far = dist * 100;
+        this._camera.updateProjectionMatrix();
+        this._controls.target.copy(sphere.center);
+        this._controls.update();
+        const span = sphere.radius * 3;
+        this._key.shadow.camera.left = -span;
+        this._key.shadow.camera.right = span;
+        this._key.shadow.camera.top = span;
+        this._key.shadow.camera.bottom = -span;
+        this._key.shadow.camera.updateProjectionMatrix();
+      }
+      this._scene.add(object);
+      this._setButtonsEnabled(true);
+    }
+
+    get _basename() {
+      return (this.getAttribute('name') || 'model').replace(/[^\w.-]+/g, '_');
+    }
+
+    _setButtonsEnabled(on) {
+      this._objBtn.disabled = !on;
+      this._glbBtn.disabled = !on;
+    }
+
+    /** Every mesh and material needs a unique name for o/usemtl lines —
+     *  fill in stable fallbacks, and return the unique material list. */
+    _nameParts() {
+      const mats = [];
+      const seen = new Set();
+      let meshI = 0;
+      let matI = 0;
+      this._object.traverse((o) => {
+        if (!o.isMesh) return;
+        if (!o.name) o.name = 'part_' + meshI;
+        meshI += 1;
+        const list = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of list) {
+          if (!m || mats.includes(m)) continue;
+          if (!m.name) {
+            m.name = 'mat_' + matI;
+            matI += 1;
+          }
+          while (seen.has(m.name)) {
+            m.name = m.name + '_' + matI;
+            matI += 1;
+          }
+          seen.add(m.name);
+          mats.push(m);
+        }
+      });
+      return mats;
+    }
+
+    /** One export attempt, reported to the host however it settles.
+     *  Rethrows so a failure stays visible on the guest console exactly as
+     *  before. The no-object early return is not an attempt (the toolbar is
+     *  disabled until the model loads) and reports nothing. */
+    async _runExport(format) {
+      if (!this._object) return;
+      try {
+        await (format === 'obj' ? this._exportObj() : this._exportGlb());
+        notifyExport(format, true);
+      } catch (err) {
+        notifyExport(format, false);
+        throw err;
+      }
+    }
+
+    async _exportObj() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/OBJExporter.js');
+      const mats = this._nameParts();
+      const base = this._basename;
+      const obj =
+        'mtllib ' + base + '.mtl\n' + new mod.OBJExporter().parse(this._object);
+      let mtl = '# Exported by three-d-stage\n';
+      for (const m of mats) {
+        const c = m.color || { r: 0.8, g: 0.8, b: 0.8 };
+        const rough = typeof m.roughness === 'number' ? m.roughness : 0.5;
+        const opacity = typeof m.opacity === 'number' ? m.opacity : 1;
+        mtl += 'newmtl ' + m.name + '\n';
+        mtl +=
+          'Kd ' + c.r.toFixed(4) + ' ' + c.g.toFixed(4) + ' ' + c.b.toFixed(4) + '\n';
+        mtl += 'Ks 0.2000 0.2000 0.2000\n';
+        mtl += 'Ns ' + Math.round((1 - rough) * 200) + '\n';
+        mtl += 'd ' + opacity.toFixed(4) + '\n\n';
+      }
+      download(new Blob([obj], { type: 'text/plain' }), base + '.obj');
+      download(new Blob([mtl], { type: 'text/plain' }), base + '.mtl');
+    }
+
+    async _exportGlb() {
+      if (!this._object) return;
+      const mod = await import('three/addons/exporters/GLTFExporter.js');
+      this._nameParts();
+      const base = this._basename;
+      const buf = await new mod.GLTFExporter().parseAsync(this._object, {
+        binary: true,
+      });
+      download(
+        new Blob([buf], { type: 'model/gltf-binary' }),
+        base + '.glb'
+      );
+    }
+  }
+
+  customElements.define('three-d-stage', ThreeDStage);
+})();
+
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const stage = document.querySelector('three-d-stage');
+const { THREE: T } = await stage.ready;
+
+/* ---- materials (shared, named) ---- */
+const M = {
+  engine:   new THREE.MeshStandardMaterial({ name: 'engine_beige', color: 0xd9cba6, roughness: 0.55, metalness: 0.15 }),
+  steel:    new THREE.MeshStandardMaterial({ name: 'painted_steel_dark', color: 0x2b2d30, roughness: 0.6, metalness: 0.25 }),
+  alt:      new THREE.MeshStandardMaterial({ name: 'alternator_metal', color: 0x4a4f55, roughness: 0.45, metalness: 0.35 }),
+  stainless:new THREE.MeshStandardMaterial({ name: 'stainless', color: 0x9aa0a6, roughness: 0.35, metalness: 0.4 }),
+  rubber:   new THREE.MeshStandardMaterial({ name: 'rubber_matte', color: 0x14151a, roughness: 0.95, metalness: 0.02 }),
+  panel:    new THREE.MeshStandardMaterial({ name: 'powdercoat_panel', color: 0x3a4046, roughness: 0.5, metalness: 0.2 }),
+  zinc:     new THREE.MeshStandardMaterial({ name: 'zinc_fastener', color: 0x8d939a, roughness: 0.4, metalness: 0.4 }),
+  glass:    new THREE.MeshStandardMaterial({ name: 'display_dark', color: 0x0d1013, roughness: 0.25, metalness: 0.1 }),
+  accent:   new THREE.MeshStandardMaterial({ name: 'estop_red', color: 0xa32218, roughness: 0.5, metalness: 0.1 })
+};
+
+const box = (n, w, h, d, x, y, z, mat, rx = 0) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.name = n; m.position.set(x, y, z); if (rx) m.rotation.x = rx; return m;
+};
+const cylX = (n, r, len, x, y, z, mat, seg = 32) => {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg), mat);
+  m.name = n; m.rotation.z = Math.PI / 2; m.position.set(x, y, z); return m;
+};
+const cylY = (n, r, len, x, y, z, mat, seg = 32) => {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg), mat);
+  m.name = n; m.position.set(x, y, z); return m;
+};
+const tube = (n, pts, r, mat) => {
+  const c = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
+  const m = new THREE.Mesh(new THREE.TubeGeometry(c, 32, r, 16, false), mat);
+  m.name = n; return m;
+};
+const G = (n) => { const g = new THREE.Group(); g.name = n; return g; };
+
+const model = G('genset');
+
+/* ================= 1. base frame ================= */
+const base = G('base_frame');
+const RH = 0.26, RW = 0.19, RZ = 0.66, L = 5.66;
+base.add(box('base_rail_left', L, RH, RW, 0, RH / 2, -RZ, M.steel));
+base.add(box('base_rail_right', L, RH, RW, 0, RH / 2, RZ, M.steel));
+base.add(box('base_end_plate_front', 0.16, RH, 2 * RZ + RW, -L / 2 + 0.08, RH / 2, 0, M.steel));
+base.add(box('base_end_plate_rear', 0.16, RH, 2 * RZ + RW, L / 2 - 0.08, RH / 2, 0, M.steel));
+[-2.0, -0.8, 0.4, 1.6, 2.4].forEach((x, i) =>
+  base.add(box('base_cross_member_' + (i + 1), 0.14, 0.2, 2 * RZ - RW, x, 0.11, 0, M.steel)));
+// radiator support outriggers (carry full 2205 mm width at the front)
+[-1, 1].forEach((s, i) => {
+  base.add(box('radiator_outrigger_' + (i + 1), 0.5, 0.14, 0.16, -2.55, 0.19, s * 0.88, M.steel));
+  base.add(box('radiator_foot_plate_' + (i + 1), 0.44, 0.06, 0.32, -2.6, 0.29, s * 0.88, M.steel));
+});
+[-1, 1].forEach((s, i) => [-2.3, 2.4].forEach((x, j) => {
+  const e = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.026, 12, 28), M.steel);
+  e.name = `lifting_eye_${i * 2 + j + 1}`; e.position.set(x, RH + 0.085, s * RZ); e.rotation.y = Math.PI / 2;
+  base.add(e);
+}));
+model.add(base);
+
+/* anti-vibration mounts */
+const av = G('anti_vibration_mounts');
+[-1.0, 0.2, 1.15, 2.15].forEach((x, i) => [-1, 1].forEach((s, j) => {
+  const k = i * 2 + j + 1;
+  av.add(cylY('av_mount_rubber_' + k, 0.09, 0.07, x, RH + 0.035, s * RZ, M.rubber, 24));
+  av.add(box('av_mount_plate_' + k, 0.26, 0.02, 0.24, x, RH + 0.08, s * RZ, M.zinc));
+}));
+model.add(av);
+
+/* ================= 2. radiator assembly (front) ================= */
+const rad = G('radiator_assembly');
+const RX = -2.62, RTOP = 2.686, RBOT = 0.32, RWID = 2.205;
+const rcH = RTOP - RBOT;
+rad.add(box('radiator_frame_side_left', 0.34, rcH, 0.1, RX, RBOT + rcH / 2, -RWID / 2 + 0.05, M.steel));
+rad.add(box('radiator_frame_side_right', 0.34, rcH, 0.1, RX, RBOT + rcH / 2, RWID / 2 - 0.05, M.steel));
+rad.add(box('radiator_top_tank', 0.34, 0.2, RWID, RX, RTOP - 0.1, 0, M.steel));
+rad.add(box('radiator_bottom_tank', 0.34, 0.18, RWID, RX, RBOT + 0.09, 0, M.steel));
+rad.add(box('radiator_core', 0.3, rcH - 0.4, RWID - 0.22, RX, RBOT + rcH / 2, 0, M.rubber));
+for (let i = 0; i < 26; i++) {
+  const y = RBOT + 0.24 + i * (rcH - 0.5) / 25;
+  rad.add(box('radiator_grille_slat_' + (i + 1), 0.045, 0.055, RWID - 0.24, RX - 0.16, y, 0, M.steel));
+}
+// fan guard
+const guard = G('fan_guard');
+const GR = 0.86, GX = -2.35;
+guard.add(cylX('fan_guard_ring_outer', GR, 0.05, GX, 1.47, 0, M.steel, 40));
+for (let i = 0; i < 10; i++) {
+  const a = (i / 10) * Math.PI * 2;
+  const s = box('fan_guard_spoke_' + (i + 1), 0.04, GR * 2 - 0.02, 0.035, GX, 1.47, 0, M.steel);
+  s.rotation.x = a; guard.add(s);
+}
+guard.add(cylX('fan_guard_ring_inner', 0.42, 0.04, GX, 1.47, 0, M.steel, 32));
+rad.add(guard);
+model.add(rad);
+
+/* ================= 3. cooling fan ================= */
+const fan = G('cooling_fan');
+fan.add(cylX('fan_hub', 0.17, 0.22, -2.16, 1.47, 0, M.alt, 28));
+for (let i = 0; i < 9; i++) {
+  const pivot = G('fan_blade_pivot_' + (i + 1));
+  const blade = box('fan_blade_' + (i + 1), 0.05, 0.62, 0.21, 0, 0.44, 0, M.steel);
+  blade.rotation.x = 0.5;
+  pivot.add(blade);
+  pivot.position.set(-2.16, 1.47, 0);
+  pivot.rotation.x = (i / 9) * Math.PI * 2;
+  fan.add(pivot);
+}
+model.add(fan);
+
+/* ================= 4. engine ================= */
+const eng = G('engine_KTA38_G5');
+const CRANK = 1.06;
+eng.add(box('oil_pan', 2.34, 0.42, 1.02, 0.1, 0.56, 0, M.engine));
+eng.add(box('crankcase', 2.34, 0.44, 1.18, 0.1, 0.99, 0, M.engine));
+eng.add(box('front_gear_cover', 0.16, 0.8, 1.0, -1.13, 1.0, 0, M.engine));
+const V = 30 * Math.PI / 180;
+[-1, 1].forEach((s, i) => {
+  const side = s > 0 ? 'right' : 'left';
+  const bank = G('cylinder_bank_' + side);
+  const bd = 0.66, bh = 0.92;
+  const cy = CRANK + 0.6 * Math.cos(V), cz = s * 0.6 * Math.sin(V);
+  bank.add(box('cylinder_block_' + side, 2.2, bh, bd, 0.1, cy, cz, M.engine, s * V));
+  const vy = CRANK + 1.16 * Math.cos(V), vz = s * 1.16 * Math.sin(V);
+  bank.add(box('valve_cover_' + side, 2.06, 0.2, 0.52, 0.1, vy, vz, M.engine, s * V));
+  for (let c = 0; c < 6; c++) {
+    const b = cylY('valve_cover_bolt_' + side + '_' + (c + 1), 0.022, 0.06, -0.85 + c * 0.39, vy + 0.11, vz + s * 0.06, M.zinc, 10);
+    b.rotation.x = s * V; bank.add(b);
+  }
+  // exhaust manifold outboard of each bank
+  bank.add(cylX('exhaust_manifold_' + side, 0.095, 2.0, 0.1, 1.94, s * 0.82, M.steel, 24));
+  for (let c = 0; c < 6; c++) {
+    const p = cylY('exhaust_port_' + side + '_' + (c + 1), 0.06, 0.22, -0.75 + c * 0.34, 1.86, s * 0.72, M.steel, 14);
+    p.rotation.x = s * 1.1; bank.add(p);
+  }
+  eng.add(bank);
+});
+// turbochargers + intake
+[-1, 1].forEach((s, i) => {
+  const side = s > 0 ? 'right' : 'left';
+  const tg = G('turbocharger_' + side);
+  tg.add(cylX('turbo_turbine_housing_' + side, 0.2, 0.26, 1.16, 2.14, s * 0.62, M.steel, 28));
+  tg.add(cylX('turbo_compressor_housing_' + side, 0.17, 0.24, 0.9, 2.14, s * 0.62, M.alt, 28));
+  const vol = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.09, 14, 30), M.steel);
+  vol.name = 'turbo_volute_' + side; vol.position.set(1.16, 2.14, s * 0.62); vol.rotation.y = Math.PI / 2;
+  tg.add(vol);
+  tg.add(tube('exhaust_riser_' + side, [[0.1, 2.02, s * 0.82], [0.7, 2.16, s * 0.8], [1.05, 2.16, s * 0.66]], 0.085, M.steel));
+  eng.add(tg);
+  // air cleaner + intake to turbo
+  const ac = G('air_cleaner_' + side);
+  ac.add(cylX('air_cleaner_housing_' + side, 0.23, 0.72, 0.16, 2.4, s * 0.6, M.steel, 28));
+  ac.add(cylX('air_cleaner_end_cap_' + side, 0.24, 0.06, -0.22, 2.4, s * 0.6, M.alt, 28));
+  ac.add(tube('intake_pipe_' + side, [[0.52, 2.4, s * 0.6], [0.75, 2.35, s * 0.6], [0.86, 2.24, s * 0.62]], 0.15, M.steel));
+  eng.add(ac);
+  // aftercooler pipework down to intake manifold
+  eng.add(tube('aftercooler_pipe_' + side, [[1.3, 2.1, s * 0.62], [1.5, 1.9, s * 0.5], [1.35, 1.6, s * 0.42], [0.6, 1.5, s * 0.5]], 0.1, M.steel));
+});
+eng.add(box('aftercooler_housing', 0.6, 0.3, 0.7, -0.55, 1.62, 0, M.engine));
+// filters, starter, charging alternator (service side = +z)
+eng.add(cylY('oil_filter_1', 0.13, 0.42, 0.62, 1.0, 0.72, M.steel, 24));
+eng.add(cylY('oil_filter_2', 0.13, 0.42, 0.9, 1.0, 0.72, M.steel, 24));
+eng.add(cylY('fuel_filter_1', 0.1, 0.34, 0.3, 1.02, 0.72, M.steel, 24));
+eng.add(cylY('fuel_filter_2', 0.1, 0.34, 0.06, 1.02, 0.72, M.steel, 24));
+eng.add(box('filter_mount_bracket', 1.1, 0.1, 0.16, 0.5, 0.8, 0.68, M.steel));
+eng.add(cylX('starter_motor', 0.14, 0.5, 1.05, 0.66, -0.66, M.alt, 24));
+eng.add(cylX('starter_solenoid', 0.08, 0.2, 0.78, 0.78, -0.66, M.alt, 18));
+eng.add(cylX('battery_charging_alternator', 0.11, 0.24, -0.9, 1.5, 0.64, M.alt, 24));
+eng.add(cylX('crankshaft_pulley', 0.24, 0.14, -1.28, 1.06, 0, M.steel, 28));
+eng.add(cylX('fan_drive_shaft', 0.07, 0.75, -1.72, 1.47, 0, M.alt, 16));
+eng.add(cylX('fan_drive_pulley', 0.26, 0.12, -1.32, 1.47, 0, M.steel, 28));
+eng.add(box('fan_drive_bracket', 0.2, 0.55, 0.18, -1.3, 1.3, 0.0, M.steel));
+// coolant pipes / hoses to radiator
+eng.add(tube('coolant_hose_upper', [[-1.2, 1.95, 0.3], [-1.9, 2.1, 0.5], [-2.35, 2.35, 0.6]], 0.085, M.rubber));
+eng.add(tube('coolant_hose_lower', [[-1.2, 0.72, -0.42], [-1.9, 0.6, -0.6], [-2.4, 0.5, -0.7]], 0.09, M.rubber));
+eng.add(cylY('coolant_thermostat_housing', 0.12, 0.26, -1.1, 1.9, 0.3, M.engine, 20));
+// flywheel housing + coupling
+eng.add(cylX('flywheel_housing', 0.55, 0.3, 1.42, CRANK, 0, M.engine, 40));
+eng.add(cylX('coupling_flange', 0.36, 0.12, 1.62, CRANK, 0, M.alt, 32));
+// exhaust flexible connections
+[-1, 1].forEach((s, i) => {
+  const side = s > 0 ? 'right' : 'left';
+  const fl = cylX('exhaust_flex_' + side, 0.11, 0.34, 1.52, 2.14, s * 0.62, M.stainless, 26);
+  eng.add(fl);
+  for (let k = 0; k < 5; k++)
+    eng.add(cylX('exhaust_flex_rib_' + side + '_' + (k + 1), 0.125, 0.035, 1.4 + k * 0.06, 2.14, s * 0.62, M.stainless, 26));
+  eng.add(box('exhaust_outlet_flange_' + side, 0.04, 0.32, 0.32, 1.71, 2.14, s * 0.62, M.stainless));
+});
+model.add(eng);
+
+/* ================= 5. alternator (rear) ================= */
+const alt = G('alternator_stamford_HC6Y');
+alt.add(cylX('alternator_housing', 0.56, 1.16, 2.22, CRANK, 0, M.alt, 44));
+alt.add(cylX('alternator_drive_end_bracket', 0.58, 0.1, 1.68, CRANK, 0, M.alt, 44));
+alt.add(cylX('alternator_non_drive_end_bracket', 0.52, 0.12, 2.77, CRANK, 0, M.alt, 44));
+for (let i = 0; i < 7; i++)
+  alt.add(cylX('alternator_cooling_rib_' + (i + 1), 0.575, 0.03, 1.8 + i * 0.16, CRANK, 0, M.alt, 44));
+alt.add(box('alternator_foot_left', 0.9, 0.34, 0.16, 2.3, 0.62, -0.42, M.alt));
+alt.add(box('alternator_foot_right', 0.9, 0.34, 0.16, 2.3, 0.62, 0.42, M.alt));
+alt.add(box('alternator_terminal_box', 0.84, 0.46, 0.86, 2.34, 1.82, 0, M.panel));
+alt.add(box('alternator_terminal_box_lid', 0.88, 0.04, 0.9, 2.34, 2.06, 0, M.steel));
+[-0.3, 0.3].forEach((z, i) =>
+  alt.add(box('terminal_box_gland_plate_' + (i + 1), 0.3, 0.03, 0.24, 2.34, 1.585, z, M.zinc)));
+model.add(alt);
+
+/* ================= 6. PowerCommand control panel ================= */
+const cp = G('control_panel_powercommand');
+const PZ = 0.86, PX = 1.05;
+cp.add(box('control_enclosure_body', 0.92, 1.12, 0.28, PX, 1.72, PZ, M.panel));
+cp.add(box('control_enclosure_door', 0.84, 1.02, 0.03, PX, 1.72, PZ + 0.155, M.panel));
+cp.add(box('control_door_seam_top', 0.86, 0.015, 0.05, PX, 2.24, PZ + 0.15, M.steel));
+cp.add(box('control_door_seam_bottom', 0.86, 0.015, 0.05, PX, 1.2, PZ + 0.15, M.steel));
+[-1, 1].forEach((s, i) =>
+  cp.add(cylY('control_door_hinge_' + (i + 1), 0.025, 0.14, PX + s * 0.42, 1.72 + s * 0.3, PZ + 0.145, M.zinc, 14)));
+cp.add(box('control_display_recess', 0.5, 0.3, 0.03, PX, 2.0, PZ + 0.163, M.steel));
+cp.add(box('control_display', 0.44, 0.24, 0.012, PX, 2.0, PZ + 0.18, M.glass));
+for (let r = 0; r < 2; r++) for (let c = 0; c < 5; c++)
+  cp.add(cylY('control_button_' + (r * 5 + c + 1), 0.028, 0.03, PX - 0.28 + c * 0.14, 1.72 - r * 0.14, PZ + 0.175, M.steel, 14).rotateX(Math.PI / 2));
+for (let i = 0; i < 4; i++)
+  cp.add(cylY('status_indicator_' + (i + 1), 0.022, 0.02, PX - 0.24 + i * 0.16, 1.44, PZ + 0.172, M.stainless, 12).rotateX(Math.PI / 2));
+const es = cylY('emergency_stop_button', 0.075, 0.06, PX + 0.3, 1.55, PZ + 0.19, M.accent, 24);
+es.rotateX(Math.PI / 2); cp.add(es);
+cp.add(box('emergency_stop_base', 0.2, 0.2, 0.03, PX + 0.3, 1.55, PZ + 0.168, M.zinc));
+// panel support brackets down to base rail
+[-0.34, 0.34].forEach((dx, i) =>
+  cp.add(box('control_panel_bracket_' + (i + 1), 0.08, 0.9, 0.1, PX + dx, 0.72, PZ - 0.05, M.steel)));
+cp.add(box('control_panel_base_plate', 1.0, 0.05, 0.3, PX, 1.14, PZ - 0.02, M.steel));
+model.add(cp);
+
+/* ================= 7. fasteners (instance-style repeats) ================= */
+const bolts = G('fasteners');
+let bi = 0;
+[-2.5, -1.6, -0.7, 0.2, 1.1, 2.0, 2.6].forEach(x => [-1, 1].forEach(s => {
+  bolts.add(cylY('base_bolt_' + (++bi), 0.022, 0.04, x, RH + 0.02, s * (RZ + 0.055), M.zinc, 10));
+}));
+[-1, 1].forEach(s => [1.72, 2.9].forEach(x =>
+  bolts.add(cylY('alternator_foot_bolt_' + (++bi), 0.026, 0.05, Math.min(x, 2.78), 0.46, s * 0.42, M.zinc, 10))));
+model.add(bolts);
+
+model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+stage.setObject(model);
+
+const bb = new THREE.Box3().setFromObject(model);
+console.log('bounds mm', ((bb.max.x - bb.min.x) * 1000).toFixed(0), ((bb.max.z - bb.min.z) * 1000).toFixed(0), ((bb.max.y - bb.min.y) * 1000).toFixed(0));
+
+</script>
+</body>
+</html>
