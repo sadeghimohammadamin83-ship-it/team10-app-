@@ -19,11 +19,12 @@ Once the live address is known, set `SITE.url` in `js/data.js`, and replace the 
 | `models/` | Standalone interactive 3D model pages (Three.js is loaded from unpkg.com, so they need an internet connection) |
 
 ## Accounts and admin (Firebase)
-Visitors can create an account with a Gmail address and a password they choose, with no codes. The admin account (`ADMIN_EMAIL` in `js/firebase-config.js`) gets an admin panel with registered users, project requests, and an editor for all site content. Published edits reach every visitor; the built-in content in `js/data.js` stays as the default.
+Visitors can create an account with a Gmail address and a password they choose. No code or email is ever sent. The admin registers on the site the same way, and the account (`ADMIN_EMAIL` in `js/firebase-config.js`) gets an admin panel with registered users, project requests, and an editor for all site content. Published edits reach every visitor; the built-in content in `js/data.js` stays as the default.
 
 1. Follow `firebase/SETUP-FA.md` (Persian, step by step).
 2. Paste your web config into `js/firebase-config.js`.
 3. Paste `firebase/firestore.rules` into Firestore → Rules.
+4. Open the Account tab and create the admin account with the admin Gmail before sharing the link. After that, nobody else can register that address.
 
 Until step 2 is done, the Account tab says accounts are coming soon, and the rest of the site works as before.
 The Firebase SDK (`js/vendor/firebase.js`) is bundled from npm. See `tools/firebase/entry.js` to rebuild it.

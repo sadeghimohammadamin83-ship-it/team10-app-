@@ -373,10 +373,10 @@ Object.assign(window.FA, {
 "Projects":"پروژه‌ها","Home":"خانه","Account":"حساب","Your account":"حساب شما","Loading…":"در حال بارگذاری…",
 "Accounts are coming soon":"حساب کاربری به‌زودی","Accounts are not switched on yet. Until then, you can send a project request from the contact page — no account needed.":"حساب‌های کاربری هنوز فعال نشده‌اند. تا آن موقع می‌توانید از صفحه‌ی تماس، بدون نیاز به حساب، درخواست پروژه بفرستید.",
 "Try again":"دوباره امتحان کنید","Create your account":"ساخت حساب","Sign in":"ورود","Create account":"ساخت حساب","Gmail address":"آدرس جیمیل","Password":"رمز عبور",
-"Repeat password":"تکرار رمز عبور","Forgot your password?":"رمز عبور را فراموش کرده‌اید؟","Show password":"نمایش رمز","Hide password":"پنهان کردن رمز",
-"Use your Gmail address and a password you choose — at least 8 characters. No code is sent.":"با آدرس جیمیل و رمزی که خودتان انتخاب می‌کنید — حداقل ۸ کاراکتر. هیچ کدی ارسال نمی‌شود.",
-"Enter your Gmail address first, then press “Forgot your password?” again.":"اول آدرس جیمیل را وارد کنید، بعد دوباره «رمز عبور را فراموش کرده‌اید؟» را بزنید.",
-"Password reset email sent — check your Gmail inbox.":"ایمیل بازیابی رمز فرستاده شد — صندوق جیمیل را ببینید.",
+"Repeat password":"تکرار رمز عبور","Show password":"نمایش رمز","Hide password":"پنهان کردن رمز",
+"Use your Gmail address and a password you choose — at least 8 characters. Nothing is sent to your Gmail.":"با آدرس جیمیل و رمزی که خودتان انتخاب می‌کنید — حداقل ۸ کاراکتر. هیچ چیزی به جیمیل شما ارسال نمی‌شود.","No code or email is ever sent — just your Gmail and password.":"هیچ کد یا ایمیلی ارسال نمی‌شود — فقط جیمیل و رمز خودتان.",
+
+
 "Please use a Gmail address (name@gmail.com).":"لطفاً از آدرس جیمیل استفاده کنید (name@gmail.com).","Choose a password of at least 8 characters.":"رمزی با حداقل ۸ کاراکتر انتخاب کنید.",
 "The two passwords do not match.":"دو رمز با هم یکی نیستند.",
 "An account with this Gmail already exists — sign in instead.":"با این جیمیل قبلاً حساب ساخته شده — وارد شوید.","Gmail or password is incorrect.":"جیمیل یا رمز عبور اشتباه است.",

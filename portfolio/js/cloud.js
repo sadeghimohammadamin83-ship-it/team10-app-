@@ -71,7 +71,6 @@ window.Cloud = (() => {
   }
   async function signIn(email, password){ const F = await loadSdk(); return (await F.signInWithEmailAndPassword(auth, email, password)).user; }
   async function signOut(){ const F = await loadSdk(); await F.signOut(auth); }
-  async function resetPassword(email){ const F = await loadSdk(); await F.sendPasswordResetEmail(auth, email); }
   async function updateName(name){
     const F = await loadSdk(); await F.updateProfile(auth.currentUser, {displayName: name});
     await F.setDoc(F.doc(db, 'users', auth.currentUser.uid), {name, email: auth.currentUser.email, updatedAt: F.serverTimestamp()}, {merge: true});
@@ -150,7 +149,7 @@ window.Cloud = (() => {
     return {id: ref.id, src: data, w, h};
   }
 
-  return {enabled, isAdmin, currentUser, onChange, signUp, signIn, signOut, resetPassword, updateName, message, toDate,
+  return {enabled, isAdmin, currentUser, onChange, signUp, signIn, signOut, updateName, message, toDate,
     submitRequest, myRequests, allRequests, setRequestStatus, deleteRequest, listUsers,
     fetchContent, fetchMedia, publish, previousContent, unpublish, uploadImage, adminEmail: ADMIN};
 })();

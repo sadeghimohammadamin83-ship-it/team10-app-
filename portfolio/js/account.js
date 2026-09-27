@@ -59,8 +59,8 @@ window.AccountUI = (() => {
           ${mode === 'up' ? field('a-pass2', 'Repeat password', 'password', 'new-password') : ''}
           <p class="form-err" id="authErr" role="alert" hidden></p>
           <button class="btn btn-accent auth-go" type="submit">${mode === 'up' ? 'Create account' : 'Sign in'} ${C.I.arrow}</button>
-          ${mode === 'in' ? `<button type="button" class="link-btn" data-forgot>Forgot your password?</button>`
-            : `<p class="small muted">Use your Gmail address and a password you choose — at least 8 characters. No code is sent.</p>`}
+          <p class="small muted">${mode === 'up' ? 'Use your Gmail address and a password you choose — at least 8 characters. Nothing is sent to your Gmail.'
+            : 'No code or email is ever sent — just your Gmail and password.'}</p>
         </form>
       </div>`;
     const b = body();
@@ -68,13 +68,6 @@ window.AccountUI = (() => {
     b.querySelectorAll('.pw-toggle').forEach(x => x.onclick = () => { const i = C.$('#' + x.dataset.for);
       const show = i.type === 'password'; i.type = show ? 'text' : 'password'; x.setAttribute('aria-pressed', String(show)); x.setAttribute('aria-label', t(show ? 'Hide password' : 'Show password')); });
     const err = m => { const p = C.$('#authErr'); p.textContent = t(m); p.hidden = !m; };
-    const forgot = b.querySelector('[data-forgot]');
-    if(forgot) forgot.onclick = async () => {
-      const email = C.$('#a-email').value.trim();
-      if(!GMAIL.test(email)){ err('Enter your Gmail address first, then press “Forgot your password?” again.'); C.$('#a-email').focus(); return; }
-      try{ await Cloud.resetPassword(email); err(''); C.toast('Password reset email sent — check your Gmail inbox.'); }
-      catch(e){ err(Cloud.message(e)); }
-    };
     C.$('#authForm').onsubmit = async e => {
       e.preventDefault(); err('');
       const v = id => (C.$('#' + id) || {}).value || '';
@@ -124,7 +117,7 @@ window.AccountUI = (() => {
       <div class="acct-grid">
         <div class="acct-card">
           <div class="me"><span class="avatar" aria-hidden="true">${C.esc(name.trim().charAt(0).toUpperCase())}</span>
-            <div><p class="me-name">${C.esc(name)}</p><p class="small muted" dir="ltr">${C.esc(u.email)}</p>
+            <div><p class="me-name">${C.esc(name)}</p><p class="small muted me-mail" dir="ltr">${C.esc(u.email)}</p>
             ${Cloud.isAdmin(u) ? `<span class="badge">Admin</span>` : ''}</div></div>
           <dl class="spec">
             <div><dt>Member since</dt><dd>${fmtDate(u.metadata && u.metadata.creationTime ? new Date(u.metadata.creationTime) : null)}</dd></div>

@@ -4,7 +4,7 @@ export { initializeApp } from 'firebase/app';
 export {
   initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, connectAuthEmulator,
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  updateProfile, sendPasswordResetEmail
+  updateProfile
 } from 'firebase/auth';
 export {
   getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
