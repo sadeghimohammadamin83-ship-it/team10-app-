@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   Archfolio — portfolio stylesheet
+   Amikat — portfolio stylesheet
    1  Fonts            7  Header, menu, footer     13 Case study
    2  Tokens           8  Hero + data-hall scene   14 Lightbox · 3D viewer
    3  Base             9  Home sections            15 About · Services · Process
@@ -32,7 +32,7 @@
   --grid-line:rgba(255,255,255,.035);
   --paper:#FFFFFF;
   /* brand mark */
-  --lm1:#F4F5F6; --lm2:#D9DBDE; --lm3:#8E9095; --lmp:#2A2C30; --wm1:#EEF0F2; --brand-o:#FF7A1A;
+  --lm-b:#E3CAB6; --lm-m:#B3263A; --wm1:#EEF0F2; --brand-sub:#E0707F;
 }
 :root[data-theme="light"]{
   color-scheme:light;
@@ -48,7 +48,7 @@
   --shadow-sm:0 1px 0 rgba(255,255,255,.9) inset,0 10px 24px -18px rgba(15,40,70,.35);
   --shadow-lg:0 40px 80px -44px rgba(15,40,70,.4);
   --grid-line:rgba(15,40,70,.05);
-  --lm1:#2A313B; --lm2:#3B4450; --lm3:#6D7784; --lmp:#C3CCD6; --wm1:#141A22;
+  --lm-b:#DCC2AD; --lm-m:#6E101C; --wm1:#0B1020; --brand-sub:#7A1424;
 }
 :root{
   /* spacing — one scale for margins, paddings and gaps */
@@ -95,7 +95,7 @@ ul,ol{list-style:none}
 .skip:focus{transform:none}
 #main{position:relative;outline:none}
 /* brand sprite: <use> clones only inherit custom properties, so colours are set through them */
-.lm-l{fill:var(--lm-fill,url(#amGrad))} .lm-p{fill:var(--lmp)} .lm-o,.wm-o{fill:var(--brand-o)} .wm-l{fill:var(--wm1)}
+.lm-b{fill:var(--lm-b)} .lm-m{fill:var(--lm-m)} .wm-l,.wm-o{fill:var(--wm1)}
 
 /* ── 4 Typography ──────────────────────────────────────────────────── */
 .h1,.h2,.h3{font-weight:300;letter-spacing:-.025em;text-wrap:balance}
@@ -186,7 +186,7 @@ html[dir="rtl"] .ul{background-position:100% 100%}
 .brand:hover .brand-mark{transform:translateY(-1px) scale(1.04)}
 .brand-t{display:flex;flex-direction:column;gap:.38rem;direction:ltr;padding-inline-start:.7rem;border-inline-start:1px solid color-mix(in srgb,var(--ink) 16%,transparent)}
 .brand-word{height:.8rem;width:auto}
-.brand-t small{font-size:.5625rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);line-height:1;white-space:nowrap}
+.brand-t small{font-size:.5625rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--brand-sub);line-height:1;white-space:nowrap}
 .nav-links{display:none;align-items:center;gap:.15rem}
 @media(min-width:1024px){.nav-links{display:flex}}
 .nav-a{position:relative;display:inline-flex;align-items:center;min-height:40px;padding:0 .85rem;border-radius:var(--r-pill);font-size:.8125rem;color:var(--muted);transition:color var(--t-fast)}
@@ -575,7 +575,7 @@ html[dir="rtl"] .tile::after{transform:rotate(-45deg)}
 .ui-card .bar span{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--ink) 30%,transparent)}
 .ui-card .blk-h{width:100%;height:62px;object-fit:cover;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line)}
 .ui-card .blk{height:7px;border-radius:4px;background:color-mix(in srgb,var(--ink) 14%,transparent);margin-top:6px}
-.stage-mark{right:4%;bottom:5%;width:58px;--lm-fill:url(#amGradLight);--lmp:#2A2C30;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.stage-mark{right:4%;bottom:5%;width:58px;--lm-m:#B3263A;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
 .stage-mark svg{width:100%;height:auto}
 @media(max-width:899px){.stage{justify-self:stretch;max-width:none;aspect-ratio:1/1}}
 @media(max-width:560px){.ui-card,.stage-mark,.sheet-tag{display:none}.palette-card{top:auto;bottom:4%;left:4%;width:auto;display:flex;align-items:center;gap:8px;font-size:0;padding:8px 10px}
@@ -927,7 +927,7 @@ textarea.inp{min-height:120px;resize:vertical;line-height:1.6}
 .i-core::before{content:"";position:absolute;left:50%;top:50%;width:min(720px,120vw);height:min(620px,110vh);transform:translate(-50%,-50%);z-index:-1;
   background:radial-gradient(closest-side,rgba(7,8,10,.95),rgba(7,8,10,.78) 55%,transparent)}
 .intro.done .i-core{opacity:0;transform:translateY(-10px)}
-.i-logo{width:clamp(88px,10vw,128px);height:auto;--lm-fill:url(#amGradLight);--lmp:#2A2C30;animation:iFade .6s ease .1s backwards}
+.i-logo{width:clamp(88px,10vw,128px);height:auto;--lm-m:#B3263A;animation:iFade .6s ease .1s backwards}
 .i-word{width:min(74vw,400px);height:auto;margin-top:20px;--wm1:#EEF0F2;animation:iUp .7s var(--ease) .35s backwards}
 .i-tag{margin-top:12px;font-size:.625rem;font-weight:500;letter-spacing:.42em;color:#8D96A1;text-transform:uppercase;animation:iUp .7s ease .5s backwards}
 .i-log{margin-top:26px;width:min(88vw,380px);display:grid;gap:7px;font:500 .6875rem/1.2 var(--font-mono);color:#7F8893;text-align:left}
@@ -1192,7 +1192,7 @@ html[dir="rtl"] .sec-head.rv .sec-rule::before{transform-origin:100% 50%}
   .tab-home{padding:0 1rem}
   .tab-home-ic{display:grid;place-items:center;width:60px;height:60px;margin-top:-1.6rem;border-radius:50%;
     background:linear-gradient(180deg,#22272F,#0D1014);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 1px rgba(255,255,255,.1),0 12px 24px -10px rgba(0,0,0,.8);transition:box-shadow var(--t)}
-  .tab-home-ic svg{width:34px;height:auto;--lm-fill:url(#amGradLight);--lmp:#2A2C30}
+  .tab-home-ic svg{width:34px;height:auto;--lm-m:#B3263A}
   .tab-home[aria-current="page"] .tab-home-ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 2px var(--accent),0 12px 28px -10px color-mix(in srgb,var(--accent) 70%,transparent)}
   body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
   #fab{display:none}
@@ -1341,3 +1341,25 @@ html[dir="rtl"] .sec-head.rv .sec-rule::before{transform-origin:100% 50%}
   .iso .rise{display:none}
 }
 .lm-f{fill:url(#amFloor)}
+
+/* ── Third theme: the AMIKAT palette — cream paper, burgundy, beige. It is the light
+   theme (data-theme="light") with data-palette="wine" on top, so every light rule applies. */
+:root[data-palette="wine"]{
+  --bg:#FBF6F2; --bg-2:#F4EAE3; --surface:#FFFFFF; --surface-2:#FAF3EE;
+  --line:#EBDAD0; --line-2:#DCC3B5;
+  --ink:#0B1020; --ink-2:#34262B; --muted:#735F61;
+  --accent:#7A1424; --accent-hover:#5E0E1B; --on-accent:#FFFFFF;
+  --blue:#8C2F3E;
+  --grid-line:rgba(110,16,28,.05);
+  --glass:color-mix(in srgb,var(--surface) 80%,transparent);
+  --shadow-sm:0 1px 0 rgba(255,255,255,.9) inset,0 10px 24px -18px rgba(80,14,24,.35);
+  --shadow-lg:0 40px 80px -44px rgba(80,14,24,.4);
+  --lm-b:#DCC2AD; --lm-m:#6E101C; --wm1:#0B1020; --brand-sub:#7A1424;
+  --lg-tint:rgba(255,252,250,.55); --lg-tint-strong:rgba(255,251,248,.88);
+  --lg-edge:linear-gradient(150deg,#fff 0%,rgba(255,255,255,.55) 30%,rgba(220,194,173,.55) 60%,rgba(255,255,255,.9) 100%);
+  --lg-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(80,14,24,.06),0 0 0 1px rgba(80,14,24,.06),0 24px 48px -30px rgba(80,14,24,.35);
+  --lg-shadow-sm:inset 0 1px 0 #fff,0 0 0 1px rgba(80,14,24,.07),0 8px 18px -12px rgba(80,14,24,.3);
+  --amb-1:rgba(122,20,36,.16); --amb-2:rgba(220,194,173,.45); --amb-3:rgba(160,40,60,.10);
+}
+:root[data-palette="wine"] :is(.seg button[aria-selected="true"],.btn-primary,.chip[aria-pressed="true"],.feat-tabs button[aria-selected="true"],.wtab[aria-current="page"],.pr-rail button[aria-current],.lang button[aria-pressed="true"],.fab){
+  background:linear-gradient(180deg,#8E1B2D 0%,#6E101C 60%,#560B16 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px -12px rgba(80,14,24,.6)}

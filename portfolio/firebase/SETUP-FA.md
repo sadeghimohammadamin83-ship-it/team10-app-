@@ -4,7 +4,7 @@
 
 ## ۱. ساخت پروژه
 1. به <https://console.firebase.google.com> بروید و با جیمیل خودتان وارد شوید.
-2. **Create a project** را بزنید و یک نام بدهید، مثلاً `archfolio`.
+2. **Create a project** را بزنید و یک نام بدهید، مثلاً `amikat`.
 3. Google Analytics را خاموش کنید (لازم نیست) و **Create project** را بزنید.
 
 ## ۲. روشن کردن ورود با ایمیل و رمز
@@ -24,8 +24,8 @@
    ```js
    const firebaseConfig = {
      apiKey: "AIza...",
-     authDomain: "archfolio.firebaseapp.com",
-     projectId: "archfolio",
+     authDomain: "amikat.firebaseapp.com",
+     projectId: "amikat",
      storageBucket: "...",
      messagingSenderId: "...",
      appId: "..."

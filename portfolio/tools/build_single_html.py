@@ -7,7 +7,7 @@ Usage:  python3 tools/build_single_html.py [output.html]
 import base64, json, os, re, sys
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'Archfolio.html')
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'Amikat.html')
 rd = lambda p: open(os.path.join(ROOT, p), encoding='utf-8').read()
 b64 = lambda p: base64.b64encode(open(os.path.join(ROOT, p), 'rb').read()).decode()
 MIME = {'.woff2': 'font/woff2', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml'}

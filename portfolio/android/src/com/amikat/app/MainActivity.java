@@ -1,4 +1,4 @@
-package com.archfolio.app;
+package com.amikat.app;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Archfolio: the portfolio site, bundled in assets/site and shown full screen.
+ * Amikat: the portfolio site, bundled in assets/site and shown full screen.
  *
  * Pages are served from https://appassets.androidplatform.net (a host reserved
  * for app-local content) instead of file://, so web fonts, localStorage, blob:

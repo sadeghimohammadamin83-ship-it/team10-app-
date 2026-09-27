@@ -1,4 +1,4 @@
-# Archfolio — Architecture & Data Center Portfolio
+# Amikat — Architecture & Data Center Portfolio
 
 The portfolio of MohammadAmin Sadeghi, architectural and data center designer. A static site: plain HTML, CSS and JavaScript. It has no framework or build step and runs on any static host, or straight from the file system.
 
@@ -31,10 +31,10 @@ The Firebase SDK (`js/vendor/firebase.js`) is bundled from npm. See `tools/fireb
 For local testing, run `firebase emulators:start` in `firebase/` and set `emulator: true` in the config.
 
 ## Android app
-`python3 android/build_apk.py` builds `android/dist/Archfolio.apk`: a full-screen WebView around this site, signed v1+v2. It needs no Android SDK (see the script header). The app id is `com.archfolio.app`. The signing key is created on the first build in `~/.archfolio-android/`. Keep that folder, because updates must be signed with the same key. (Builds before the Archfolio name used another app id, so they install as a separate app; uninstall the old one.)
+`python3 android/build_apk.py` builds `android/dist/Amikat.apk`: a full-screen WebView around this site, signed v1+v2. It needs no Android SDK (see the script header). The app id is `com.amikat.app`. The signing key is created on the first build in `~/.amikat-android/`. Keep that folder, because updates must be signed with the same key. (Builds before the Amikat name used another app id, so they install as a separate app; uninstall the old one.)
 
 ## Windows app
-`desktop/build_exe.sh` builds `desktop/dist/Archfolio.exe`: one portable file with no installer. It needs Go and `go-winres`. The site is embedded and shown in WebView2, which is built into Windows 10 and 11.
+`desktop/build_exe.sh` builds `desktop/dist/Amikat.exe`: one portable file with no installer. It needs Go and `go-winres`. The site is embedded and shown in WebView2, which is built into Windows 10 and 11.
 
 ## Add a project
 1. Put the images in `img/` and any proposal pages in `img/proposals/<slug>/01.webp`, `02.webp`, …
@@ -43,10 +43,10 @@ For local testing, run `firebase emulators:start` in `firebase/` and set `emulat
 3. Copy an existing entry in the `projects` array of `js/data.js` and edit it. Optional fields (`overview`, `approach`, `groups`, `gallery`, `proposal`, `model`, `boards` …) show up only when present.
 
 ## Logo
-The mark and wordmark are generated geometry, not traced images. Edit the constants in `tools/brand.py` and run `python3 tools/brand.py` (needs shapely). It rewrites the logo sprite in `index.html` and `img/logo-mark.svg`. Then run `node tools/build_icons.js` (needs Playwright) to render the favicons, the app icons and the Android launcher icons from the new mark.
+The AMIKAT mark (a burgundy M over a beige A) and the wordmark are generated geometry, redrawn from the studio's artwork rather than traced. Edit the constants in `tools/brand.py` and run `python3 tools/brand.py` (needs shapely). It rewrites the logo sprite in `index.html` and `img/logo-mark.svg`. Then run `node tools/build_icons.js` (needs Playwright) to render the favicons, the app icons and the Android launcher icons from the new mark.
 
 ## Theme and language
-Dark is the default; the toggle switches to light. EN / FA swaps interface text in place and switches to right-to-left. Project case studies stay in English.
+Three themes: dark (the default), light, and burgundy (the AMIKAT palette: cream, burgundy, beige). The theme button cycles through them. Burgundy is the light theme with `data-palette="wine"` on top; its tokens are at the end of `css/site.css`. EN / FA swaps interface text in place and switches to right-to-left. Project case studies stay in English.
 
 ## Single-file version
 `python3 tools/build_single_html.py out.html` bundles everything (CSS, JS, fonts, images, 3D models) into one ~18 MB HTML file you can email or open offline. Deploy the multi-file site for real visitors: it loads much faster. Opened from disk, the multi-file site falls back to system fonts because browsers block web fonts on `file://`; the single file has its fonts embedded.

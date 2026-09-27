@@ -9,7 +9,7 @@ dexed with Google's dx; the APK is signed (v1 + v2) with Google's apksig.
 Those three jars are downloaded once from Maven Central into android/.cache.
 
 Signing key: android/.cache is NOT the place to keep it. The key lives at
-$APK_KEYSTORE (default ~/.archfolio-android/release.p12) with its password in
+$APK_KEYSTORE (default ~/.amikat-android/release.p12) with its password in
 the same folder. Keep that folder: installing an update over an existing app
 requires the same key.
 """
@@ -19,10 +19,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(HERE)
 CACHE = os.path.join(HERE, '.cache')
 BUILD = os.path.join(CACHE, 'build')
-OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HERE, 'dist', 'Archfolio.apk')
+OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HERE, 'dist', 'Amikat.apk')
 
-APP_ID = 'com.archfolio.app'
-LABEL = 'Archfolio'
+APP_ID = 'com.amikat.app'
+LABEL = 'Amikat'
 VERSION_CODE, VERSION_NAME = 2, '1.1'
 MIN_SDK, TARGET_SDK = 21, 34
 
@@ -283,22 +283,22 @@ def v2_sign(src, dst, key, cert_der):
 
 def sign(unsigned, out):
     from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
-    ks = os.environ.get('APK_KEYSTORE', os.path.expanduser('~/.archfolio-android/release.p12'))
+    ks = os.environ.get('APK_KEYSTORE', os.path.expanduser('~/.amikat-android/release.p12'))
     kdir = os.path.dirname(ks)
     pw_file = os.path.join(kdir, 'password.txt')
     os.makedirs(kdir, exist_ok=True)
     if not os.path.exists(ks):
         pw = secrets.token_urlsafe(18)
         open(pw_file, 'w').write(pw)
-        run('keytool', '-genkeypair', '-keystore', ks, '-storetype', 'PKCS12', '-storepass', pw, '-keypass', pw, '-alias', 'archfolio',
-            '-keyalg', 'RSA', '-keysize', '2048', '-validity', '10000', '-dname', 'CN=Archfolio, L=Tehran, C=IR')
+        run('keytool', '-genkeypair', '-keystore', ks, '-storetype', 'PKCS12', '-storepass', pw, '-keypass', pw, '-alias', 'amikat',
+            '-keyalg', 'RSA', '-keysize', '2048', '-validity', '10000', '-dname', 'CN=Amikat, L=Tehran, C=IR')
         print('created signing key', ks)
     pw = open(pw_file).read().strip()
     env = {**os.environ, 'APK_KEY_PASS': pw}
     # v1 (JAR) signature — Android 5–6 read only this one
     v1 = os.path.join(BUILD, 'v1.apk')
     run('jarsigner', '-J-Duser.language=en', '-keystore', ks, '-storetype', 'PKCS12', '-storepass:env', 'APK_KEY_PASS',
-        '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-sigfile', 'CERT', '-signedjar', v1, unsigned, 'archfolio', env=env)
+        '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-sigfile', 'CERT', '-signedjar', v1, unsigned, 'amikat', env=env)
     aligned = os.path.join(BUILD, 'aligned.apk')
     realign(v1, aligned)
     # v2 signature block — required by Android 11+ for apps targeting API 30+
