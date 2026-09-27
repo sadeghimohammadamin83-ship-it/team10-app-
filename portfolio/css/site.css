@@ -661,6 +661,11 @@ html[dir="rtl"] .tile::after{transform:rotate(-45deg)}
 .case-cover-f img{width:100%;max-height:82vh;object-fit:cover;cursor:zoom-in}
 .case-cover-f.is-plan{background:var(--paper)}
 .case-cover-f.is-plan img{object-fit:contain;max-height:78vh}
+/* transparent drawings and renders (tools/cutout.py): no paper or panel behind them, and in
+   the dark theme (and the always-dark lightbox) line drawings turn into light linework */
+:is(.gl-f,.case-cover-f,.card-media):has(> img:is(.ink,.cut)){background:transparent;border-color:transparent;box-shadow:none}
+.gl-draw .gl-f:has(> img:is(.ink,.cut)){padding:0}
+:root[data-theme="dark"] img.ink,.lb img.ink{filter:invert(.9) hue-rotate(180deg)}
 .case-cover figcaption{display:flex;gap:.6rem;margin-top:var(--space-xs)}
 .case-cover figcaption .num{color:var(--accent);font-size:var(--fs-xs);letter-spacing:.1em}
 
@@ -745,6 +750,7 @@ img[role="button"]:focus-visible{outline-offset:-4px}
 .lb.loading .lb-img .spinner{opacity:1}
 .lb-f img{max-width:min(96vw,1800px);max-height:calc(100svh - 10rem);width:auto;height:auto;object-fit:contain;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .lb.lb-draw .lb-f img{background:#fff;padding:clamp(.4rem,1.2vw,1rem)}
+.lb.lb-draw .lb-f img:is(.ink,.cut){background:none;padding:0;box-shadow:none}
 .lb-f figcaption{margin-top:.8rem;color:#C9CED6;font-size:var(--fs-sm);text-align:center;max-width:60ch}
 .lb-p,.lb-n{position:absolute;top:50%;margin-top:-22px}
 .lb-p{inset-inline-start:max(.75rem,env(safe-area-inset-left))}.lb-n{inset-inline-end:max(.75rem,env(safe-area-inset-right))}

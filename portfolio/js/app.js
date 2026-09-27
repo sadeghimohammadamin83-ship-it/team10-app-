@@ -77,7 +77,9 @@ function img(name, {alt = '', sizes = '100vw', eager = false, cls = '', pos = ''
     return `<img src="${u.src}" width="${u.w}" height="${u.h}" alt="${esc(alt)}" ${eager ? '' : 'loading="lazy" '}decoding="async" data-full="${u.src}"${cls ? ` class="${cls}"` : ''}${pos ? ` style="object-position:${pos}"` : ''}>`; }
   if(typeof name !== 'string') return '';
   const m = MEDIA[mediaRel(name)]; if(!m) return '';
-  const [w, h, sm] = m;
+  const [w, h, sm, alpha] = m;
+  // transparent drawings (tools/cutout.py) sit on the page with no paper behind them
+  if(alpha) cls = [cls, alpha === 1 ? 'ink' : 'cut'].filter(Boolean).join(' ');
   const set = sm ? ` srcset="${mediaSrc(name, true)} 800w, ${mediaSrc(name)} ${w}w" sizes="${sizes}"` : '';
   return `<img src="${mediaSrc(name)}"${set} width="${w}" height="${h}" alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" data-full="${mediaSrc(name)}"${cls ? ` class="${cls}"` : ''}${pos ? ` style="object-position:${pos}"` : ''}>`;
 }
@@ -747,6 +749,7 @@ const LB = (() => {
   const show = k => {
     cur = (k + list.length) % list.length; const i = list[cur], im = $('img', box);
     box.classList.add('loading'); im.src = i.dataset.full || i.currentSrc || i.src; im.alt = i.alt;
+    im.classList.toggle('ink', i.classList.contains('ink')); im.classList.toggle('cut', i.classList.contains('cut'));
     if(im.complete) box.classList.remove('loading');
     const cap = i.closest('figure') && $('figcaption', i.closest('figure'));
     $('figcaption', box).textContent = cap ? [...cap.children].map(c => c.textContent.trim()).filter(Boolean).join(' — ') || cap.textContent.trim() : i.alt;

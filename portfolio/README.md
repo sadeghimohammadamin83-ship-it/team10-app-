@@ -39,6 +39,7 @@ For local testing, run `firebase emulators:start` in `firebase/` and set `emulat
 ## Add a project
 1. Put the images in `img/` and any proposal pages in `img/proposals/<slug>/01.webp`, `02.webp`, …
 2. Run `python3 tools/build_images.py` (needs Pillow). It creates the 800 px variants and updates `js/media.js`.
+   For a drawing or a white-background render, first add its name to `INK` (line drawings) or `CUTOUT` (renders) in `tools/cutout.py` and run `python3 tools/cutout.py` (needs numpy and scipy). The white paper is removed, and line drawings are shown as light linework in the dark theme.
 3. Copy an existing entry in the `projects` array of `js/data.js` and edit it. Optional fields (`overview`, `approach`, `groups`, `gallery`, `proposal`, `model`, `boards` …) show up only when present.
 
 ## Logo
