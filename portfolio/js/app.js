@@ -766,7 +766,7 @@ const Viewer = (() => {
       <div class="viewer-bar"><div><p class="label" id="viewer-k">3D / BIM · Interactive model</p><h2 class="viewer-t" id="viewer-t"></h2></div>
         <div class="viewer-tools"><a class="btn btn-ghost btn-sm" id="viewer-new" target="_blank" rel="noopener">New tab <span class="sr-only">(opens in a new tab)</span>${I.external}</a>
         <button type="button" class="icon-btn" id="viewer-x" aria-label="Close">${I.close}</button></div></div>
-      <div class="viewer-body"><iframe title="" allow="fullscreen"></iframe>
+      <div class="viewer-body"><iframe title="" allow="fullscreen" allowfullscreen></iframe>
         <div class="viewer-load" role="status"><span class="spinner" aria-hidden="true"></span><span>Loading the 3D model…</span></div></div>
       <p class="viewer-hint small muted">Drag to orbit · scroll or pinch to zoom. The 3D engine loads from the internet, so an offline copy shows the page without the model.</p>
     </div>`;
@@ -1103,13 +1103,15 @@ function setMeta(){
     title = `${p.title} — ${p.discipline || p.category} | ${profile.name}`; desc = p.summary; if(p.cover && p.cover.src) image = mediaSrc(p.cover.src); }
   else { const [t, d] = PAGE_META[PAGE] || PAGE_META.notfound; title = PAGE === 'index' ? t : `${U.t(t)} — ${profile.name}`; desc = d; }
   document.title = title;
-  const base = SITE.url || (location.origin + location.pathname), url = base + (location.hash.startsWith('#/') && location.hash !== '#/' ? location.hash : '');
+  // location.origin is "null" on file:// — use the full href so the site also works opened from disk.
+  const base = SITE.url || location.href.split('#')[0], url = base + (location.hash.startsWith('#/') && location.hash !== '#/' ? location.hash : '');
+  const abs = u => { try{ return new URL(u, base).href; }catch(_){ return u; } };
   const set = (sel, attr, v) => { const el = $(sel); if(el) el.setAttribute(attr, v); };
   set('meta[name="description"]', 'content', desc);
   set('meta[property="og:title"]', 'content', title); set('meta[name="twitter:title"]', 'content', title);
   set('meta[property="og:description"]', 'content', desc); set('meta[name="twitter:description"]', 'content', desc);
   set('meta[property="og:url"]', 'content', url);
-  set('meta[property="og:image"]', 'content', new URL(image, base).href); set('meta[name="twitter:image"]', 'content', new URL(image, base).href);
+  set('meta[property="og:image"]', 'content', abs(image)); set('meta[name="twitter:image"]', 'content', abs(image));
   set('link[rel="canonical"]', 'href', url);
 }
 

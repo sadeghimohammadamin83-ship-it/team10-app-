@@ -25,3 +25,6 @@ Once the live address is known, set `SITE.url` in `js/data.js`, and replace the 
 
 ## Theme and language
 Dark is the default; the toggle switches to light. EN / FA swaps interface text in place and switches to right-to-left. Project case studies stay in English.
+
+## Single-file version
+`python3 tools/build_single_html.py out.html` bundles everything (CSS, JS, fonts, images, 3D models) into one ~18 MB HTML file you can email or open offline. Deploy the multi-file site for real visitors: it loads much faster. Opened from disk, the multi-file site falls back to system fonts because browsers block web fonts on `file://`; the single file has its fonts embedded.
